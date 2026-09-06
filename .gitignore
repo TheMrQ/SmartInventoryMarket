@@ -1,0 +1,45 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Editors
+.vscode/
+.idea/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# JavaScript
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Dataset data (directory placeholders and manifests remain tracked)
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Generated ML artifacts (metrics are intentionally tracked)
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/forecasts/*
+!artifacts/forecasts/.gitkeep
+*.pkl
+*.joblib
+*.bin
+*.model
