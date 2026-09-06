@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P2 Dataset Acquisition and Formal Audit
+Overall status: `IN_PROGRESS` — Dataset Strategy Review
 
 ## Roadmap
 
@@ -12,8 +12,8 @@ Overall status: `IN_PROGRESS` — P2 Dataset Acquisition and Formal Audit
 | --- | --- |
 | P0 Topic selected and roadmap reviewed | DONE |
 | P1 Repository + environment + long-term memory | DONE |
-| P2 M5 acquisition + formal dataset audit | TODO |
-| P3 Select supermarket subset + freeze time split | TODO |
+| P2 Retail dataset candidate audit | DONE |
+| P3 Review dataset strategy + select official dataset/subset + freeze time split | TODO |
 | P4 Naive / Moving Average forecasting baselines | TODO |
 | P5 Time-series feature engineering | TODO |
 | P6 LightGBM forecasting | TODO |
@@ -31,19 +31,17 @@ Overall status: `IN_PROGRESS` — P2 Dataset Acquisition and Formal Audit
 
 ## Current Task
 
-P1 initialization is complete and verified. Do not begin P2 until explicitly directed: it involves M5 acquisition and formal audit. No M5 download/audit, EDA, model training, application features, database logic, or frontend screens were performed in P1.
+P2 retail dataset candidate audit is complete. The project is awaiting user review before any official dataset strategy is frozen. No candidate has been acquired locally, and no preprocessing, EDA, model training, feature engineering, or application features have been performed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-001` — Project initialized
+`CHECKPOINT-002` — Dataset candidates audited
 
 ## Next Exact Step
 
-`NEXT-002` — Acquire and formally audit the M5 Forecasting - Accuracy dataset.
+`NEXT-003` — Review the dataset audit with the user and freeze the official dataset strategy.
 
-The audit must determine the actual downloaded files, file sizes, schema, dimensions, date coverage, product/store/category/department counts, missingness, zero-sales behavior, price coverage, calendar/event columns, licensing/competition terms, feasible supermarket subset, and machine-resource needs.
-
-Do not execute NEXT-002 as part of P1.
+This review must decide whether to use M5 with explicitly simulated inventory, a single verified dataset, or another defensible strategy. It must not start model training. Once a dataset is selected, a later formal acquisition/schema audit and chronological subset/time-split freeze remain required before forecasting work.
 
 ## Known Blockers
 
