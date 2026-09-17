@@ -4,7 +4,7 @@ Status: planning only; no experiment has run.
 
 | ID | Planned experiment |
 | --- | --- |
-| E0 | Dataset audit |
+| E0 | Formal M5 local audit — BLOCKED awaiting Kaggle authentication |
 | E1 | Naive forecast baseline |
 | E2 | Moving Average baseline |
 | E3 | LightGBM forecasting |
@@ -28,3 +28,14 @@ Status: planning only; no experiment has run.
 - Artifact paths, observations, decision, and next experiment
 
 Inventory experiments must also record initial-inventory assumptions, lead-time assumptions, safety-stock rule, replenishment rule, stockout count, average inventory, reorder count, service level if used, and a simple cost proxy if used.
+
+## E0 — M5 Acquisition / Formal Local Audit Attempt
+
+- **Date:** 2026-09-17
+- **Status:** `BLOCKED` — this is not a forecasting experiment.
+- **Tooling:** Official Kaggle CLI 2.2.4 in `.venv`; future audit script location: `scripts/data/audit_m5.py`.
+- **Dataset location:** Intended `data/raw/m5/`; no files acquired.
+- **Manifest/artifacts:** None generated because local files are unavailable.
+- **Result:** Kaggle competition file listing requires authentication.
+- **Metrics:** Not applicable; no model was trained.
+- **Next action:** Complete safe manual OAuth login and repeat the file-list check before any download.

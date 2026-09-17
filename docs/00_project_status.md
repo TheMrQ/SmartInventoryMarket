@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P4 M5 Acquisition and Formal Local Schema Audit
+Overall status: `BLOCKED` — P4 M5 Acquisition and Formal Local Schema Audit
 
 ## Quick Human Summary
 
@@ -21,7 +21,7 @@ Why:
 - Mixing unrelated sales and inventory datasets would weaken the thesis.
 - A deployed supermarket must eventually use its own POS history, not Walmart M5 data permanently.
 
-What happens next: acquire the real M5 files, audit their actual schema/size, then freeze the store/category/SKU subset, forecast horizon, and time split.
+What happens next: authenticate the Kaggle CLI outside this repository, acquire the real M5 files, audit their actual schema/size, then freeze the store/category/SKU subset, forecast horizon, and time split.
 
 ## Roadmap
 
@@ -31,7 +31,7 @@ What happens next: acquire the real M5 files, audit their actual schema/size, th
 | P1 Repository + environment + long-term memory | DONE |
 | P2 Retail dataset candidate audit | DONE |
 | P3 Official dataset strategy + architecture decisions | DONE |
-| P4 M5 acquisition + formal local schema audit | TODO |
+| P4 M5 acquisition + formal local schema audit | BLOCKED |
 | P5 Subset + forecast horizon + chronological split freeze | TODO |
 | P6 Naive / Moving Average baselines | TODO |
 | P7 Time-series feature engineering | TODO |
@@ -50,7 +50,7 @@ What happens next: acquire the real M5 files, audit their actual schema/size, th
 
 ## Current Task
 
-P3 decisions are complete. P4 will acquire M5 locally and formally audit the actual downloaded files, schema, scale, resource needs, and terms before any subset/time split is selected. No M5 files have been downloaded, and no preprocessing, EDA, training, feature engineering, or application features have been performed.
+P4 is blocked before acquisition. The official Kaggle CLI was installed in the project virtual environment and its harmless competition file-list operation was attempted. Kaggle returned `Authentication required to call the Kaggle API.` No M5 files were downloaded, and no preprocessing, EDA, training, feature engineering, or application features have been performed.
 
 ## Last Stable Checkpoint
 
@@ -58,10 +58,10 @@ P3 decisions are complete. P4 will acquire M5 locally and formally audit the act
 
 ## Next Exact Step
 
-`NEXT-004` — Acquire M5 Forecasting - Accuracy locally and perform a formal schema/resource audit before selecting the training subset.
+`NEXT-004A` — Authenticate the Kaggle CLI outside this repository, accept the M5 competition rules if prompted, then rerun the M5 acquisition and formal local schema/resource audit.
 
-NEXT-004 must not train a model or freeze a store, category, SKU subset, forecast horizon, or chronological time split.
+The required manual action is `.\\.venv\\Scripts\\kaggle.exe auth login` followed by the browser-based OAuth flow. Do not put a token in repository files, `.env`, or source code. NEXT-004A must not train a model or freeze a store, category, SKU subset, forecast horizon, or chronological time split.
 
 ## Known Blockers
 
-None.
+- `P4_ACQUISITION_BLOCKED` (2026-09-17): `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy` returned `Authentication required to call the Kaggle API.` The local commit must not include credentials. Resolve with the manual OAuth login in NEXT-004A, then retry the harmless file-list command before downloading.

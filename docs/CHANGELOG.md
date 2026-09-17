@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-17 — P4 acquisition blocked pending Kaggle authentication
+
+- Installed the official Kaggle CLI 2.2.4 inside the project virtual environment and recorded it as a development/data-acquisition dependency.
+- Attempted the harmless M5 competition file-list operation; Kaggle required authentication.
+- Did not download M5, create credentials, generate manifests, train a model, create features, freeze a subset, or freeze a time split.
+- Recorded the exact safe OAuth resolution in project status, dataset memory, experiment memory, and troubleshooting documentation.
+
 ## 2026-09-17 — CHECKPOINT-003: dataset strategy and architecture decisions frozen
 
 - Selected M5 Forecasting - Accuracy as the official forecasting dataset and froze the real-sales plus transparently simulated-inventory strategy.

@@ -1,0 +1,2 @@
+# Development and data-acquisition tools only; not a web-application runtime dependency.
+kaggle==2.2.4

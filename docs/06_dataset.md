@@ -10,6 +10,21 @@ M5 is the official source of historical retail sales for thesis forecasting deve
 
 This candidate audit did not download M5 locally, perform preprocessing/EDA, or train a model. The next formal local audit must verify the actual files, schema, scale, and resource needs before any subset or chronological split is chosen.
 
+## Formal Local M5 Audit
+
+Status: **BLOCKED — ACQUISITION AUTHENTICATION REQUIRED**
+
+- **Attempt date:** 2026-09-17
+- **Source / competition slug:** Kaggle, `m5-forecasting-accuracy`
+- **Acquisition tool:** Official Kaggle CLI 2.2.4 installed inside `.venv` from the `kaggle` package. It is recorded in `requirements-dev.txt` as a development/data-acquisition dependency, not a FastAPI runtime dependency.
+- **Harmless operation attempted:** `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy`
+- **Verified result:** `Authentication required to call the Kaggle API.`
+- **Local raw files:** None. `data/raw/m5/` was not created or populated.
+- **Manifests / audit script:** Not created because no local source files are available to inspect.
+- **Safe resolution:** Run `.\\.venv\\Scripts\\kaggle.exe auth login` manually, complete the browser-based OAuth flow outside the repository, and accept M5 competition rules if Kaggle requests it. Do not add a token, `kaggle.json`, `access_token`, or credential environment file to this repository.
+
+Until access succeeds, all M5 schemas, dimensions, quality measures, resource measurements, candidate subsets, and feasible date boundaries remain **NOT VERIFIED LOCALLY**.
+
 ## Critical Interpretation Rule
 
 These observations are different and must never be conflated:
