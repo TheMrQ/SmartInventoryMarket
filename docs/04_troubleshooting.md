@@ -26,7 +26,7 @@ Prevention:
 
 Use a harmless metadata/file-list call before every protected Kaggle acquisition and never store credentials in repository files.
 
-## 2026-09-17 — M5 download forbidden after successful Kaggle authentication
+## 2026-09-17 — M5 download forbidden after successful Kaggle authentication — RESOLVED
 
 Symptom:
 
@@ -38,11 +38,11 @@ Authentication is valid because the file listing succeeds, but the authenticated
 
 Fix:
 
-While signed in to Kaggle, visit `https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules` and accept/confirm the competition terms. Then rerun the download command.
+User resolved competition access outside the repository and successfully downloaded the 45.785 MiB M5 archive to `data/raw/m5/`.
 
 Verification:
 
-The archive downloads to `data/raw/m5/`, extracts to the official files, and remains Git-ignored.
+The archive extracted to the five official files under `data/raw/m5/`; Git confirms the archive and all raw CSVs remain ignored.
 
 Files changed:
 

@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-17 — CHECKPOINT-004: M5 acquired and formally audited
+
+- Resolved the Kaggle competition-download blocker outside the repository and acquired the official M5 archive locally.
+- Added `scripts/data/audit_m5.py` and generated metadata-only file/audit manifests plus a concise audit table.
+- Formally verified local M5 schemas, date coverage, scale, sales/price quality, resource needs, candidate FOODS subsets, horizon feasibility, and chronological split candidates.
+- Did not commit raw M5 data, train a model, create features, choose a final subset/horizon/time split, start simulation, or implement application features.
+
 ## 2026-09-17 — P4 download access blocked after authentication recovery
 
 - Confirmed Kaggle CLI authentication by successfully listing the five official M5 competition files.

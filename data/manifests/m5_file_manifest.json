@@ -1,0 +1,140 @@
+{
+  "acquired_date": "2026-09-17",
+  "files": [
+    {
+      "column_count": 14,
+      "filename": "calendar.csv",
+      "first_columns": [
+        "date",
+        "wm_yr_wk",
+        "weekday",
+        "wday",
+        "month",
+        "year",
+        "d",
+        "event_name_1"
+      ],
+      "last_columns": [
+        "d",
+        "event_name_1",
+        "event_type_1",
+        "event_name_2",
+        "event_type_2",
+        "snap_CA",
+        "snap_TX",
+        "snap_WI"
+      ],
+      "row_count": 1969,
+      "sha256": "d12b5914ef03e66649adf5dd9e996e6602251c22b7a6af8f1f7e3aa12f8860f5",
+      "size_bytes": 103469,
+      "size_mib": 0.099
+    },
+    {
+      "column_count": 1947,
+      "filename": "sales_train_evaluation.csv",
+      "first_columns": [
+        "id",
+        "item_id",
+        "dept_id",
+        "cat_id",
+        "store_id",
+        "state_id",
+        "d_1",
+        "d_2"
+      ],
+      "last_columns": [
+        "d_1934",
+        "d_1935",
+        "d_1936",
+        "d_1937",
+        "d_1938",
+        "d_1939",
+        "d_1940",
+        "d_1941"
+      ],
+      "row_count": 30490,
+      "sha256": "4b4a47c44c38380d2a9168216fea8c9ff2f31b1ddb772f8a0995952a038b8aa0",
+      "size_bytes": 121736518,
+      "size_mib": 116.097
+    },
+    {
+      "column_count": 1919,
+      "filename": "sales_train_validation.csv",
+      "first_columns": [
+        "id",
+        "item_id",
+        "dept_id",
+        "cat_id",
+        "store_id",
+        "state_id",
+        "d_1",
+        "d_2"
+      ],
+      "last_columns": [
+        "d_1906",
+        "d_1907",
+        "d_1908",
+        "d_1909",
+        "d_1910",
+        "d_1911",
+        "d_1912",
+        "d_1913"
+      ],
+      "row_count": 30490,
+      "sha256": "f368e66ed1dbecb48b2cc8fc589bf68b3deddbbb36bf5c88b4d6d0a09b9b6724",
+      "size_bytes": 120007726,
+      "size_mib": 114.448
+    },
+    {
+      "column_count": 29,
+      "filename": "sample_submission.csv",
+      "first_columns": [
+        "id",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7"
+      ],
+      "last_columns": [
+        "F21",
+        "F22",
+        "F23",
+        "F24",
+        "F25",
+        "F26",
+        "F27",
+        "F28"
+      ],
+      "row_count": 60980,
+      "sha256": "eb7597afbec367475ef25dc6dbbc009b8faa47fa2107252c72a029e3cdf72343",
+      "size_bytes": 5228786,
+      "size_mib": 4.987
+    },
+    {
+      "column_count": 4,
+      "filename": "sell_prices.csv",
+      "first_columns": [
+        "store_id",
+        "item_id",
+        "wm_yr_wk",
+        "sell_price"
+      ],
+      "last_columns": [
+        "store_id",
+        "item_id",
+        "wm_yr_wk",
+        "sell_price"
+      ],
+      "row_count": 6841121,
+      "sha256": "9da3ad1f8b8ccacdbdc70612191dd375ec24a4ac6625c24b75b3bc60b0bed2ef",
+      "size_bytes": 203395785,
+      "size_mib": 193.973
+    }
+  ],
+  "source": "Kaggle competition m5-forecasting-accuracy",
+  "total_extracted_csv_size_bytes": 450472284,
+  "total_extracted_csv_size_mib": 429.604
+}

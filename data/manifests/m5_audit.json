@@ -1,0 +1,592 @@
+{
+  "audit_metadata": {
+    "elapsed_seconds": 51.984,
+    "generated_at_utc": "2026-09-17T12:57:14.463880+00:00",
+    "pandas_version": "3.0.5",
+    "price_chunksize": 100000,
+    "python_version": "3.12.10",
+    "raw_directory": "data/raw/m5 (Git-ignored)",
+    "sales_chunksize": 500,
+    "scope": "metadata/schema/resource audit only; no training, features, or final protocol selection",
+    "script": "scripts/data/audit_m5.py",
+    "source": "Kaggle competition m5-forecasting-accuracy"
+  },
+  "calendar": {
+    "column_count": 14,
+    "columns": [
+      "date",
+      "wm_yr_wk",
+      "weekday",
+      "wday",
+      "month",
+      "year",
+      "d",
+      "event_name_1",
+      "event_type_1",
+      "event_name_2",
+      "event_type_2",
+      "snap_CA",
+      "snap_TX",
+      "snap_WI"
+    ],
+    "d_key_range": {
+      "first": "d_1",
+      "last": "d_1969"
+    },
+    "date_range": {
+      "first": "2011-01-29",
+      "last": "2016-06-19"
+    },
+    "duplicate_d_keys": 0,
+    "duplicate_dates": 0,
+    "event_columns": [
+      "event_name_1",
+      "event_type_1",
+      "event_name_2",
+      "event_type_2"
+    ],
+    "event_missing_values": {
+      "event_name_1": 1807,
+      "event_name_2": 1964,
+      "event_type_1": 1807,
+      "event_type_2": 1964
+    },
+    "row_count": 1969,
+    "sales_day_mapping": {
+      "d_1": "2011-01-29",
+      "d_1941": "2016-05-22"
+    },
+    "snap_columns": [
+      "snap_CA",
+      "snap_TX",
+      "snap_WI"
+    ],
+    "weekday_wday_month_year_columns": [
+      "weekday",
+      "wday",
+      "month",
+      "year"
+    ],
+    "wm_yr_wk_unique_count": 282
+  },
+  "chronological_split_candidates": [
+    {
+      "horizon_days": 7,
+      "status": "CANDIDATE ONLY \u2014 chronological and not frozen",
+      "test": {
+        "days": 7,
+        "end": "d_1941",
+        "end_date": "2016-05-22",
+        "start": "d_1935",
+        "start_date": "2016-05-16"
+      },
+      "train": {
+        "end": "d_1927",
+        "end_date": "2016-05-08",
+        "start": "d_1"
+      },
+      "validation": {
+        "days": 7,
+        "end": "d_1934",
+        "end_date": "2016-05-15",
+        "start": "d_1928",
+        "start_date": "2016-05-09"
+      }
+    },
+    {
+      "horizon_days": 14,
+      "status": "CANDIDATE ONLY \u2014 chronological and not frozen",
+      "test": {
+        "days": 14,
+        "end": "d_1941",
+        "end_date": "2016-05-22",
+        "start": "d_1928",
+        "start_date": "2016-05-09"
+      },
+      "train": {
+        "end": "d_1913",
+        "end_date": "2016-04-24",
+        "start": "d_1"
+      },
+      "validation": {
+        "days": 14,
+        "end": "d_1927",
+        "end_date": "2016-05-08",
+        "start": "d_1914",
+        "start_date": "2016-04-25"
+      }
+    },
+    {
+      "horizon_days": 28,
+      "status": "CANDIDATE ONLY \u2014 chronological and not frozen",
+      "test": {
+        "days": 28,
+        "end": "d_1941",
+        "end_date": "2016-05-22",
+        "start": "d_1914",
+        "start_date": "2016-04-25"
+      },
+      "train": {
+        "end": "d_1885",
+        "end_date": "2016-03-27",
+        "start": "d_1"
+      },
+      "validation": {
+        "days": 28,
+        "end": "d_1913",
+        "end_date": "2016-04-24",
+        "start": "d_1886",
+        "start_date": "2016-03-28"
+      }
+    }
+  ],
+  "horizon_feasibility": {
+    "14_days": "Feasible: evaluation sales includes observed labels through d_1941; use chronological 14-day holdouts.",
+    "28_days": "Feasible: evaluation sales includes observed labels through d_1941; use chronological 28-day holdouts consistent with M5 competition framing.",
+    "7_days": "Feasible: evaluation sales includes observed labels through d_1941; use chronological 7-day holdouts.",
+    "status": "All are technically feasible; horizon is not selected by this audit."
+  },
+  "interpretation_limitations": [
+    "Observed sales equal to zero does not prove true demand was zero.",
+    "Observed sales equal to zero does not imply inventory was zero.",
+    "M5 has no observed on-hand inventory, replenishment, supplier lead time, or purchase-order history; later inventory evaluation is a documented simulation."
+  ],
+  "resource_audit": {
+    "archive_files": [
+      {
+        "filename": "m5-forecasting-accuracy.zip",
+        "size_bytes": 48009163,
+        "size_mib": 45.785
+      }
+    ],
+    "archive_size_bytes": 48009163,
+    "archive_size_mib": 45.785,
+    "extracted_csv_size_bytes": 450472284,
+    "extracted_csv_size_mib": 429.604,
+    "largest_file": {
+      "filename": "sell_prices.csv",
+      "size_bytes": 203395785,
+      "size_mib": 193.973
+    },
+    "recommendation": "One optimized sales CSV may be practical on a typical development machine, but do not load both sales files and prices together. Use chunking/subsetting for audit and future feature work.",
+    "representative_sales_read": {
+      "default_pandas_memory_bytes": 7943132,
+      "int32_day_columns_memory_bytes": 4061132,
+      "projected_default_full_sales_memory_mib": 461.933,
+      "projected_int32_full_sales_memory_mib": 236.175,
+      "sample_rows": 500
+    }
+  },
+  "sales_file_difference": {
+    "additional_evaluation_day_columns": 28,
+    "evaluation_last_day_key": "d_1941",
+    "identifier_schema_matches": true,
+    "validation_last_day_key": "d_1913"
+  },
+  "sales_files": {
+    "sales_train_evaluation.csv": {
+      "column_count": 1947,
+      "day_column_count": 1941,
+      "duplicate_item_store_keys": 0,
+      "first_day_key": "d_1",
+      "identifier_columns": [
+        "id",
+        "item_id",
+        "dept_id",
+        "cat_id",
+        "store_id",
+        "state_id"
+      ],
+      "item_store_series": 30490,
+      "last_day_key": "d_1941",
+      "product_counts_by_category": {
+        "FOODS": 1437,
+        "HOBBIES": 565,
+        "HOUSEHOLD": 1047
+      },
+      "product_counts_by_department": {
+        "FOODS_1": 216,
+        "FOODS_2": 398,
+        "FOODS_3": 823,
+        "HOBBIES_1": 416,
+        "HOBBIES_2": 149,
+        "HOUSEHOLD_1": 532,
+        "HOUSEHOLD_2": 515
+      },
+      "row_count": 30490,
+      "sales_quality": {
+        "cell_count": 59181090,
+        "distribution": {
+          "max": 763,
+          "mean": 1.130888,
+          "min": 0,
+          "p50": 0,
+          "p95": 5,
+          "p99": 15
+        },
+        "missing_cells": 0,
+        "negative_cells": 0,
+        "zero_cells": 40241819,
+        "zero_prevalence": 0.679978
+      },
+      "series_counts_by_store": {
+        "CA_1": 3049,
+        "CA_2": 3049,
+        "CA_3": 3049,
+        "CA_4": 3049,
+        "TX_1": 3049,
+        "TX_2": 3049,
+        "TX_3": 3049,
+        "WI_1": 3049,
+        "WI_2": 3049,
+        "WI_3": 3049
+      },
+      "series_counts_by_store_category": {
+        "CA_1|FOODS": 1437,
+        "CA_1|HOBBIES": 565,
+        "CA_1|HOUSEHOLD": 1047,
+        "CA_2|FOODS": 1437,
+        "CA_2|HOBBIES": 565,
+        "CA_2|HOUSEHOLD": 1047,
+        "CA_3|FOODS": 1437,
+        "CA_3|HOBBIES": 565,
+        "CA_3|HOUSEHOLD": 1047,
+        "CA_4|FOODS": 1437,
+        "CA_4|HOBBIES": 565,
+        "CA_4|HOUSEHOLD": 1047,
+        "TX_1|FOODS": 1437,
+        "TX_1|HOBBIES": 565,
+        "TX_1|HOUSEHOLD": 1047,
+        "TX_2|FOODS": 1437,
+        "TX_2|HOBBIES": 565,
+        "TX_2|HOUSEHOLD": 1047,
+        "TX_3|FOODS": 1437,
+        "TX_3|HOBBIES": 565,
+        "TX_3|HOUSEHOLD": 1047,
+        "WI_1|FOODS": 1437,
+        "WI_1|HOBBIES": 565,
+        "WI_1|HOUSEHOLD": 1047,
+        "WI_2|FOODS": 1437,
+        "WI_2|HOBBIES": 565,
+        "WI_2|HOUSEHOLD": 1047,
+        "WI_3|FOODS": 1437,
+        "WI_3|HOBBIES": 565,
+        "WI_3|HOUSEHOLD": 1047
+      },
+      "series_counts_by_store_department": {
+        "CA_1|FOODS_1": 216,
+        "CA_1|FOODS_2": 398,
+        "CA_1|FOODS_3": 823,
+        "CA_1|HOBBIES_1": 416,
+        "CA_1|HOBBIES_2": 149,
+        "CA_1|HOUSEHOLD_1": 532,
+        "CA_1|HOUSEHOLD_2": 515,
+        "CA_2|FOODS_1": 216,
+        "CA_2|FOODS_2": 398,
+        "CA_2|FOODS_3": 823,
+        "CA_2|HOBBIES_1": 416,
+        "CA_2|HOBBIES_2": 149,
+        "CA_2|HOUSEHOLD_1": 532,
+        "CA_2|HOUSEHOLD_2": 515,
+        "CA_3|FOODS_1": 216,
+        "CA_3|FOODS_2": 398,
+        "CA_3|FOODS_3": 823,
+        "CA_3|HOBBIES_1": 416,
+        "CA_3|HOBBIES_2": 149,
+        "CA_3|HOUSEHOLD_1": 532,
+        "CA_3|HOUSEHOLD_2": 515,
+        "CA_4|FOODS_1": 216,
+        "CA_4|FOODS_2": 398,
+        "CA_4|FOODS_3": 823,
+        "CA_4|HOBBIES_1": 416,
+        "CA_4|HOBBIES_2": 149,
+        "CA_4|HOUSEHOLD_1": 532,
+        "CA_4|HOUSEHOLD_2": 515,
+        "TX_1|FOODS_1": 216,
+        "TX_1|FOODS_2": 398,
+        "TX_1|FOODS_3": 823,
+        "TX_1|HOBBIES_1": 416,
+        "TX_1|HOBBIES_2": 149,
+        "TX_1|HOUSEHOLD_1": 532,
+        "TX_1|HOUSEHOLD_2": 515,
+        "TX_2|FOODS_1": 216,
+        "TX_2|FOODS_2": 398,
+        "TX_2|FOODS_3": 823,
+        "TX_2|HOBBIES_1": 416,
+        "TX_2|HOBBIES_2": 149,
+        "TX_2|HOUSEHOLD_1": 532,
+        "TX_2|HOUSEHOLD_2": 515,
+        "TX_3|FOODS_1": 216,
+        "TX_3|FOODS_2": 398,
+        "TX_3|FOODS_3": 823,
+        "TX_3|HOBBIES_1": 416,
+        "TX_3|HOBBIES_2": 149,
+        "TX_3|HOUSEHOLD_1": 532,
+        "TX_3|HOUSEHOLD_2": 515,
+        "WI_1|FOODS_1": 216,
+        "WI_1|FOODS_2": 398,
+        "WI_1|FOODS_3": 823,
+        "WI_1|HOBBIES_1": 416,
+        "WI_1|HOBBIES_2": 149,
+        "WI_1|HOUSEHOLD_1": 532,
+        "WI_1|HOUSEHOLD_2": 515,
+        "WI_2|FOODS_1": 216,
+        "WI_2|FOODS_2": 398,
+        "WI_2|FOODS_3": 823,
+        "WI_2|HOBBIES_1": 416,
+        "WI_2|HOBBIES_2": 149,
+        "WI_2|HOUSEHOLD_1": 532,
+        "WI_2|HOUSEHOLD_2": 515,
+        "WI_3|FOODS_1": 216,
+        "WI_3|FOODS_2": 398,
+        "WI_3|FOODS_3": 823,
+        "WI_3|HOBBIES_1": 416,
+        "WI_3|HOBBIES_2": 149,
+        "WI_3|HOUSEHOLD_1": 532,
+        "WI_3|HOUSEHOLD_2": 515
+      },
+      "unique_categories": 3,
+      "unique_departments": 7,
+      "unique_items": 3049,
+      "unique_states": 3,
+      "unique_stores": 10
+    },
+    "sales_train_validation.csv": {
+      "column_count": 1919,
+      "day_column_count": 1913,
+      "duplicate_item_store_keys": 0,
+      "first_day_key": "d_1",
+      "identifier_columns": [
+        "id",
+        "item_id",
+        "dept_id",
+        "cat_id",
+        "store_id",
+        "state_id"
+      ],
+      "item_store_series": 30490,
+      "last_day_key": "d_1913",
+      "product_counts_by_category": {
+        "FOODS": 1437,
+        "HOBBIES": 565,
+        "HOUSEHOLD": 1047
+      },
+      "product_counts_by_department": {
+        "FOODS_1": 216,
+        "FOODS_2": 398,
+        "FOODS_3": 823,
+        "HOBBIES_1": 416,
+        "HOBBIES_2": 149,
+        "HOUSEHOLD_1": 532,
+        "HOUSEHOLD_2": 515
+      },
+      "row_count": 30490,
+      "sales_quality": {
+        "cell_count": 58327370,
+        "distribution": {
+          "max": 763,
+          "mean": 1.126322,
+          "min": 0,
+          "p50": 0,
+          "p95": 5,
+          "p99": 15
+        },
+        "missing_cells": 0,
+        "negative_cells": 0,
+        "zero_cells": 39777094,
+        "zero_prevalence": 0.681963
+      },
+      "series_counts_by_store": {
+        "CA_1": 3049,
+        "CA_2": 3049,
+        "CA_3": 3049,
+        "CA_4": 3049,
+        "TX_1": 3049,
+        "TX_2": 3049,
+        "TX_3": 3049,
+        "WI_1": 3049,
+        "WI_2": 3049,
+        "WI_3": 3049
+      },
+      "series_counts_by_store_category": {
+        "CA_1|FOODS": 1437,
+        "CA_1|HOBBIES": 565,
+        "CA_1|HOUSEHOLD": 1047,
+        "CA_2|FOODS": 1437,
+        "CA_2|HOBBIES": 565,
+        "CA_2|HOUSEHOLD": 1047,
+        "CA_3|FOODS": 1437,
+        "CA_3|HOBBIES": 565,
+        "CA_3|HOUSEHOLD": 1047,
+        "CA_4|FOODS": 1437,
+        "CA_4|HOBBIES": 565,
+        "CA_4|HOUSEHOLD": 1047,
+        "TX_1|FOODS": 1437,
+        "TX_1|HOBBIES": 565,
+        "TX_1|HOUSEHOLD": 1047,
+        "TX_2|FOODS": 1437,
+        "TX_2|HOBBIES": 565,
+        "TX_2|HOUSEHOLD": 1047,
+        "TX_3|FOODS": 1437,
+        "TX_3|HOBBIES": 565,
+        "TX_3|HOUSEHOLD": 1047,
+        "WI_1|FOODS": 1437,
+        "WI_1|HOBBIES": 565,
+        "WI_1|HOUSEHOLD": 1047,
+        "WI_2|FOODS": 1437,
+        "WI_2|HOBBIES": 565,
+        "WI_2|HOUSEHOLD": 1047,
+        "WI_3|FOODS": 1437,
+        "WI_3|HOBBIES": 565,
+        "WI_3|HOUSEHOLD": 1047
+      },
+      "series_counts_by_store_department": {
+        "CA_1|FOODS_1": 216,
+        "CA_1|FOODS_2": 398,
+        "CA_1|FOODS_3": 823,
+        "CA_1|HOBBIES_1": 416,
+        "CA_1|HOBBIES_2": 149,
+        "CA_1|HOUSEHOLD_1": 532,
+        "CA_1|HOUSEHOLD_2": 515,
+        "CA_2|FOODS_1": 216,
+        "CA_2|FOODS_2": 398,
+        "CA_2|FOODS_3": 823,
+        "CA_2|HOBBIES_1": 416,
+        "CA_2|HOBBIES_2": 149,
+        "CA_2|HOUSEHOLD_1": 532,
+        "CA_2|HOUSEHOLD_2": 515,
+        "CA_3|FOODS_1": 216,
+        "CA_3|FOODS_2": 398,
+        "CA_3|FOODS_3": 823,
+        "CA_3|HOBBIES_1": 416,
+        "CA_3|HOBBIES_2": 149,
+        "CA_3|HOUSEHOLD_1": 532,
+        "CA_3|HOUSEHOLD_2": 515,
+        "CA_4|FOODS_1": 216,
+        "CA_4|FOODS_2": 398,
+        "CA_4|FOODS_3": 823,
+        "CA_4|HOBBIES_1": 416,
+        "CA_4|HOBBIES_2": 149,
+        "CA_4|HOUSEHOLD_1": 532,
+        "CA_4|HOUSEHOLD_2": 515,
+        "TX_1|FOODS_1": 216,
+        "TX_1|FOODS_2": 398,
+        "TX_1|FOODS_3": 823,
+        "TX_1|HOBBIES_1": 416,
+        "TX_1|HOBBIES_2": 149,
+        "TX_1|HOUSEHOLD_1": 532,
+        "TX_1|HOUSEHOLD_2": 515,
+        "TX_2|FOODS_1": 216,
+        "TX_2|FOODS_2": 398,
+        "TX_2|FOODS_3": 823,
+        "TX_2|HOBBIES_1": 416,
+        "TX_2|HOBBIES_2": 149,
+        "TX_2|HOUSEHOLD_1": 532,
+        "TX_2|HOUSEHOLD_2": 515,
+        "TX_3|FOODS_1": 216,
+        "TX_3|FOODS_2": 398,
+        "TX_3|FOODS_3": 823,
+        "TX_3|HOBBIES_1": 416,
+        "TX_3|HOBBIES_2": 149,
+        "TX_3|HOUSEHOLD_1": 532,
+        "TX_3|HOUSEHOLD_2": 515,
+        "WI_1|FOODS_1": 216,
+        "WI_1|FOODS_2": 398,
+        "WI_1|FOODS_3": 823,
+        "WI_1|HOBBIES_1": 416,
+        "WI_1|HOBBIES_2": 149,
+        "WI_1|HOUSEHOLD_1": 532,
+        "WI_1|HOUSEHOLD_2": 515,
+        "WI_2|FOODS_1": 216,
+        "WI_2|FOODS_2": 398,
+        "WI_2|FOODS_3": 823,
+        "WI_2|HOBBIES_1": 416,
+        "WI_2|HOBBIES_2": 149,
+        "WI_2|HOUSEHOLD_1": 532,
+        "WI_2|HOUSEHOLD_2": 515,
+        "WI_3|FOODS_1": 216,
+        "WI_3|FOODS_2": 398,
+        "WI_3|FOODS_3": 823,
+        "WI_3|HOBBIES_1": 416,
+        "WI_3|HOBBIES_2": 149,
+        "WI_3|HOUSEHOLD_1": 532,
+        "WI_3|HOUSEHOLD_2": 515
+      },
+      "unique_categories": 3,
+      "unique_departments": 7,
+      "unique_items": 3049,
+      "unique_states": 3,
+      "unique_stores": 10
+    }
+  },
+  "sell_prices": {
+    "column_count": 4,
+    "columns": [
+      "store_id",
+      "item_id",
+      "wm_yr_wk",
+      "sell_price"
+    ],
+    "duplicate_store_item_week_keys": 0,
+    "join_note": "Join sales item_id/store_id to calendar wm_yr_wk, then join on item_id/store_id/wm_yr_wk.",
+    "maximum_sell_price": 107.32,
+    "minimum_sell_price": 0.01,
+    "missing_values_important_fields": 0,
+    "negative_sell_prices": 0,
+    "row_count": 6841121,
+    "unique_items": 3049,
+    "unique_stores": 10,
+    "unique_weeks": 282,
+    "zero_sell_prices": 0
+  },
+  "subset_candidates": [
+    {
+      "category": "FOODS",
+      "department": null,
+      "estimated_int32_sales_payload_mib": 10.64,
+      "history_days": 1941,
+      "item_count": 1437,
+      "long_format_rows": 2789217,
+      "series_count": 1437,
+      "status": "CANDIDATE ONLY \u2014 not selected or ranked",
+      "store": "CA_1",
+      "zero_sales_prevalence": 0.569186
+    },
+    {
+      "category": "FOODS",
+      "department": null,
+      "estimated_int32_sales_payload_mib": 10.64,
+      "history_days": 1941,
+      "item_count": 1437,
+      "long_format_rows": 2789217,
+      "series_count": 1437,
+      "status": "CANDIDATE ONLY \u2014 not selected or ranked",
+      "store": "TX_1",
+      "zero_sales_prevalence": 0.648026
+    },
+    {
+      "category": "FOODS",
+      "department": null,
+      "estimated_int32_sales_payload_mib": 10.64,
+      "history_days": 1941,
+      "item_count": 1437,
+      "long_format_rows": 2789217,
+      "series_count": 1437,
+      "status": "CANDIDATE ONLY \u2014 not selected or ranked",
+      "store": "WI_1",
+      "zero_sales_prevalence": 0.626583
+    },
+    {
+      "category": "FOODS",
+      "department": "FOODS_3",
+      "estimated_int32_sales_payload_mib": 6.094,
+      "history_days": 1941,
+      "item_count": 823,
+      "long_format_rows": 1597443,
+      "series_count": 823,
+      "status": "CANDIDATE ONLY \u2014 not selected or ranked",
+      "store": "WI_1",
+      "zero_sales_prevalence": 0.600453
+    }
+  ]
+}

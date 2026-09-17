@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `BLOCKED` — P4 M5 Acquisition and Formal Local Schema Audit
+Overall status: `IN_PROGRESS` — P5 Subset, Forecast Horizon, and Chronological Split Freeze
 
 ## Quick Human Summary
 
@@ -21,7 +21,20 @@ Why:
 - Mixing unrelated sales and inventory datasets would weaken the thesis.
 - A deployed supermarket must eventually use its own POS history, not Walmart M5 data permanently.
 
-What happens next: accept or confirm acceptance of the M5 Kaggle competition rules, acquire the real M5 files, audit their actual schema/size, then freeze the store/category/SKU subset, forecast horizon, and time split.
+What we did:
+
+- Downloaded and locally inspected the five official M5 files.
+- Verified their real columns, sizes, products, stores, dates, sales, and prices.
+- Identified candidate single-store FOODS subsets without choosing one.
+
+What we learned:
+
+- Evaluation sales contains 30,490 item-store series over 1,941 observed daily columns.
+- There are 10 stores, 3,049 items, 3 categories, and 7 departments.
+- Observed sales are sparse: 68.00% of evaluation sales cells are zero, which does not prove zero demand or inventory.
+- The CSVs occupy 429.604 MiB extracted; memory-conscious chunking/subsetting is recommended.
+
+What happens next: choose one store/product scope, choose a 7/14/28-day forecast horizon, and freeze chronological train/validation/test windows. Only after that may baseline forecasting begin.
 
 ## Roadmap
 
@@ -31,7 +44,7 @@ What happens next: accept or confirm acceptance of the M5 Kaggle competition rul
 | P1 Repository + environment + long-term memory | DONE |
 | P2 Retail dataset candidate audit | DONE |
 | P3 Official dataset strategy + architecture decisions | DONE |
-| P4 M5 acquisition + formal local schema audit | BLOCKED |
+| P4 M5 acquisition + formal local schema audit | DONE |
 | P5 Subset + forecast horizon + chronological split freeze | TODO |
 | P6 Naive / Moving Average baselines | TODO |
 | P7 Time-series feature engineering | TODO |
@@ -50,18 +63,18 @@ What happens next: accept or confirm acceptance of the M5 Kaggle competition rul
 
 ## Current Task
 
-P4 is blocked before acquisition. Kaggle authentication is verified: the competition file list succeeds. The official download command then returned `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`. No M5 files were downloaded, and no preprocessing, EDA, training, feature engineering, or application features have been performed.
+P4 is complete. The official M5 archive was acquired locally, extracted under Git-ignored `data/raw/m5/`, and formally audited by `scripts/data/audit_m5.py`. P5 must review the verified candidates and freeze a single-store product scope, horizon, and chronological protocol. No training, feature engineering, inventory simulation, or application features have been performed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-003` — Dataset strategy and system architecture decisions frozen
+`CHECKPOINT-004` — M5 acquired and formally audited
 
 ## Next Exact Step
 
-`NEXT-004B` — While authenticated in Kaggle, open the M5 competition rules page and accept/confirm the competition terms, then rerun the M5 acquisition and formal local schema/resource audit.
+`NEXT-005` — Review the verified M5 audit and freeze the single-store product scope, forecast horizon, and chronological train/validation/test protocol.
 
-The required manual action is to visit `https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules` while signed in, accept the terms if required, and then ask to rerun `.\\.venv\\Scripts\\kaggle.exe competitions download m5-forecasting-accuracy -p data\\raw\\m5`. Do not put a token in repository files, `.env`, or source code. NEXT-004B must not train a model or freeze a store, category, SKU subset, forecast horizon, or chronological time split.
+NEXT-005 must use the local audit evidence, must not use a random split, and must not start model training.
 
 ## Known Blockers
 
-- `P4_ACQUISITION_BLOCKED` (2026-09-17): Authentication is resolved; `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy` succeeds. The download command returned `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`. Accept or confirm M5 competition-rule access in Kaggle, then retry NEXT-004B. The local commit must not include credentials.
+None.

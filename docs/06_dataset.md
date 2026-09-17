@@ -8,23 +8,82 @@
 
 M5 is the official source of historical retail sales for thesis forecasting development and evaluation. M5 does **not** provide real Walmart on-hand inventory, replenishment, supplier lead time, incoming stock, or purchase-order history. Those variables will be simulated later with explicit, documented assumptions. Inventory-policy findings must be described as simulation results, not observed Walmart inventory performance.
 
-This candidate audit did not download M5 locally, perform preprocessing/EDA, or train a model. The next formal local audit must verify the actual files, schema, scale, and resource needs before any subset or chronological split is chosen.
+M5 was acquired locally and formally audited on 2026-09-17. No preprocessing, model training, feature engineering, or final experimental-protocol selection was performed.
 
 ## Formal Local M5 Audit
 
-Status: **BLOCKED — KAGGLE COMPETITION DOWNLOAD ACCESS REQUIRED**
+Status: **DONE — VERIFIED LOCALLY**
 
-- **Attempt date:** 2026-09-17
-- **Source / competition slug:** Kaggle, `m5-forecasting-accuracy`
-- **Acquisition tool:** Official Kaggle CLI 2.2.4 installed inside `.venv` from the `kaggle` package. It is recorded in `requirements-dev.txt` as a development/data-acquisition dependency, not a FastAPI runtime dependency.
-- **Authentication verification:** `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy` succeeded and listed the five official competition files. The prior authentication blocker is resolved.
-- **Download operation attempted:** `.\\.venv\\Scripts\\kaggle.exe competitions download m5-forecasting-accuracy -p data\\raw\\m5`
-- **Verified result:** `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`.
-- **Local raw files:** None. An empty `data/raw/m5/` directory exists, is Git-ignored, and contains zero files.
-- **Manifests / audit script:** Not created because no local source files are available to inspect.
-- **Safe resolution:** While signed in to Kaggle, visit `https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules` and accept/confirm the competition terms. Then rerun the download command. Do not add a token, `kaggle.json`, `access_token`, or credential environment file to this repository.
+### Acquisition and Reproducible Outputs
 
-Until access succeeds, all M5 schemas, dimensions, quality measures, resource measurements, candidate subsets, and feasible date boundaries remain **NOT VERIFIED LOCALLY**.
+- **Acquisition date/source:** 2026-09-17; official Kaggle competition `m5-forecasting-accuracy`.
+- **Local location:** Git-ignored `data/raw/m5/`; raw archive and CSVs are not committed.
+- **Tooling:** Kaggle CLI 2.2.4 in `.venv`; `requirements-dev.txt` records it as a development/data-acquisition dependency, not FastAPI runtime.
+- **Script:** `scripts/data/audit_m5.py`, which uses 500-row sales chunks, 100,000-row price chunks, a temporary disk-backed price-key check, and writes aggregate metadata only.
+- **Generated tracked outputs:** `data/manifests/m5_file_manifest.json`, `data/manifests/m5_audit.json`, and `reports/tables/m5_audit_summary.md`.
+
+### Verified Local File Inventory
+
+| File | Bytes | MiB | Rows | Columns | Purpose |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `calendar.csv` | 103,469 | 0.099 | 1,969 | 14 | Date, event, SNAP, and retail-week mapping |
+| `sales_train_validation.csv` | 120,007,726 | 114.448 | 30,490 | 1,919 | Product-store sales through `d_1913` |
+| `sales_train_evaluation.csv` | 121,736,518 | 116.097 | 30,490 | 1,947 | Product-store sales through `d_1941` |
+| `sample_submission.csv` | 5,228,786 | 4.987 | 60,980 | 29 | Two submission panels with `F1`–`F28` |
+| `sell_prices.csv` | 203,395,785 | 193.973 | 6,841,121 | 4 | Weekly item-store selling prices |
+
+The downloaded archive is 48,009,163 bytes (45.785 MiB). Extracted CSVs total 450,472,284 bytes (429.604 MiB); `sell_prices.csv` is the largest file. SHA-256 hashes are recorded in the file manifest.
+
+### Sales Schema, Scope, and Quality — Verified Locally
+
+- Both sales files use `id`, `item_id`, `dept_id`, `cat_id`, `store_id`, and `state_id`, followed by daily `d_*` columns.
+- Validation contains 1,913 day columns (`d_1`–`d_1913`); evaluation has the same identifiers and 28 additional observed columns, ending at `d_1941`.
+- Evaluation contains 30,490 unique item-store series with no duplicate `item_id`/`store_id` key. It represents 3,049 items, 10 stores, 3 states, 3 categories, and 7 departments. Every store has 3,049 series.
+- Categories: `FOODS` (1,437 items), `HOBBIES` (565), and `HOUSEHOLD` (1,047). Departments: `FOODS_1` (216), `FOODS_2` (398), `FOODS_3` (823), `HOBBIES_1` (416), `HOBBIES_2` (149), `HOUSEHOLD_1` (532), `HOUSEHOLD_2` (515).
+- Evaluation has 59,181,090 sales cells: 0 missing, 0 negative, and 40,241,819 zero cells (67.9978%). Distribution: min 0, median 0, mean 1.130888, p95 5, p99 15, max 763.
+- Observed sales equal to zero does **not** prove demand was zero and does **not** imply inventory was zero.
+
+### Calendar — Verified Locally
+
+- Columns: `date`, `wm_yr_wk`, `weekday`, `wday`, `month`, `year`, `d`, two event name/type pairs, and `snap_CA`, `snap_TX`, `snap_WI`.
+- 1,969 rows map `d_1` to `d_1969`, from 2011-01-29 through 2016-06-19, with no duplicate `d` keys or dates and 282 distinct retail weeks.
+- `d_1` maps to 2011-01-29. The last locally observed evaluation-sales key, `d_1941`, maps to 2016-05-22; the calendar extends 28 days further than observed evaluation sales.
+- Event missingness is expected outside events: 1,807 missing values in each primary event field and 1,964 in each secondary event field.
+
+### Selling Prices — Verified Locally
+
+- Columns: `store_id`, `item_id`, `wm_yr_wk`, `sell_price`.
+- 6,841,121 rows cover 10 stores, 3,049 items, and 282 retail weeks. Prices join via sales `item_id`/`store_id` and calendar `wm_yr_wk`.
+- Important price fields have 0 missing values; price range is 0.01–107.32; there are 0 zero prices, 0 negative prices, and 0 duplicate store/item/week keys.
+
+### Resource Findings — Verified Locally
+
+- Audit environment: Python 3.12.10, pandas 3.0.5; full audit completed in 48.964 seconds.
+- A 500-row representative evaluation read projected about 461.933 MiB with default pandas dtypes or 236.175 MiB with `int32` day columns.
+- Loading one optimized sales CSV can be practical, but loading both sales files and `sell_prices.csv` together is not recommended. Use chunking/subsetting for audit and future feature work.
+
+### Candidate Single-Store FOODS Subsets — Not Selected
+
+These candidates are illustrative and intentionally cover one representative store from each state plus a narrower department option. They are not ranked or frozen.
+
+| Store | Category | Department | Items / series | History days | Zero-sales prevalence | Long-form rows | Estimated int32 sales payload |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `CA_1` | FOODS | all | 1,437 | 1,941 | 56.9186% | 2,789,217 | 10.640 MiB |
+| `TX_1` | FOODS | all | 1,437 | 1,941 | 64.8026% | 2,789,217 | 10.640 MiB |
+| `WI_1` | FOODS | all | 1,437 | 1,941 | 62.6583% | 2,789,217 | 10.640 MiB |
+| `WI_1` | FOODS | FOODS_3 | 823 | 1,941 | 60.0453% | 1,597,443 | 6.094 MiB |
+
+### Forecast Horizon and Chronological-Split Feasibility — Not Frozen
+
+All 7-, 14-, and 28-day horizons are technically feasible using observed evaluation sales through `d_1941`. Shorter horizons focus on nearer-term replenishment; 28 days is more challenging but supports longer planning and matches the M5 competition framing.
+
+| Candidate horizon | Train (start–end) | Validation | Test | Status |
+| ---: | --- | --- | --- | --- |
+| 7 days | `d_1`–`d_1927` (to 2016-05-08) | `d_1928`–`d_1934` (2016-05-09 to 2016-05-15) | `d_1935`–`d_1941` (2016-05-16 to 2016-05-22) | Candidate only |
+| 14 days | `d_1`–`d_1913` (to 2016-04-24) | `d_1914`–`d_1927` (2016-04-25 to 2016-05-08) | `d_1928`–`d_1941` (2016-05-09 to 2016-05-22) | Candidate only |
+| 28 days | `d_1`–`d_1885` (to 2016-03-27) | `d_1886`–`d_1913` (2016-03-28 to 2016-04-24) | `d_1914`–`d_1941` (2016-04-25 to 2016-05-22) | Candidate only |
+
+All candidates are chronological; random splitting is prohibited. NEXT-005, not this audit, will select a subset, horizon, and split.
 
 ## Critical Interpretation Rule
 
