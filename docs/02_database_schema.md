@@ -2,6 +2,14 @@
 
 Status: **PLANNED — NOT FROZEN**. No migrations or database business logic have been implemented.
 
+## Database Technology Decision
+
+- **Database engine:** MySQL
+- **Backend access:** SQLAlchemy from FastAPI
+- **Design/admin tool:** MySQL Workbench
+
+MySQL Workbench is a GUI/tool for ERD design, schema inspection, SQL execution, and database administration. It is not the database engine. MySQL is the actual relational database. This decision does not authorize migrations or creation of the final database yet.
+
 ## Expected Entities and Relationships
 
 - `users` — authenticated manager/admin and inventory-staff identities.
@@ -13,7 +21,7 @@ Status: **PLANNED — NOT FROZEN**. No migrations or database business logic hav
 - `stock_transactions` — auditable stock-in, stock-out, and adjustment events associated with products/inventory.
 - `purchase_orders` — orders made to a supplier.
 - `purchase_order_items` — product lines belonging to a purchase order; incoming amounts later inform inventory decisions.
-- `sales_daily` — daily product sales history for application reporting and forecast inputs.
+- `sales_daily` — daily product sales history for application reporting and forecast inputs. Initial history will be imported from a POS CSV export; later production use should receive new sales through a POS/API or database integration boundary.
 - `forecasts` — generated future-demand outputs associated with products and model/run metadata.
 - `model_metrics` — persisted evaluation results associated with a forecast-model run.
 - `reorder_recommendations` — decision-engine recommendations referencing product/inventory context and forecast demand.

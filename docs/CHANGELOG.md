@@ -2,6 +2,14 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-17 — CHECKPOINT-003: dataset strategy and architecture decisions frozen
+
+- Selected M5 Forecasting - Accuracy as the official forecasting dataset and froze the real-sales plus transparently simulated-inventory strategy.
+- Recorded MySQL as the application database, SQLAlchemy/FastAPI as the access layer, and MySQL Workbench as the design/admin tool.
+- Added initial CSV historical sales import and future POS/API ongoing-sales-sync architecture.
+- Documented the distinction between forecast prediction and future model retraining.
+- Did not download M5, train a model, begin feature engineering, or select the final SKU subset/time split.
+
 ## 2026-09-06 — CHECKPOINT-002: dataset candidates audited
 
 - Changed the next milestone from immediate M5 acquisition to a multi-candidate retail dataset audit.

@@ -2,11 +2,13 @@
 
 ## Dataset Selection Status
 
-**Dataset selection is currently under audit.**
+**OFFICIAL DATASET: M5 Forecasting - Accuracy**
 
-**OFFICIAL DATASET: NOT FROZEN**
+**OFFICIAL STRATEGY: Real M5 sales + simulated inventory**
 
-This is a metadata and lightweight-schema audit only. No candidate was downloaded into this repository, no preprocessing or EDA ran, and no forecasting model was trained. Values labelled `DOWNLOAD_NOT_VERIFIED` require a future authorized acquisition and formal audit.
+M5 is the official source of historical retail sales for thesis forecasting development and evaluation. M5 does **not** provide real Walmart on-hand inventory, replenishment, supplier lead time, incoming stock, or purchase-order history. Those variables will be simulated later with explicit, documented assumptions. Inventory-policy findings must be described as simulation results, not observed Walmart inventory performance.
+
+This candidate audit did not download M5 locally, perform preprocessing/EDA, or train a model. The next formal local audit must verify the actual files, schema, scale, and resource needs before any subset or chronological split is chosen.
 
 ## Critical Interpretation Rule
 
@@ -142,13 +144,13 @@ No primary candidate is currently verified as both real and complete enough. OSA
 
 | Item | Current value |
 | --- | --- |
-| Dataset version | CANDIDATES AUDITED; official dataset NOT FROZEN |
-| Selected store | NOT SELECTED |
-| Selected category | NOT SELECTED |
-| Selected SKU subset | NOT SELECTED |
-| Forecast horizon | Candidate 7 / 14 / 28 days — NOT FROZEN |
-| Train window | NOT FROZEN |
-| Validation window | NOT FROZEN |
-| Test window | NOT FROZEN |
+| Dataset version | M5 acquisition/version NOT YET AUDITED LOCALLY |
+| Selected store | NOT YET FROZEN |
+| Selected category | NOT YET FROZEN |
+| Selected SKU subset | NOT YET FROZEN |
+| Forecast horizon | 7 / 14 / 28 days are candidates — NOT YET FROZEN |
+| Train window | NOT YET FROZEN |
+| Validation window | NOT YET FROZEN |
+| Test window | NOT YET FROZEN |
 
-No candidate has been acquired locally. The next user-directed action is review and strategy selection, not model training or feature engineering.
+No candidate has been acquired locally. The next user-directed action is M5 acquisition and formal local schema/resource audit, not model training or feature engineering.
