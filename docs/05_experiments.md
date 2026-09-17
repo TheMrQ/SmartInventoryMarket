@@ -4,7 +4,7 @@ Status: planning only; no experiment has run.
 
 | ID | Planned experiment |
 | --- | --- |
-| E0 | Formal M5 local audit — BLOCKED awaiting Kaggle authentication |
+| E0 | Formal M5 local audit — BLOCKED awaiting Kaggle competition download access |
 | E1 | Naive forecast baseline |
 | E2 | Moving Average baseline |
 | E3 | LightGBM forecasting |
@@ -32,10 +32,10 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 ## E0 — M5 Acquisition / Formal Local Audit Attempt
 
 - **Date:** 2026-09-17
-- **Status:** `BLOCKED` — this is not a forecasting experiment.
+- **Status:** `BLOCKED` — this is not a forecasting experiment. Authentication is confirmed, but download access returned HTTP 403.
 - **Tooling:** Official Kaggle CLI 2.2.4 in `.venv`; future audit script location: `scripts/data/audit_m5.py`.
 - **Dataset location:** Intended `data/raw/m5/`; no files acquired.
 - **Manifest/artifacts:** None generated because local files are unavailable.
-- **Result:** Kaggle competition file listing requires authentication.
+- **Result:** Kaggle competition file listing succeeds; the official download operation returned HTTP 403 before any file was acquired.
 - **Metrics:** Not applicable; no model was trained.
-- **Next action:** Complete safe manual OAuth login and repeat the file-list check before any download.
+- **Next action:** Accept/confirm M5 competition terms while signed in to Kaggle, then repeat the download command.

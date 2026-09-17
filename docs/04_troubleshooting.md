@@ -1,6 +1,6 @@
 # Troubleshooting and Recovery
 
-## 2026-09-17 — Kaggle CLI authentication required for M5 acquisition
+## 2026-09-17 — Kaggle CLI authentication required for M5 acquisition — RESOLVED
 
 Symptom:
 
@@ -12,11 +12,11 @@ The project virtual environment had no authenticated Kaggle CLI session.
 
 Fix:
 
-User must run `.\\.venv\\Scripts\\kaggle.exe auth login` and complete its browser-based OAuth flow outside the repository. Accept M5 competition rules if prompted. Do not add a token, `kaggle.json`, or `.env` credential to the repository.
+User ran `.\\.venv\\Scripts\\kaggle.exe auth login` and completed its browser-based OAuth flow outside the repository. No token, `kaggle.json`, or `.env` credential was added to the repository.
 
 Verification:
 
-Rerun the competition file-list command successfully before starting the download.
+The competition file-list command successfully returned the five official M5 files.
 
 Files changed:
 
@@ -25,6 +25,32 @@ Files changed:
 Prevention:
 
 Use a harmless metadata/file-list call before every protected Kaggle acquisition and never store credentials in repository files.
+
+## 2026-09-17 — M5 download forbidden after successful Kaggle authentication
+
+Symptom:
+
+`.\\.venv\\Scripts\\kaggle.exe competitions download m5-forecasting-accuracy -p data\\raw\\m5` returned `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`.
+
+Root cause:
+
+Authentication is valid because the file listing succeeds, but the authenticated account does not currently have download access. Competition-rule acceptance or account access confirmation is required.
+
+Fix:
+
+While signed in to Kaggle, visit `https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules` and accept/confirm the competition terms. Then rerun the download command.
+
+Verification:
+
+The archive downloads to `data/raw/m5/`, extracts to the official files, and remains Git-ignored.
+
+Files changed:
+
+`docs/00_project_status.md`, `docs/04_troubleshooting.md`, `docs/05_experiments.md`, `docs/06_dataset.md`, `docs/CHANGELOG.md`.
+
+Prevention:
+
+Treat a successful file list as authentication verification only; verify download authorization separately before creating an audit plan.
 
 ## Problem Record Template
 

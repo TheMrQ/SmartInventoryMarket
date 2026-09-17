@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-17 — P4 download access blocked after authentication recovery
+
+- Confirmed Kaggle CLI authentication by successfully listing the five official M5 competition files.
+- Attempted the official M5 download into the ignored raw-data directory; Kaggle returned HTTP 403 before any file was acquired.
+- Recorded the competition-rule/download-access resolution path; no raw data, credentials, models, features, subset choice, or time split was created.
+
 ## 2026-09-17 — P4 acquisition blocked pending Kaggle authentication
 
 - Installed the official Kaggle CLI 2.2.4 inside the project virtual environment and recorded it as a development/data-acquisition dependency.

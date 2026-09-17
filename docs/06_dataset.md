@@ -12,16 +12,17 @@ This candidate audit did not download M5 locally, perform preprocessing/EDA, or 
 
 ## Formal Local M5 Audit
 
-Status: **BLOCKED — ACQUISITION AUTHENTICATION REQUIRED**
+Status: **BLOCKED — KAGGLE COMPETITION DOWNLOAD ACCESS REQUIRED**
 
 - **Attempt date:** 2026-09-17
 - **Source / competition slug:** Kaggle, `m5-forecasting-accuracy`
 - **Acquisition tool:** Official Kaggle CLI 2.2.4 installed inside `.venv` from the `kaggle` package. It is recorded in `requirements-dev.txt` as a development/data-acquisition dependency, not a FastAPI runtime dependency.
-- **Harmless operation attempted:** `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy`
-- **Verified result:** `Authentication required to call the Kaggle API.`
-- **Local raw files:** None. `data/raw/m5/` was not created or populated.
+- **Authentication verification:** `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy` succeeded and listed the five official competition files. The prior authentication blocker is resolved.
+- **Download operation attempted:** `.\\.venv\\Scripts\\kaggle.exe competitions download m5-forecasting-accuracy -p data\\raw\\m5`
+- **Verified result:** `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`.
+- **Local raw files:** None. An empty `data/raw/m5/` directory exists, is Git-ignored, and contains zero files.
 - **Manifests / audit script:** Not created because no local source files are available to inspect.
-- **Safe resolution:** Run `.\\.venv\\Scripts\\kaggle.exe auth login` manually, complete the browser-based OAuth flow outside the repository, and accept M5 competition rules if Kaggle requests it. Do not add a token, `kaggle.json`, `access_token`, or credential environment file to this repository.
+- **Safe resolution:** While signed in to Kaggle, visit `https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules` and accept/confirm the competition terms. Then rerun the download command. Do not add a token, `kaggle.json`, `access_token`, or credential environment file to this repository.
 
 Until access succeeds, all M5 schemas, dimensions, quality measures, resource measurements, candidate subsets, and feasible date boundaries remain **NOT VERIFIED LOCALLY**.
 

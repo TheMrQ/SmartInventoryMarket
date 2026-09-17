@@ -21,7 +21,7 @@ Why:
 - Mixing unrelated sales and inventory datasets would weaken the thesis.
 - A deployed supermarket must eventually use its own POS history, not Walmart M5 data permanently.
 
-What happens next: authenticate the Kaggle CLI outside this repository, acquire the real M5 files, audit their actual schema/size, then freeze the store/category/SKU subset, forecast horizon, and time split.
+What happens next: accept or confirm acceptance of the M5 Kaggle competition rules, acquire the real M5 files, audit their actual schema/size, then freeze the store/category/SKU subset, forecast horizon, and time split.
 
 ## Roadmap
 
@@ -50,7 +50,7 @@ What happens next: authenticate the Kaggle CLI outside this repository, acquire 
 
 ## Current Task
 
-P4 is blocked before acquisition. The official Kaggle CLI was installed in the project virtual environment and its harmless competition file-list operation was attempted. Kaggle returned `Authentication required to call the Kaggle API.` No M5 files were downloaded, and no preprocessing, EDA, training, feature engineering, or application features have been performed.
+P4 is blocked before acquisition. Kaggle authentication is verified: the competition file list succeeds. The official download command then returned `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`. No M5 files were downloaded, and no preprocessing, EDA, training, feature engineering, or application features have been performed.
 
 ## Last Stable Checkpoint
 
@@ -58,10 +58,10 @@ P4 is blocked before acquisition. The official Kaggle CLI was installed in the p
 
 ## Next Exact Step
 
-`NEXT-004A` — Authenticate the Kaggle CLI outside this repository, accept the M5 competition rules if prompted, then rerun the M5 acquisition and formal local schema/resource audit.
+`NEXT-004B` — While authenticated in Kaggle, open the M5 competition rules page and accept/confirm the competition terms, then rerun the M5 acquisition and formal local schema/resource audit.
 
-The required manual action is `.\\.venv\\Scripts\\kaggle.exe auth login` followed by the browser-based OAuth flow. Do not put a token in repository files, `.env`, or source code. NEXT-004A must not train a model or freeze a store, category, SKU subset, forecast horizon, or chronological time split.
+The required manual action is to visit `https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules` while signed in, accept the terms if required, and then ask to rerun `.\\.venv\\Scripts\\kaggle.exe competitions download m5-forecasting-accuracy -p data\\raw\\m5`. Do not put a token in repository files, `.env`, or source code. NEXT-004B must not train a model or freeze a store, category, SKU subset, forecast horizon, or chronological time split.
 
 ## Known Blockers
 
-- `P4_ACQUISITION_BLOCKED` (2026-09-17): `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy` returned `Authentication required to call the Kaggle API.` The local commit must not include credentials. Resolve with the manual OAuth login in NEXT-004A, then retry the harmless file-list command before downloading.
+- `P4_ACQUISITION_BLOCKED` (2026-09-17): Authentication is resolved; `.\\.venv\\Scripts\\kaggle.exe competitions files m5-forecasting-accuracy` succeeds. The download command returned `403 Client Error: Forbidden for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/DownloadDataFiles`. Accept or confirm M5 competition-rule access in Kaggle, then retry NEXT-004B. The local commit must not include credentials.
