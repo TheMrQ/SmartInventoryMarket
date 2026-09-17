@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-17 — CHECKPOINT-005: M5 experimental protocol frozen
+
+- Froze the M5 forecasting scope to `CA_1` + `FOODS` (`FOODS_1`, `FOODS_2`, `FOODS_3`), retaining all 1,437 locally verified SKU/item-store series.
+- Froze one 28-day daily forecast and chronological train `d_1`–`d_1885`, validation `d_1886`–`d_1913`, and held-out test `d_1914`–`d_1941` windows.
+- Added `configs/data/m5_ca1_foods.yaml` as the machine-readable protocol source, leakage/test-isolation rules, seasonal-naive and moving-average baseline plan, and MAE/RMSE/WAPE metric policy.
+- Did not preprocess the subset, calculate a baseline, train a model, engineer features, simulate inventory, or implement application functionality.
+
 ## 2026-09-17 — CHECKPOINT-004: M5 acquired and formally audited
 
 - Resolved the Kaggle competition-download blocker outside the repository and acquired the official M5 archive locally.

@@ -8,7 +8,7 @@
 
 M5 is the official source of historical retail sales for thesis forecasting development and evaluation. M5 does **not** provide real Walmart on-hand inventory, replenishment, supplier lead time, incoming stock, or purchase-order history. Those variables will be simulated later with explicit, documented assumptions. Inventory-policy findings must be described as simulation results, not observed Walmart inventory performance.
 
-M5 was acquired locally and formally audited on 2026-09-17. No preprocessing, model training, feature engineering, or final experimental-protocol selection was performed.
+M5 was acquired locally and formally audited on 2026-09-17. The forecasting scope, horizon, and chronological split were frozen at CHECKPOINT-005; no preprocessing, model training, feature engineering, or inventory simulation has been performed.
 
 ## Formal Local M5 Audit
 
@@ -83,7 +83,25 @@ All 7-, 14-, and 28-day horizons are technically feasible using observed evaluat
 | 14 days | `d_1`–`d_1913` (to 2016-04-24) | `d_1914`–`d_1927` (2016-04-25 to 2016-05-08) | `d_1928`–`d_1941` (2016-05-09 to 2016-05-22) | Candidate only |
 | 28 days | `d_1`–`d_1885` (to 2016-03-27) | `d_1886`–`d_1913` (2016-03-28 to 2016-04-24) | `d_1914`–`d_1941` (2016-04-25 to 2016-05-22) | Candidate only |
 
-All candidates are chronological; random splitting is prohibited. NEXT-005, not this audit, will select a subset, horizon, and split.
+All candidates are chronological; random splitting is prohibited. At the time of this audit, they were candidates only; CHECKPOINT-005 subsequently selected and froze the protocol below.
+
+## Official Frozen Forecasting Scope and Protocol — CHECKPOINT-005
+
+The candidate table above is retained as historical audit reasoning. The following values are now official and are machine-readable in `configs/data/m5_ca1_foods.yaml`.
+
+- **Dataset:** M5 Forecasting - Accuracy, using the locally audited `sales_train_evaluation.csv` history.
+- **Store/category:** `CA_1` + `FOODS`; all `FOODS_1`, `FOODS_2`, and `FOODS_3` departments are included.
+- **Verified scale:** 1,437 unique `item_id`/store series, verified directly from the local evaluation sales file. Raw M5 identifiers remain the source of truth; they are not renamed to demo product names.
+- **Rationale:** FOODS best fits the supermarket thesis; `CA_1` has the lowest audited zero-sales prevalence among the full-FOODS candidates (56.9186% versus 64.8026% for `TX_1` and 62.6583% for `WI_1`); all FOODS departments retain a broad supermarket-like assortment without restricting the thesis to one department.
+- **Forecast design:** one daily 28-step prediction, `t+1` through `t+28`. Application 7-day, 14-day, and 28-day demand views will be sums of forecast days 1–7, 1–14, and 1–28 respectively. This matches M5's 28-day framing, supports short and medium replenishment views, and avoids duplicate independent models.
+
+| Frozen partition | Day keys | Verified calendar range | Days |
+| --- | --- | --- | ---: |
+| Train | `d_1`–`d_1885` | 2011-01-29–2016-03-27 | 1,885 |
+| Validation | `d_1886`–`d_1913` | 2016-03-28–2016-04-24 | 28 |
+| Test | `d_1914`–`d_1941` | 2016-04-25–2016-05-22 | 28 |
+
+No random split is permitted. Test is isolated during development; model and hyperparameter choices use train and validation only, and final test metrics are reported only after those choices are fixed. Future lags, rolling features, price data, and calendar data must use only information available at prediction time.
 
 ## Critical Interpretation Rule
 
@@ -205,7 +223,7 @@ This ranking is an evidence-based recommendation, **not** an official selection.
 
 ### Strategy A — M5 only: real sales + simulated inventory
 
-**Recommended provisionally, pending user decision.** It provides one coherent, real retail source and a defensible forecasting benchmark. Inventory results must be reported as a **simulation study**, with explicit initial inventory, lead-time, safety-stock, incoming-stock, and policy assumptions; never as observed Walmart replenishment outcomes.
+**Selected and frozen at CHECKPOINT-005.** It provides one coherent, real retail source and a defensible forecasting benchmark. Inventory results must be reported as a **simulation study**, with explicit initial inventory, lead-time, safety-stock, incoming-stock, and policy assumptions; never as observed Walmart replenishment outcomes.
 
 ### Strategy B — One dataset containing sales and inventory
 
@@ -215,17 +233,17 @@ No primary candidate is currently verified as both real and complete enough. OSA
 
 **Not recommended as the main evaluation.** Unrelated stores would make forecast errors and inventory positions come from different systems, weakening causal interpretation. OSA may later be a clearly labelled demo fixture after license clarification, not evidence that an M5 forecast improves a real OSA inventory system.
 
-## Formal-Audit State and Boundaries
+## Formal-Audit State and Frozen Boundaries
 
 | Item | Current value |
 | --- | --- |
-| Dataset version | M5 acquisition/version NOT YET AUDITED LOCALLY |
-| Selected store | NOT YET FROZEN |
-| Selected category | NOT YET FROZEN |
-| Selected SKU subset | NOT YET FROZEN |
-| Forecast horizon | 7 / 14 / 28 days are candidates — NOT YET FROZEN |
-| Train window | NOT YET FROZEN |
-| Validation window | NOT YET FROZEN |
-| Test window | NOT YET FROZEN |
+| Dataset version | Locally acquired/audited M5 Forecasting - Accuracy; file hashes in `data/manifests/m5_file_manifest.json` |
+| Selected store | `CA_1` — FROZEN |
+| Selected category | `FOODS` — FROZEN |
+| Selected SKU subset | All `FOODS_1`, `FOODS_2`, `FOODS_3`; 1,437 item-store series — FROZEN |
+| Forecast horizon | 28 daily steps — FROZEN |
+| Train window | `d_1`–`d_1885` / 2011-01-29–2016-03-27 — FROZEN |
+| Validation window | `d_1886`–`d_1913` / 2016-03-28–2016-04-24 — FROZEN |
+| Test window | `d_1914`–`d_1941` / 2016-04-25–2016-05-22 — FROZEN |
 
-No candidate has been acquired locally. The next user-directed action is M5 acquisition and formal local schema/resource audit, not model training or feature engineering.
+NEXT-006 may create the reproducible frozen-subset pipeline and calculate baseline metrics; it must preserve these boundaries and must not train ML models.
