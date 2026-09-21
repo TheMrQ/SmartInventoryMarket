@@ -1,0 +1,42 @@
+{
+  "scope": {
+    "store_id": "CA_1",
+    "category_id": "FOODS",
+    "departments": [
+      "FOODS_1",
+      "FOODS_2",
+      "FOODS_3"
+    ],
+    "item_store_series": 1437,
+    "unique_item_ids": 1437
+  },
+  "source": {
+    "sales_file": "sales_train_evaluation.csv",
+    "raw_location": "data/raw/m5 (Git-ignored)",
+    "daily_sales_values_read": false
+  },
+  "partitions": {
+    "train": {
+      "start_d": "d_1",
+      "end_d": "d_1885",
+      "days": 1885,
+      "start_date": "2011-01-29",
+      "end_date": "2016-03-27"
+    },
+    "validation": {
+      "start_d": "d_1886",
+      "end_d": "d_1913",
+      "days": 28,
+      "start_date": "2016-03-28",
+      "end_date": "2016-04-24"
+    },
+    "test": {
+      "start_d": "d_1914",
+      "end_d": "d_1941",
+      "days": 28,
+      "start_date": "2016-04-25",
+      "end_date": "2016-05-22"
+    }
+  },
+  "test_access_policy": "Test sales values were not read; only configured column names and calendar dates were structurally verified."
+}

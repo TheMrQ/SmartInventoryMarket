@@ -31,6 +31,20 @@ Frozen baseline plan for NEXT-006:
 - **28-day Moving Average:** a clearly documented moving-average baseline.
 - **Auxiliary only:** simple naive (`lag_1`) may be retained as a reference, not the primary naive baseline.
 
+## Validation-Only Baseline Results — CHECKPOINT-006
+
+The reusable runner `scripts/ml/run_baselines.py` evaluated the frozen `CA_1`/`FOODS` scope at the fixed forecast origin `d_1885`. It read train and validation sales values only through `d_1913`; it did not read, forecast, score, summarize, or plot TEST sales values.
+
+- **Seasonal Naive:** repeats each SKU's final seven known training days four times, producing the 28 validation steps without using any validation actual as a later forecast input.
+- **28-day Moving Average:** repeats each SKU's mean over its final 28 known training days for all 28 validation steps, without any validation update.
+
+| Method | Validation MAE | Validation RMSE | Validation WAPE | Undefined per-SKU WAPE |
+| --- | ---: | ---: | ---: | ---: |
+| Seasonal Naive (`lag_7`) | 1.739785 | 3.357394 | 82.678226% | 81 |
+| 28-day Moving Average | 1.438625 | 2.726401 | 68.366443% | 81 |
+
+The 28-day Moving Average is lower on all three aggregate validation metrics and is the reference baseline future methods must beat on validation. Per-SKU WAPE is undefined, not zero, for the 81 SKUs with zero total validation actual demand; MAE and RMSE remain available for them. Details are recorded in `reports/tables/baseline_validation_summary.md`.
+
 Planned ML models:
 
 - LightGBM
@@ -57,6 +71,8 @@ Optional only: LSTM / Transformer.
 - **Prediction-time availability.** Price and calendar features must reflect information that would have been available when the forecast was issued.
 
 Primary thesis metrics are **MAE**, **RMSE**, and **WAPE**. Do not report Accuracy for forecasting. Do not use MAPE as the sole primary metric because many SKU-days have zero observed sales. Future reports must provide both aggregate metrics across all `CA_1`/`FOODS` observations and per-SKU/error-distribution analysis so high-volume products do not hide poor SKU-level performance.
+
+The future experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → LightGBM → XGBoost → validation comparison/model selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
 
 ## Future Model Lifecycle
 

@@ -1,1 +1,1 @@
-"""Dataset handling package; no dataset has been acquired."""
+"""Dataset handling helpers for Git-ignored local source data."""

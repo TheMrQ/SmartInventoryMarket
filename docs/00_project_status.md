@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P6 Naive / Moving Average Baselines
+Overall status: `IN_PROGRESS` — P7 Leakage-Safe Forecasting Features
 
 ## Quick Human Summary
 
@@ -13,6 +13,7 @@ What we decided:
 - M5 `CA_1` food products are the official forecasting scope: 1,437 SKU-level series.
 - The official forecast is 28 daily steps; the app will derive 7/14/28-day demand summaries from it.
 - Train, validation, and test are frozen chronological windows; the test window is held out.
+- The 28-day Moving Average is the current validation reference baseline.
 - Inventory will be simulated transparently because M5 has no real inventory history.
 - MySQL is the application database; MySQL Workbench is its design/admin tool.
 - Historical sales can first be imported by CSV; a real deployment should later sync new sales from POS automatically.
@@ -31,14 +32,17 @@ What we did:
 - Verified their real columns, sizes, products, stores, dates, sales, and prices.
 - Froze `CA_1` + `FOODS`, all three FOODS departments, a 28-day horizon, and chronological evaluation boundaries.
 - Added the version-controlled protocol at `configs/data/m5_ca1_foods.yaml`.
+- Prepared the frozen source boundary and generated the first fixed-origin 28-day validation forecasts.
 
 What we learned:
 
 - `CA_1` + `FOODS` contains exactly 1,437 item-store series across `FOODS_1`, `FOODS_2`, and `FOODS_3`.
 - The frozen 28-day windows are train `d_1`–`d_1885`, validation `d_1886`–`d_1913`, and test `d_1914`–`d_1941`.
 - No observed M5 zero sale proves zero demand or zero inventory.
+- On validation, the 28-day Moving Average outperformed Seasonal Naive: MAE 1.438625 vs 1.739785, RMSE 2.726401 vs 3.357394, and WAPE 68.366443% vs 82.678226%.
+- The 28 validation days contained 81 SKUs with zero total actual sales, so their per-SKU WAPE is undefined rather than treated as zero.
 
-What happens next: build the reproducible frozen-subset pipeline and implement seasonal-naive and moving-average baselines, measured with MAE, RMSE, and WAPE.
+What happens next: build leakage-safe lag, rolling, calendar, and price features for the first ML forecasting model. LightGBM and XGBoost have not been trained.
 
 ## Roadmap
 
@@ -50,7 +54,7 @@ What happens next: build the reproducible frozen-subset pipeline and implement s
 | P3 Official dataset strategy + architecture decisions | DONE |
 | P4 M5 acquisition + formal local schema audit | DONE |
 | P5 Subset + forecast horizon + chronological split freeze | DONE |
-| P6 Naive / Moving Average baselines | TODO |
+| P6 Naive / Moving Average baselines | DONE |
 | P7 Time-series feature engineering | TODO |
 | P8 LightGBM forecasting | TODO |
 | P9 XGBoost forecasting | TODO |
@@ -67,17 +71,17 @@ What happens next: build the reproducible frozen-subset pipeline and implement s
 
 ## Current Task
 
-P5 is complete. The M5 experimental protocol is frozen at `CA_1` + `FOODS` (1,437 series), a 28-day daily forecast, and the documented chronological train/validation/test split. `configs/data/m5_ca1_foods.yaml` is the machine-readable source of protocol values. No preprocessing, feature engineering, forecast calculation, model training, inventory simulation, or application features have been performed.
+P6 is complete. The reusable frozen-scope boundary, validation-only Seasonal Naive and 28-day Moving Average baselines, aggregate/per-SKU metrics, report figures, and evidence registry are in place. The runner reads sales values through validation `d_1913` only; TEST remains sealed and was not evaluated. No ML feature engineering, LightGBM/XGBoost training, inventory simulation, or application features have been performed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-005` — M5 experimental protocol frozen
+`CHECKPOINT-006` — CA_1/FOODS preprocessing and validation baselines complete
 
 ## Next Exact Step
 
-`NEXT-006` — Build the reproducible CA_1/FOODS preprocessing pipeline and implement the seasonal-naive and moving-average forecasting baselines.
+`NEXT-007` — Build leakage-safe time-series, calendar, and price features for the first ML forecasting model.
 
-NEXT-006 may preprocess the frozen data and calculate baseline metrics. It must preserve the frozen scope/split, avoid random splitting, and must not train LightGBM or XGBoost.
+NEXT-007 must preserve the frozen scope/split and test isolation. It may build features, but must not train a model unless a subsequent task explicitly authorizes it.
 
 ## Known Blockers
 

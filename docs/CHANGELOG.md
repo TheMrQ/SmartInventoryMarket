@@ -2,6 +2,14 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-006: CA_1/FOODS preprocessing and validation baselines complete
+
+- Added a reusable frozen-scope preparation boundary and metadata-only manifest, plus validation-only Seasonal Naive and 28-day Moving Average baseline implementations.
+- Added aggregate/per-SKU MAE, RMSE, and WAPE utilities with explicit undefined per-SKU WAPE handling for zero-demand denominators.
+- Generated tracked validation metrics/summary tables and report-ready baseline-comparison/per-SKU-distribution figures; added the permanent thesis report-evidence registry.
+- Verified 1,437 series and 28 validation days. TEST sales values were not read, forecast, scored, summarized, or plotted.
+- Did not implement ML features, train LightGBM/XGBoost, simulate inventory, or implement application functionality.
+
 ## 2026-09-17 — CHECKPOINT-005: M5 experimental protocol frozen
 
 - Froze the M5 forecasting scope to `CA_1` + `FOODS` (`FOODS_1`, `FOODS_2`, `FOODS_3`), retaining all 1,437 locally verified SKU/item-store series.

@@ -103,6 +103,10 @@ The candidate table above is retained as historical audit reasoning. The followi
 
 No random split is permitted. Test is isolated during development; model and hyperparameter choices use train and validation only, and final test metrics are reported only after those choices are fixed. Future lags, rolling features, price data, and calendar data must use only information available at prediction time.
 
+### P6 Preparation Boundary Verification
+
+CHECKPOINT-006 added `scripts/data/prepare_m5_ca1_foods.py` and `ml/data/m5_ca1_foods.py`. The metadata-only preparation manifest confirms the frozen 1,437-series scope and all split key/date boundaries. It verifies TEST structurally by column name and calendar date only; it does not read TEST sales values. The validation baseline loader reads daily sales values only through `d_1913`.
+
 ## Critical Interpretation Rule
 
 These observations are different and must never be conflated:
