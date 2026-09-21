@@ -1,0 +1,41 @@
+# FEATURE_SET_V1: first global one-step regression feature definition.
+feature_set: FEATURE_SET_V1
+model_formulation: global_one_step_regression
+recursive_forecasting: true
+
+sales_lags:
+  - 1
+  - 7
+  - 14
+  - 28
+rolling_mean_windows:
+  - 7
+  - 14
+  - 28
+rolling_std_windows:
+  - 7
+  - 28
+
+calendar_numeric_features:
+  - wday
+  - month
+  - year
+  - is_weekend
+  - snap_CA
+calendar_categorical_features:
+  - event_name_1
+  - event_type_1
+  - event_name_2
+  - event_type_2
+product_categorical_features:
+  - item_id
+  - dept_id
+price_features:
+  - last_known_sell_price
+  - price_lag_7
+  - price_change_from_7_days_ago
+  - price_available
+  - price_missing
+
+warmup_days: 28
+price_policy: past_only_forward_fill_within_item_store

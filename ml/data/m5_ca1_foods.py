@@ -31,6 +31,17 @@ class ValidationDataset:
     validation_dates: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class TrainingFeatureSource:
+    """Train sales plus calendar metadata for leakage-safe feature construction."""
+
+    metadata: pd.DataFrame
+    train_sales: np.ndarray
+    train_calendar: pd.DataFrame
+    validation_calendar: pd.DataFrame
+    train_day_keys: tuple[str, ...]
+
+
 def load_protocol(config_path: str | Path) -> dict[str, Any]:
     """Load and validate the version-controlled frozen protocol."""
     with Path(config_path).open(encoding="utf-8") as file:
@@ -52,7 +63,7 @@ def load_protocol(config_path: str | Path) -> dict[str, Any]:
     if missing:
         raise ValueError(f"M5 protocol is missing keys: {sorted(missing)}")
     if protocol["forecast_horizon_days"] != 28:
-        raise ValueError("NEXT-006 supports only the frozen 28-day protocol.")
+        raise ValueError("The frozen M5 protocol requires a 28-day horizon.")
     return protocol
 
 
@@ -199,4 +210,53 @@ def load_validation_dataset(raw_directory: str | Path, config_path: str | Path) 
         train_day_keys=train_days,
         validation_day_keys=validation_days,
         validation_dates=tuple(dates[day] for day in validation_days),
+    )
+
+
+def load_training_feature_source(raw_directory: str | Path, config_path: str | Path) -> TrainingFeatureSource:
+    """Load only train sales targets plus train/validation calendar metadata.
+
+    Validation calendar data is non-target information needed for a later
+    recursive forecast. Validation and test *sales values* are never read.
+    """
+    protocol = load_protocol(config_path)
+    sales_path, calendar_path = _source_paths(raw_directory, protocol)
+    partition_days = _validate_header(_read_header(sales_path), protocol)
+    train_days = partition_days["train"]
+    usecols = IDENTIFIER_COLUMNS + list(train_days)
+    sales = pd.read_csv(sales_path, usecols=usecols, dtype={column: "int16" for column in train_days})
+    selected = select_frozen_scope(sales, protocol).sort_values("item_id", kind="stable").reset_index(drop=True)
+
+    calendar_columns = [
+        "date",
+        "wm_yr_wk",
+        "weekday",
+        "wday",
+        "month",
+        "year",
+        "d",
+        "event_name_1",
+        "event_type_1",
+        "event_name_2",
+        "event_type_2",
+        "snap_CA",
+    ]
+    calendar = pd.read_csv(calendar_path, usecols=calendar_columns)
+    calendar["d_index"] = calendar["d"].str.removeprefix("d_").astype("int16")
+    calendar = calendar.sort_values("d_index", kind="stable")
+    train_calendar = calendar.loc[calendar["d"].isin(train_days)].reset_index(drop=True)
+    validation_calendar = calendar.loc[calendar["d"].isin(partition_days["validation"])].reset_index(drop=True)
+    if tuple(train_calendar["d"]) != train_days:
+        raise ValueError("calendar.csv train keys do not match the frozen protocol.")
+    if tuple(validation_calendar["d"]) != partition_days["validation"]:
+        raise ValueError("calendar.csv validation keys do not match the frozen protocol.")
+    if train_calendar.iloc[0]["date"] != protocol["train"]["start_date"] or train_calendar.iloc[-1]["date"] != protocol["train"]["end_date"]:
+        raise ValueError("calendar.csv train dates do not match the frozen protocol.")
+
+    return TrainingFeatureSource(
+        metadata=selected.loc[:, IDENTIFIER_COLUMNS].copy(),
+        train_sales=selected.loc[:, list(train_days)].to_numpy(dtype=np.int16),
+        train_calendar=train_calendar,
+        validation_calendar=validation_calendar,
+        train_day_keys=train_days,
     )

@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P7 Leakage-Safe Forecasting Features
+Overall status: `IN_PROGRESS` — P8 LightGBM Forecasting
 
 ## Quick Human Summary
 
@@ -14,6 +14,7 @@ What we decided:
 - The official forecast is 28 daily steps; the app will derive 7/14/28-day demand summaries from it.
 - Train, validation, and test are frozen chronological windows; the test window is held out.
 - The 28-day Moving Average is the current validation reference baseline.
+- The first ML formulation is a global one-step model with recursive 28-day forecasting.
 - Inventory will be simulated transparently because M5 has no real inventory history.
 - MySQL is the application database; MySQL Workbench is its design/admin tool.
 - Historical sales can first be imported by CSV; a real deployment should later sync new sales from POS automatically.
@@ -33,6 +34,7 @@ What we did:
 - Froze `CA_1` + `FOODS`, all three FOODS departments, a 28-day horizon, and chronological evaluation boundaries.
 - Added the version-controlled protocol at `configs/data/m5_ca1_foods.yaml`.
 - Prepared the frozen source boundary and generated the first fixed-origin 28-day validation forecasts.
+- Converted train sales into leakage-safe ML features: past sales lags, rolling demand, calendar/events, product codes, and historical prices.
 
 What we learned:
 
@@ -41,8 +43,9 @@ What we learned:
 - No observed M5 zero sale proves zero demand or zero inventory.
 - On validation, the 28-day Moving Average outperformed Seasonal Naive: MAE 1.438625 vs 1.739785, RMSE 2.726401 vs 3.357394, and WAPE 68.366443% vs 82.678226%.
 - The 28 validation days contained 81 SKUs with zero total actual sales, so their per-SKU WAPE is undefined rather than treated as zero.
+- FEATURE_SET_V1 contains 25 model features across 2,668,509 train rows; tests confirm features cannot see their own target or future sales.
 
-What happens next: build leakage-safe lag, rolling, calendar, and price features for the first ML forecasting model. LightGBM and XGBoost have not been trained.
+What happens next: train the first global LightGBM model, generate a recursive 28-day validation forecast, and compare it with the frozen baselines. No ML model has been trained yet.
 
 ## Roadmap
 
@@ -55,7 +58,7 @@ What happens next: build leakage-safe lag, rolling, calendar, and price features
 | P4 M5 acquisition + formal local schema audit | DONE |
 | P5 Subset + forecast horizon + chronological split freeze | DONE |
 | P6 Naive / Moving Average baselines | DONE |
-| P7 Time-series feature engineering | TODO |
+| P7 Time-series feature engineering | DONE |
 | P8 LightGBM forecasting | TODO |
 | P9 XGBoost forecasting | TODO |
 | P10 Forecast comparison + model selection | TODO |
@@ -71,17 +74,17 @@ What happens next: build leakage-safe lag, rolling, calendar, and price features
 
 ## Current Task
 
-P6 is complete. The reusable frozen-scope boundary, validation-only Seasonal Naive and 28-day Moving Average baselines, aggregate/per-SKU metrics, report figures, and evidence registry are in place. The runner reads sales values through validation `d_1913` only; TEST remains sealed and was not evaluated. No ML feature engineering, LightGBM/XGBoost training, inventory simulation, or application features have been performed.
+P7 is complete. FEATURE_SET_V1 creates the train-only long-form matrix and supports later recursive single-step inference using explicit history. It includes leakage-safe lag/rolling demand, known calendar/event, product identity, and past-only price features. No model has been trained, no ML validation predictions exist, and TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-006` — CA_1/FOODS preprocessing and validation baselines complete
+`CHECKPOINT-007` — Leakage-safe FEATURE_SET_V1 complete
 
 ## Next Exact Step
 
-`NEXT-007` — Build leakage-safe time-series, calendar, and price features for the first ML forecasting model.
+`NEXT-008` — Train the first LightGBM global forecasting model, generate the 28-day recursive validation forecast, and compare it with the frozen baselines.
 
-NEXT-007 must preserve the frozen scope/split and test isolation. It may build features, but must not train a model unless a subsequent task explicitly authorizes it.
+NEXT-008 must preserve the frozen scope/split and test isolation. It may train/evaluate on validation, but must not evaluate TEST.
 
 ## Known Blockers
 

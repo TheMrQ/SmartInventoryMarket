@@ -25,7 +25,7 @@ The raw sales file is wide: one item-store row followed by `d_1` through `d_1941
 
 M5 supplies historical retail sales for thesis model development and evaluation. It does not provide Walmart on-hand inventory, replenishment, supplier lead time, or purchase-order history. Those inventory inputs will later be simulated under documented assumptions, and their results must be described as simulation results rather than observed Walmart inventory performance.
 
-Frozen baseline plan for NEXT-006:
+Frozen baseline plan, completed in CHECKPOINT-006:
 
 - **Seasonal Naive (primary naive):** same day in the preceding week (`lag_7`), which is more appropriate than a simple naive forecast for likely retail weekly seasonality.
 - **28-day Moving Average:** a clearly documented moving-average baseline.
@@ -44,6 +44,22 @@ The reusable runner `scripts/ml/run_baselines.py` evaluated the frozen `CA_1`/`F
 | 28-day Moving Average | 1.438625 | 2.726401 | 68.366443% | 81 |
 
 The 28-day Moving Average is lower on all three aggregate validation metrics and is the reference baseline future methods must beat on validation. Per-SKU WAPE is undefined, not zero, for the 81 SKUs with zero total validation actual demand; MAE and RMSE remain available for them. Details are recorded in `reports/tables/baseline_validation_summary.md`.
+
+## FEATURE_SET_V1 — Leakage-Safe ML Inputs
+
+The first ML formulation is a **global one-step regression model**. One future LightGBM model will learn from all `CA_1`/`FOODS` SKU-day training observations; it is not one model per SKU or one model per forecast horizon. For target day `t`, the model receives information available before `t` and predicts sales at `t`.
+
+At later inference, the model will make a **recursive 28-step forecast**: predict `t+1`, append that prediction to the working sales history, recompute the same past-only features, and continue through `t+28`. This is computationally practical, deploys as one global model, and fits the frozen global-model plan. Its limitation is recursive error propagation: early prediction error can affect later steps. Direct multi-horizon forecasting remains future work only.
+
+`configs/features/ml_features_v1.yaml` freezes FEATURE_SET_V1. `scripts/ml/build_features.py` produced 2,668,509 train rows from `d_1`–`d_1885` after dropping the 28-day warm-up for each of 1,437 series (40,236 dropped rows). The ignored local cache is `data/processed/m5_ca1_foods_features_v1.pkl.gz`; tracked metadata and methodology summary are `data/manifests/m5_ca1_foods_features_v1.json` and `reports/tables/feature_set_v1_summary.md`.
+
+- **Sales history:** `lag_1`, `lag_7`, `lag_14`, `lag_28`; `rolling_mean_7`, `rolling_mean_14`, `rolling_mean_28`; and population `rolling_std_7`, `rolling_std_28`. Every value stops at `t-1`; incomplete warm-up rows are dropped.
+- **Calendar:** `wday`, `month`, `year`, `is_weekend`, `snap_CA`, and deterministic codes for `event_name_1`, `event_type_1`, `event_name_2`, and `event_type_2`. TX/WI SNAP values are excluded because the frozen store is CA_1. Calendar/event values are known-date inputs, not causal claims.
+- **Product identity:** deterministic `item_code` and `dept_code`; the manifest preserves the mapping to real M5 IDs and no demo names are substituted.
+- **Past-only prices:** `last_known_sell_price`, `price_lag_7`, `price_change_from_7_days_ago`, `price_available`, and `price_missing`. Current target-day price and future prices are excluded. Prices only forward-fill within an item/store from already observed values; there is no backward fill. Before a first known price, the feature remains missing and the indicator remains explicit.
+- **Missingness:** sales lag/rolling inputs have no post-warm-up missing values. Price history remains missing for 508,049 `last_known_sell_price`, 512,561 `price_lag_7`, and 512,561 price-change feature rows; these are not imputed from future values.
+
+`ml/features/builder.py` shares the feature calculations between vectorized training construction and the single-step inference API. The inference API accepts only explicit sales/price history, product metadata, categorical mappings, and the target calendar row. A caller must append prior predictions—not validation actuals—between recursive steps. Synthetic tests verify lag/rolling values, current-target and future mutation isolation, past-only prices, deterministic encoding, calendar mapping, recursive feature shape, and config validation. No LightGBM/XGBoost model has been trained in this checkpoint.
 
 Planned ML models:
 

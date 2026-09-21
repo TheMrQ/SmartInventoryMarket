@@ -107,6 +107,10 @@ No random split is permitted. Test is isolated during development; model and hyp
 
 CHECKPOINT-006 added `scripts/data/prepare_m5_ca1_foods.py` and `ml/data/m5_ca1_foods.py`. The metadata-only preparation manifest confirms the frozen 1,437-series scope and all split key/date boundaries. It verifies TEST structurally by column name and calendar date only; it does not read TEST sales values. The validation baseline loader reads daily sales values only through `d_1913`.
 
+### P7 Feature-Source Boundary
+
+CHECKPOINT-007 reads M5 sales values only through the frozen train end `d_1885` for FEATURE_SET_V1 construction. It loads validation calendar metadata as non-target future context for a later recursive forecast interface, but does not load validation or TEST sales values. The compressed feature matrix stays local under Git-ignored `data/processed/`; its tracked manifest records 1,437 series, 2,668,509 post-warm-up rows, feature dtypes, missingness, categorical mappings, and resource use without raw feature rows.
+
 ## Critical Interpretation Rule
 
 These observations are different and must never be conflated:
@@ -250,4 +254,4 @@ No primary candidate is currently verified as both real and complete enough. OSA
 | Validation window | `d_1886`–`d_1913` / 2016-03-28–2016-04-24 — FROZEN |
 | Test window | `d_1914`–`d_1941` / 2016-04-25–2016-05-22 — FROZEN |
 
-NEXT-006 may create the reproducible frozen-subset pipeline and calculate baseline metrics; it must preserve these boundaries and must not train ML models.
+NEXT-008 may train the first global LightGBM model and evaluate its recursive validation forecast against the frozen baselines. It must preserve these boundaries and must not evaluate TEST.

@@ -1,1 +1,1 @@
-"""Time-series feature engineering package."""
+"""Leakage-safe features for the frozen global M5 forecasting formulation."""

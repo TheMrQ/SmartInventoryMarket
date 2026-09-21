@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-007: Leakage-safe FEATURE_SET_V1 complete
+
+- Added FEATURE_SET_V1 configuration, a train-only long-form construction pipeline, and shared global one-step/recursive-inference feature builders.
+- Added past-only lag/rolling demand, calendar/event, deterministic product identity, and conservative past-only price features with explicit missing-price indicators.
+- Generated a 2,668,509-row ignored train cache plus tracked feature manifest and methodology summary; added synthetic leakage tests and report-evidence entries.
+- Did not read validation/TEST sales values, generate ML predictions/metrics, train LightGBM/XGBoost, simulate inventory, or implement application functionality.
+
 ## 2026-09-21 — CHECKPOINT-006: CA_1/FOODS preprocessing and validation baselines complete
 
 - Added a reusable frozen-scope preparation boundary and metadata-only manifest, plus validation-only Seasonal Naive and 28-day Moving Average baseline implementations.

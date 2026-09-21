@@ -9,8 +9,14 @@ This registry records reproducible report assets and planned manual evidence. It
 | `reports/tables/baseline_validation_summary.md` | DONE | Generated | Definitions, validation results, and per-SKU findings | Experiments / results | `python scripts/ml/run_baselines.py` | Includes undefined per-SKU WAPE handling. |
 | `reports/figures/baseline_validation_comparison.png` | DONE | Generated | Compare baseline MAE, RMSE, and WAPE on separate axes | Experiments / results | `python scripts/ml/run_baselines.py` | English labels; 220 DPI. |
 | `reports/figures/baseline_per_sku_error_distribution.png` | DONE | Generated | Show per-SKU validation MAE distribution | Experiments / results | `python scripts/ml/run_baselines.py` | Aggregate error distribution, not raw time-series. |
+| `configs/features/ml_features_v1.yaml` | DONE | Generated | Freeze first ML feature definition | Methodology | Version-controlled configuration | FEATURE_SET_V1; no model trained. |
+| `data/manifests/m5_ca1_foods_features_v1.json` | DONE | Generated | Reproducibility, mappings, dtypes, missingness, and resources | Methodology / appendix | `python scripts/ml/build_features.py` | Metadata only; train sales through d_1885 only. |
+| `reports/tables/feature_set_v1_summary.md` | DONE | Generated | Describe feature groups and leakage safeguards | Methodology | `python scripts/ml/build_features.py` | Report-ready feature evidence. |
+| FEATURE_SET_V1 leakage-test evidence | DONE | Generated | Verify no current/future target leakage | Methodology / appendix | `pytest ml/tests/test_feature_builder.py` | Synthetic tests; no raw M5 dependency. |
 | Dataset overview/schema figure | TODO | Generated | Explain M5 source and frozen scope | Dataset | Future task | Do not create before the relevant verified task. |
 | LightGBM result comparison | TODO | Generated | Report LightGBM validation performance | Experiments / results | Future task | No LightGBM model has been trained. |
+| LightGBM recursive horizon error | TODO | Generated | Assess recursive 28-step validation error by horizon | Experiments / results | Future LightGBM task | Requires validation predictions only; TEST remains sealed. |
+| LightGBM training/runtime information | TODO | Generated | Record reproducibility and practical cost | Experiments / results | Future LightGBM task | No LightGBM model has been trained. |
 | XGBoost result comparison | TODO | Generated | Report XGBoost validation performance | Experiments / results | Future task | No XGBoost model has been trained. |
 | Model comparison | TODO | Generated | Compare selected methods | Experiments / results | Future task | Requires validation comparison/model selection. |
 | Feature importance | TODO | Generated | Explain fitted ML model drivers | Experiments / results | Future task | Requires a trained interpretable model. |
