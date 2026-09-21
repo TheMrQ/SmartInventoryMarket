@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-010B: validation-selected forecasting model frozen
+
+- Formally selected `XGBOOST_V1` with the 25-feature `FEATURE_SET_V1` / `FULL_V1` using the pre-registered validation WAPE-first rule with MAE/RMSE secondary checks.
+- Retained FULL_V1 because all 20-, 16-, and 11-feature reduced variants had higher validation error; documented the modest price and clearer calendar/event benefit for this experiment.
+- Added the version-controlled selected-model pointer, thesis-ready selection summary, and a reused validation-comparison figure registered as selected-model evidence.
+- Marked P10 complete and intentionally paused the project before P11. TEST remains sealed and was not read, forecast, scored, summarized, or plotted.
+
 ## 2026-09-21 — CHECKPOINT-010A: XGBoost feature-group ablation complete
 
 - Reused verified FULL_V1 and trained the three frozen reduced XGBoost variants (NO_PRICE, NO_CALENDAR_EVENT, and DEMAND_PRODUCT_ONLY) under unchanged scope, parameters, recursive validation, and categorical policy.

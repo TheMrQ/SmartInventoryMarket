@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: 🟡 **IN_PROGRESS** — feature-group ablation is complete; formal model/feature-set selection remains.
+Status: 🟢 **DONE** — `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` was selected on validation; TEST remains sealed.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -116,12 +116,12 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Date:** 2026-09-21
 - **Status:** `DONE` — analysis of existing tracked validation outputs only; no model was trained or retrained.
 - **Four-method evidence:** Seasonal Naive MAE/RMSE/WAPE = 1.739785 / 3.357394 / 82.678226%; Moving Average = 1.438625 / 2.726401 / 68.366443%; LightGBM = 1.523283 / 2.730151 / 72.389572%; XGBoost = 1.402449 / 2.568234 / 66.647316%.
-- **Validation interpretation:** Seasonal Naive is weakest; Moving Average is a strong simple reference; LightGBM improves Seasonal Naive but not Moving Average. **XGBOOST_V1 is the CURRENT VALIDATION LEADER**, not the final model, because TEST is sealed and ablation remains.
+- **Validation interpretation:** Seasonal Naive is weakest; Moving Average is a strong simple reference; LightGBM improves Seasonal Naive but not Moving Average. `XGBOOST_V1` is lower on all three validation metrics; its formal validation-only selection is recorded below.
 - **Horizon evidence:** XGBoost has lower MAE on all 28 horizons. Both models reach minimum MAE at horizon 3 and maximum at horizon 14, have higher day-28 than day-1 MAE, and fluctuate rather than increase monotonically. Recursive error feedback is a plausible contributor, not a proved sole cause.
 - **Feature-group evidence:** rolling demand gain dominates both models (93.146% LightGBM; 95.527% XGBoost). Gains are descriptive, not causal or a basis to remove low-gain fields without experiment.
 - **Resource trade-off:** LightGBM is lighter (49.370 s; 2.447 MiB) while XGBoost has the better current validation error (109.747 s; 93.565 MiB). Runtime and model size are not combined into an arbitrary winner score.
-- **Decision:** freeze E5 as `XGBOOST_FEATURE_ABLATION_V1`, primary WAPE and secondary MAE/RMSE. Variants are FULL_V1 (25, existing result reused), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11); only features may vary.
-- **Research questions:** whether demand history supplies most performance, whether calendar/event or price groups improve error, and whether 11 features retain comparable or better validation error. These are unanswered until E5 is executed.
+- **Decision:** E5 used `XGBOOST_FEATURE_ABLATION_V1`, primary WAPE and secondary MAE/RMSE. Variants were FULL_V1 (25, existing result reused), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11); only features varied.
+- **Research questions:** answered by E5 and the formal selection below. Demand history is highly informative but the 11-feature variant does not match FULL_V1; price has a modest and calendar/event features a clearer validation benefit in this experiment.
 - **Artifacts:** `configs/experiments/xgboost_feature_ablation_v1.yaml`, `scripts/ml/formal_model_comparison.py`, the formal comparison/feature-group/horizon/resource tables, and three P10 figures.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
 
@@ -134,6 +134,17 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Interpretation:** FULL_V1 is lowest on all three metrics. NO_PRICE is best among reduced variants but degrades WAPE by 0.552%, MAE by 0.552%, and RMSE by 0.876%. Calendar/event removal degrades WAPE by 2.401%; demand/product-only degrades WAPE by 2.448%. Historical demand is highly informative, but the 11-feature model is not sufficient by the strict all-metrics criterion; price and calendar/event groups help this validation experiment.
 - **Resources:** runtime/model-size: FULL_V1 109.747 s / 93.565 MiB; NO_PRICE 76.427 s / 102.569 MiB; NO_CALENDAR_EVENT 88.416 s / 101.622 MiB; DEMAND_PRODUCT_ONLY 61.235 s / 107.880 MiB. Fewer features are faster here but not smaller artifacts.
 - **Horizon/per-SKU:** every variant generated 40,236 predictions; all retain 81 undefined per-SKU WAPEs from zero validation-demand denominators. The full-vs-best-reduced horizon evidence is tracked; no reduced variant wins aggregate validation.
-- **Recommendation:** **FULL_V1 is the recommended candidate for NEXT-010B** under the frozen WAPE-first rule. This is not final model selection.
+- **Decision:** FULL_V1 was formally retained in CHECKPOINT-010B under the frozen WAPE-first rule; it is the selected feature set based on validation, not a final test-validated selection.
 - **Artifacts:** `scripts/ml/run_xgboost_feature_ablation.py`, `data/manifests/xgboost_feature_ablation_v1.json`, ablation results/summary/horizon tables, and four ablation figures.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
+
+## Formal Forecasting-Model Selection — CHECKPOINT-010B
+
+- **Date:** 2026-09-21
+- **Status:** `DONE` — validation-selected model and feature set frozen; no model was trained, retrained, tuned, or evaluated in this decision task.
+- **Selected forecasting model based on validation:** `XGBOOST_V1` with `FEATURE_SET_V1` / `FULL_V1` (25 features), one global one-step regression model with recursive 28-day inference, using the already frozen `count:poisson` configuration.
+- **Selection evidence:** XGBoost MAE/RMSE/WAPE = **1.402449 / 2.568234 / 66.647316%**, lower than Seasonal Naive, the 28-day Moving Average (1.438625 / 2.726401 / 68.366443%), and `LIGHTGBM_V1` (1.523283 / 2.730151 / 72.389572%).
+- **Feature decision:** under WAPE-first with MAE/RMSE secondary, no reduced set can replace FULL_V1: 20, 16, and 11 features all worsen each metric. Faster reduced fits do not outweigh the validation error because the rule does not optimize an arbitrary accuracy/resource composite.
+- **Resources:** selected XGBoost took 109.747 seconds and its ignored JSON is 93.565 MiB; LightGBM took 49.370 seconds and is 2.447 MiB. These are practical trade-offs, not a substitute for the selection rule.
+- **Artifacts:** `configs/models/selected_forecasting_model.yaml`, `reports/tables/selected_forecasting_model_summary.md`, and `reports/figures/selected_forecasting_model_validation_comparison.png`.
+- **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED. This is a validation-selected model, not a final test-validated model.

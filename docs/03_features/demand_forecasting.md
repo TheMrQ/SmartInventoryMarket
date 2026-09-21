@@ -1,6 +1,6 @@
 # Demand Forecasting
 
-Status: 🟡 **IN_PROGRESS** — feature-group ablation is complete and a pre-registered recommendation exists; final model/feature-set selection remains.
+Status: 🟢 **DONE** — `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` is selected on validation; TEST remains sealed.
 
 ## Dataset and Models
 
@@ -119,9 +119,24 @@ The frozen ablation was executed without changing XGBOOST_V1 hyperparameters, se
 | NO_CALENDAR_EVENT | 16 | 1.436128 | 2.637362 | 68.247805% | -2.401% |
 | DEMAND_PRODUCT_ONLY | 11 | 1.436787 | 2.659655 | 68.279111% | -2.448% |
 
-FULL_V1 is lowest on WAPE, MAE, and RMSE, so it is the **RECOMMENDED CANDIDATE FOR NEXT-010B** under the pre-registered WAPE-first rule. This is not yet the formally frozen model/feature set. NO_PRICE is the best reduced variant but does not meet the criterion for a reduced set because all its validation metrics are worse. Removing calendar/event features or reducing to demand/product-only worsens every aggregate metric. Thus, historical demand is highly informative but the 11-feature variant is not sufficient under the strict full-model comparison; price and calendar/event groups help this validation experiment. These are validation-specific findings, not universal causal claims.
+FULL_V1 is lowest on WAPE, MAE, and RMSE. CHECKPOINT-010B formally retained it under the pre-registered WAPE-first rule. NO_PRICE is the best reduced variant but does not meet the criterion for a reduced set because all its validation metrics are worse. Removing calendar/event features or reducing to demand/product-only worsens every aggregate metric. Thus, historical demand is highly informative but the 11-feature variant is not sufficient under the strict full-model comparison; price and calendar/event groups help this validation experiment. These are validation-specific findings, not universal causal claims.
 
 Runtime is 109.747 s FULL_V1, 76.427 s NO_PRICE, 88.416 s NO_CALENDAR_EVENT, and 61.235 s DEMAND_PRODUCT_ONLY. Artifact sizes are 93.565, 102.569, 101.622, and 107.880 MiB respectively; fewer features did not reduce artifact size in this fixed-parameter run. The full and best-reduced horizon figure shows broadly similar shape but NO_PRICE does not outperform FULL_V1 in aggregate. Tracked results, horizons, metadata, and four figures are under `reports/tables/xgboost_feature_ablation_v1_*`, `data/manifests/xgboost_feature_ablation_v1.json`, and `reports/figures/xgboost_*ablation*`.
+
+## Selected Forecasting Model
+
+**Status: SELECTED ON VALIDATION — TEST STILL SEALED.**
+
+- **Algorithm:** `XGBOOST_V1`.
+- **Feature set:** `FEATURE_SET_V1` / `FULL_V1`.
+- **Features:** 25.
+- **Forecast:** global one-step regression with recursive 28-day forecasting.
+- **Validation metrics:** MAE **1.402449**, RMSE **2.568234**, WAPE **66.647316%**.
+- **Frozen configuration:** `configs/models/xgboost_v1.yaml`; the version-controlled selection pointer is `configs/models/selected_forecasting_model.yaml`.
+
+The pre-registered WAPE-first rule permits a reduced feature set only if WAPE is equal or lower and MAE/RMSE do not worsen. No reduced variant qualified: NO_PRICE (20 features) had WAPE 67.015300%, NO_CALENDAR_EVENT (16) had 68.247805%, and DEMAND_PRODUCT_ONLY (11) had 68.279111%. Price features provide a modest validation benefit and calendar/event features a clearer one in this experiment. Demand/product-only retains much of the performance but does not match FULL_V1. These findings did not improve this validation experiment; they do not establish that the groups are always necessary.
+
+This is the selected forecasting model based on validation, not a final test-validated model. TEST `d_1914`–`d_1941` remains sealed and will be evaluated only at the planned final evaluation stage.
 
 Planned ML models:
 

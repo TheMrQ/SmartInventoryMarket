@@ -1,0 +1,29 @@
+# Validation-only forecasting-model decision -- CHECKPOINT-010B.
+# This pointer freezes the downstream selection; it does not evaluate TEST.
+selection_status: DONE
+selection_checkpoint: CHECKPOINT-010B
+
+selected_model: XGBOOST_V1
+selected_model_config: configs/models/xgboost_v1.yaml
+selected_feature_set: FEATURE_SET_V1
+selected_feature_config: configs/features/ml_features_v1.yaml
+selected_variant: FULL_V1
+feature_count: 25
+
+forecasting_formulation: global_one_step_regression_with_recursive_inference
+forecast_horizon_days: 28
+
+selection_basis: validation
+primary_metric: WAPE
+secondary_metrics:
+  - MAE
+  - RMSE
+validation_MAE: 1.4024492791741443
+validation_RMSE: 2.568234060409177
+validation_WAPE: 66.64731562910531
+
+selection_rule: >-
+  A reduced feature set may replace FULL_V1 only when WAPE is equal or lower
+  and neither MAE nor RMSE is worse. No reduced variant met this rule.
+test_status: SEALED
+test_selection_use: prohibited

@@ -4,20 +4,17 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P10 Feature Ablation and Model Selection
+Overall status: 🟢 **DONE** — P10 complete; project intentionally PAUSED BEFORE P11 after the forecasting model was selected.
 
 ## Quick Human Summary
 
-What we decided:
+What we selected:
 
-- M5 `CA_1` food products are the official forecasting scope: 1,437 SKU-level series.
-- The official forecast is 28 daily steps; the app will derive 7/14/28-day demand summaries from it.
-- Train, validation, and test are frozen chronological windows; the test window is held out.
-- The 28-day Moving Average is the current validation reference baseline.
-- The first ML formulation is a global one-step model with recursive 28-day forecasting.
-- Inventory will be simulated transparently because M5 has no real inventory history.
-- MySQL is the application database; MySQL Workbench is its design/admin tool.
-- Historical sales can first be imported by CSV; a real deployment should later sync new sales from POS automatically.
+- XGBoost is the validation-selected forecasting algorithm.
+- The full 25-feature `FEATURE_SET_V1` / `FULL_V1` is retained.
+- It achieved the best validation result: MAE 1.402449, RMSE 2.568234, and WAPE 66.647316%.
+- Reducing to 20, 16, or 11 features made validation forecasting worse.
+- TEST is still sealed.
 
 Why:
 
@@ -40,6 +37,7 @@ What we did:
 - Formally compared all four validation methods, their horizon behavior, feature-group gain patterns, and ML resource trade-offs without training another model.
 - Froze the controlled XGBoost feature-group ablation protocol for the next experiment.
 - Reused FULL_V1 and trained the three frozen reduced XGBoost variants under the same recursive validation protocol.
+- Formally selected and froze `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` from validation-only evidence.
 
 What we learned:
 
@@ -53,11 +51,11 @@ What we learned:
 - Recursive forecasts were created before validation actuals were loaded; TEST sales values remain unread, unforecast, unscored, unsummarized, and unplotted.
 - `XGBOOST_V1` achieved validation MAE/RMSE/WAPE of 1.402449 / 2.568234 / 66.647316%. It beat Seasonal Naive, the Moving Average (2.515% MAE/WAPE and 5.801% RMSE improvement), and `LIGHTGBM_V1` (7.932% MAE/WAPE and 5.931% RMSE improvement).
 - XGBoost took 109.747 seconds and its ignored JSON artifact is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB. Performance and resource cost remain separate considerations.
-- `XGBOOST_V1` is the **CURRENT VALIDATION LEADER**, with the lowest observed validation MAE, RMSE, and WAPE; it is not the final model because TEST remains sealed and ablation has not yet tested group contributions.
+- `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` is the **selected forecasting model based on validation**. It is not a final test-validated model because TEST remains sealed.
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 - FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: formally select the forecasting model and feature set using the pre-registered validation criteria, freeze that choice for downstream work, and stop before TEST evaluation.
+What happens next: the project is intentionally paused before P11. Future work begins with the inventory simulation protocol; it must not evaluate TEST unless the separately planned final-evaluation stage is reached.
 
 ## Roadmap
 
@@ -73,7 +71,7 @@ What happens next: formally select the forecasting model and feature set using t
 | P7 Time-series feature engineering | 🟢 **DONE** |
 | P8 LightGBM forecasting | 🟢 **DONE** |
 | P9 XGBoost forecasting | 🟢 **DONE** |
-| P10 Forecast comparison + model selection | 🟡 **IN_PROGRESS** |
+| P10 Forecast comparison + model selection | 🟢 **DONE** |
 | P11 Inventory simulation protocol | ⚪ **TODO** |
 | P12 Minimum-stock vs forecast-based reorder experiment | ⚪ **TODO** |
 | P13 MySQL + FastAPI core | ⚪ **TODO** |
@@ -86,17 +84,17 @@ What happens next: formally select the forecasting model and feature set using t
 
 ## Current Task
 
-Feature-group ablation is complete. All three reduced variants generated 40,236 validation predictions after train-only recursive inference; none beat FULL_V1. FULL_V1 is the recommended candidate for NEXT-010B under the pre-registered WAPE-first rule, but formal selection has not yet occurred. P10 remains 🟡 **IN_PROGRESS** and TEST remains sealed.
+P10 is complete. The pre-registered WAPE-first rule (with MAE/RMSE secondary) selected `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` (25 features) from validation evidence. Every reduced variant was worse on all three metrics. The project is intentionally paused before P11; TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-010A` — XGBoost feature-group ablation complete
+`CHECKPOINT-010B` — `XGBOOST_V1` + `FEATURE_SET_V1` formally selected on validation
 
 ## Next Exact Step
 
-`NEXT-010B` — Formally select the forecasting model and feature set using the pre-registered validation criteria, freeze that choice for downstream inventory/application work, and stop before TEST evaluation.
+`P11` — Inventory simulation protocol (TODO; deliberately not started in this task).
 
-NEXT-010B must preserve test isolation. It must not open, forecast, score, summarize, or evaluate TEST.
+The project is paused before P11. Any future work must preserve test isolation; it must not open, forecast, score, summarize, or evaluate TEST outside the planned final evaluation.
 
 ## Known Blockers
 
