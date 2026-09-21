@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P8 LightGBM Forecasting
+Overall status: `IN_PROGRESS` — P9 XGBoost Forecasting
 
 ## Quick Human Summary
 
@@ -35,6 +35,7 @@ What we did:
 - Added the version-controlled protocol at `configs/data/m5_ca1_foods.yaml`.
 - Prepared the frozen source boundary and generated the first fixed-origin 28-day validation forecasts.
 - Converted train sales into leakage-safe ML features: past sales lags, rolling demand, calendar/events, product codes, and historical prices.
+- Trained and evaluated the initial global `LIGHTGBM_V1` model using a recursive 28-day validation forecast.
 
 What we learned:
 
@@ -44,8 +45,10 @@ What we learned:
 - On validation, the 28-day Moving Average outperformed Seasonal Naive: MAE 1.438625 vs 1.739785, RMSE 2.726401 vs 3.357394, and WAPE 68.366443% vs 82.678226%.
 - The 28 validation days contained 81 SKUs with zero total actual sales, so their per-SKU WAPE is undefined rather than treated as zero.
 - FEATURE_SET_V1 contains 25 model features across 2,668,509 train rows; tests confirm features cannot see their own target or future sales.
+- `LIGHTGBM_V1` completed 400 deterministic CPU trees in 49.370 seconds. Its validation MAE/RMSE/WAPE were 1.523283 / 2.730151 / 72.389572%: better than Seasonal Naive, but not the 28-day Moving Average reference (1.438625 / 2.726401 / 68.366443%).
+- Recursive forecasts were created before validation actuals were loaded; TEST sales values remain unread, unforecast, unscored, unsummarized, and unplotted.
 
-What happens next: train the first global LightGBM model, generate a recursive 28-day validation forecast, and compare it with the frozen baselines. No ML model has been trained yet.
+What happens next: train the initial XGBoost global model under the same frozen FEATURE_SET_V1 and recursive validation protocol, then compare validation-only results. TEST remains sealed.
 
 ## Roadmap
 
@@ -59,7 +62,7 @@ What happens next: train the first global LightGBM model, generate a recursive 2
 | P5 Subset + forecast horizon + chronological split freeze | DONE |
 | P6 Naive / Moving Average baselines | DONE |
 | P7 Time-series feature engineering | DONE |
-| P8 LightGBM forecasting | TODO |
+| P8 LightGBM forecasting | DONE |
 | P9 XGBoost forecasting | TODO |
 | P10 Forecast comparison + model selection | TODO |
 | P11 Inventory simulation protocol | TODO |
@@ -74,17 +77,17 @@ What happens next: train the first global LightGBM model, generate a recursive 2
 
 ## Current Task
 
-P7 is complete. FEATURE_SET_V1 creates the train-only long-form matrix and supports later recursive single-step inference using explicit history. It includes leakage-safe lag/rolling demand, known calendar/event, product identity, and past-only price features. No model has been trained, no ML validation predictions exist, and TEST remains sealed.
+P8 is complete. `LIGHTGBM_V1` trained one global deterministic Poisson LightGBM on the 2,668,509 frozen FEATURE_SET_V1 train rows and generated 40,236 recursive validation predictions. It beat Seasonal Naive but did not beat the frozen Moving Average on aggregate MAE, RMSE, or WAPE. The experiment is initial and untuned; no selection decision has been made. TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-007` — Leakage-safe FEATURE_SET_V1 complete
+`CHECKPOINT-008` — First LightGBM recursive validation complete
 
 ## Next Exact Step
 
-`NEXT-008` — Train the first LightGBM global forecasting model, generate the 28-day recursive validation forecast, and compare it with the frozen baselines.
+`NEXT-009` — Train the first XGBoost global forecasting model using FEATURE_SET_V1, generate its 28-day recursive validation forecast, and compare it with the frozen baselines and `LIGHTGBM_V1`.
 
-NEXT-008 must preserve the frozen scope/split and test isolation. It may train/evaluate on validation, but must not evaluate TEST.
+NEXT-009 must preserve the frozen scope/split and test isolation. It may train/evaluate on validation, but must not evaluate TEST.
 
 ## Known Blockers
 

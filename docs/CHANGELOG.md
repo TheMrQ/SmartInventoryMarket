@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-008: Initial LightGBM recursive validation complete
+
+- Added the exact, version-controlled `LIGHTGBM_V1` configuration, reusable global-model and recursive-inference utilities, and 15 passing Python tests covering the feature, baseline, model, and recursive paths.
+- Trained one deterministic 400-tree global Poisson LightGBM on 2,668,509 FEATURE_SET_V1 train rows and generated all 40,236 recursive validation predictions before loading validation actuals.
+- Generated tracked validation metrics, per-horizon metrics, gain importance, reproducibility manifest, report tables, and five figures. LightGBM beat Seasonal Naive but did not beat the frozen 28-day Moving Average.
+- Kept the local serialized model Git-ignored. TEST sales values were not read, forecast, scored, summarized, or plotted; no model-selection decision, inventory simulation, or application functionality was implemented.
+
 ## 2026-09-21 — CHECKPOINT-007: Leakage-safe FEATURE_SET_V1 complete
 
 - Added FEATURE_SET_V1 configuration, a train-only long-form construction pipeline, and shared global one-step/recursive-inference feature builders.

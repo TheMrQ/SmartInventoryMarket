@@ -143,7 +143,9 @@ def _validate_history_positions(history: np.ndarray, positions: np.ndarray, warm
     return values
 
 
-def _sales_feature_arrays(history_sales: np.ndarray, positions: np.ndarray, config: dict[str, Any]) -> dict[str, np.ndarray]:
+def _sales_feature_arrays(
+    history_sales: np.ndarray, positions: np.ndarray, config: dict[str, Any], lag_dtype: np.dtype = np.int16
+) -> dict[str, np.ndarray]:
     """Return past-only lag/rolling feature blocks for target positions.
 
     Position ``p`` means target day ``p`` in zero-based indexing; only history
@@ -153,7 +155,7 @@ def _sales_feature_arrays(history_sales: np.ndarray, positions: np.ndarray, conf
     sales = _validate_history_positions(history_sales, positions, warmup).astype(np.float32, copy=False)
     features: dict[str, np.ndarray] = {}
     for lag in config["sales_lags"]:
-        features[f"lag_{lag}"] = sales[:, positions - lag].astype(np.int16, copy=False)
+        features[f"lag_{lag}"] = sales[:, positions - lag].astype(lag_dtype, copy=False)
 
     cumulative = np.concatenate([np.zeros((sales.shape[0], 1), dtype=np.float64), np.cumsum(sales, axis=1, dtype=np.float64)], axis=1)
     squared_cumulative = np.concatenate(
@@ -299,14 +301,14 @@ def build_single_step_inference_features(
     Callers append prior recursive predictions to ``history_sales`` before the
     next step. This function never reads a raw file or validation/test actuals.
     """
-    sales = np.asarray(history_sales, dtype=np.int16)
+    sales = np.asarray(history_sales, dtype=np.float32)
     prices = np.asarray(history_prices, dtype=np.float32)
     if sales.shape != prices.shape or sales.shape[0] != len(metadata):
         raise ValueError("History sales, prices, and metadata must align by series.")
     if len(target_calendar) != 1:
         raise ValueError("Single-step inference requires exactly one target calendar row.")
     positions = np.array([sales.shape[1]], dtype=np.int32)
-    sales_features = _sales_feature_arrays(sales, positions, config)
+    sales_features = _sales_feature_arrays(sales, positions, config, lag_dtype=np.float32)
     price_features = _price_feature_arrays(prices, positions, config)
     calendar_features = encode_calendar_features(target_calendar, encodings).iloc[0]
     frame: dict[str, np.ndarray] = {

@@ -1,0 +1,16 @@
+# Initial / untuned CPU LightGBM experiment for CHECKPOINT-008.
+model_name: LIGHTGBM_V1
+feature_set: FEATURE_SET_V1
+objective: poisson
+boosting_type: gbdt
+n_estimators: 400
+learning_rate: 0.05
+num_leaves: 31
+max_depth: -1
+min_child_samples: 100
+reg_alpha: 0.0
+reg_lambda: 0.1
+random_state: 42
+n_jobs: -1
+deterministic: true
+force_col_wise: true

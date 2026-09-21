@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: `IN_PROGRESS` — validation baselines are complete; ML features and models have not been implemented.
+Status: `IN_PROGRESS` — validation baselines, FEATURE_SET_V1, and the initial LightGBM model are complete; XGBoost and model selection remain.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -8,7 +8,7 @@ Status: `IN_PROGRESS` — validation baselines are complete; ML features and mod
 | E1 | Seasonal Naive (`lag_7`) validation baseline — DONE |
 | E2 | 28-day Moving Average validation baseline — DONE |
 | E2A | FEATURE_SET_V1 construction and leakage audit — DONE |
-| E3 | LightGBM forecasting |
+| E3 | LightGBM forecasting — DONE |
 | E4 | XGBoost forecasting |
 | E5 | Feature ablation: without lag/rolling vs with lag/rolling |
 | E6 | Forecast-horizon comparison, if appropriate |
@@ -79,3 +79,18 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Resources:** 33.969 seconds generation time; 180.687 MiB in-memory feature frame; 14.710 MiB ignored gzip pickle cache.
 - **Artifacts:** `data/processed/m5_ca1_foods_features_v1.pkl.gz` (ignored), `data/manifests/m5_ca1_foods_features_v1.json`, `reports/tables/feature_set_v1_summary.md`, `ml/features/builder.py`, and `scripts/ml/build_features.py`.
 - **TEST / validation sales:** NOT ACCESSED. The pipeline loaded train sales only through `d_1885`; validation calendar metadata only supports later recursive inference.
+
+## E3 — LIGHTGBM_V1 Global Recursive Forecasting
+
+- **Date:** 2026-09-21
+- **Status:** `DONE` — initial, untuned validation-only LightGBM experiment; it is not a model-selection decision.
+- **Dataset / split:** frozen M5 `CA_1` + `FOODS`, 1,437 item-store series. Training uses 2,668,509 FEATURE_SET_V1 rows from `d_29`–`d_1885` (the frozen train sales boundary is `d_1`–`d_1885`); validation is `d_1886`–`d_1913`, 28 days and 40,236 SKU-day observations. TEST `d_1914`–`d_1941` remains sealed.
+- **Model / reproducibility:** one global `LIGHTGBM_V1` with Poisson objective, `gbdt`, 400 estimators, learning rate 0.05, 31 leaves, unlimited depth, `min_child_samples=100`, `reg_alpha=0`, `reg_lambda=0.1`, seed 42, `n_jobs=-1`, deterministic and `force_col_wise`. The 25 FEATURE_SET_V1 fields include explicitly categorical item/department, calendar/SNAP, and event codes. No early stopping, random subsampling, or parameter sweep was used.
+- **Forecast protocol:** first all 28 recursive forecasts were produced from training history only. After each step its continuous prediction, not the validation actual, was appended to the sales history. Unknown future price state was represented as `NaN`. Validation actuals were loaded only after the 40,236 predictions existed.
+- **Results:** `LIGHTGBM_V1` MAE **1.523283**, RMSE **2.730151**, WAPE **72.389572%**. It improves on Seasonal Naive (1.739785 / 3.357394 / 82.678226%) but trails the frozen 28-day Moving Average (1.438625 / 2.726401 / 68.366443%) by 0.084658 MAE, 0.003749 RMSE, and 4.023129 WAPE percentage points.
+- **Per-SKU / horizon:** median/mean/p90 per-SKU MAE = 1.064630 / 1.523283 / 2.697365; per-SKU WAPE is undefined for 81 zero-total validation-demand series. Horizon-1 MAE is 1.226082 and horizon-28 MAE is 1.857874 (min 1.194999; max 1.988939).
+- **Runtime / artifact:** 49.370 seconds fit time, 400 final trees, 12 detected CPUs. Ignored local model `artifacts/models/lightgbm_v1.joblib` is 2,565,567 bytes (2.447 MiB); SHA-256 is recorded in the tracked manifest.
+- **Feature importance:** gain is led by `rolling_mean_7` (71.563%), `rolling_mean_14` (17.714%), and `rolling_mean_28` (2.941%). These are fitted-model association measures, not causal effects.
+- **Tracked artifacts:** `configs/models/lightgbm_v1.yaml`, `scripts/ml/train_lightgbm.py`, `data/manifests/lightgbm_v1_validation.json`, `reports/tables/lightgbm_v1_validation_metrics.csv`, `reports/tables/lightgbm_v1_horizon_metrics.csv`, `reports/tables/lightgbm_v1_feature_importance.csv`, `reports/tables/lightgbm_v1_validation_summary.md`, and five `reports/figures/lightgbm_v1_*.png` figures.
+- **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
+- **Decision / next:** retain the Moving Average as the current validation reference. Run the predeclared XGBoost experiment under the same frozen scope and recursive validation protocol before any model selection.

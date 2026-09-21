@@ -254,4 +254,4 @@ No primary candidate is currently verified as both real and complete enough. OSA
 | Validation window | `d_1886`–`d_1913` / 2016-03-28–2016-04-24 — FROZEN |
 | Test window | `d_1914`–`d_1941` / 2016-04-25–2016-05-22 — FROZEN |
 
-NEXT-008 may train the first global LightGBM model and evaluate its recursive validation forecast against the frozen baselines. It must preserve these boundaries and must not evaluate TEST.
+CHECKPOINT-008 trained the first global LightGBM model with train data only and completed its 28-day recursive validation forecast. All validation predictions were generated before validation actual sales were loaded for scoring; TEST sales values were not read, forecast, scored, summarized, or plotted. The next XGBoost experiment must preserve the same boundaries and test isolation.
