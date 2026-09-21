@@ -1,6 +1,6 @@
 # Demand Forecasting
 
-Status: `IN_PROGRESS` — the frozen protocol, validation baselines, FEATURE_SET_V1, and both initial ML validation runs are complete; formal model comparison and selection remain.
+Status: `IN_PROGRESS` — formal validation comparison is complete and a controlled XGBoost feature-group ablation is frozen; final model selection remains.
 
 ## Dataset and Models
 
@@ -96,6 +96,18 @@ Per-SKU XGBoost MAE median/mean/p90 is 1.014283 / 1.402449 / 2.602418; 81 of 1,4
 
 Training took 109.747 seconds. The ignored `artifacts/models/xgboost_v1.json` is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB; speed and size do not independently determine the model decision. The tracked `xgboost_v1_*` artifacts and `ml_models_runtime_comparison.csv` record configuration, version, hash, metrics, importance, runtime, and report figures.
 
+## Formal Validation Comparison and Frozen Ablation Plan (CHECKPOINT-010)
+
+The validation-only four-method comparison identifies **`XGBOOST_V1` as the CURRENT VALIDATION LEADER**, not the final model: it has MAE 1.402449, RMSE 2.568234, and WAPE 66.647316%, lower than Seasonal Naive, Moving Average, and LightGBM. Against the strongest simple reference, Moving Average, it improves MAE/WAPE by 2.515% and RMSE by 5.801%; against LightGBM, it improves MAE/WAPE by 7.932% and RMSE by 5.931%. TEST remains sealed, so validation leadership must not be presented as final TEST performance.
+
+XGBoost has lower MAE than LightGBM on all 28 recursive validation horizons. Both profiles fluctuate rather than rise strictly monotonically: their minimum MAE is at horizon 3 and their maximum at horizon 14. Both end with higher day-28 than day-1 MAE, so recursive prediction feedback is a plausible contributor to later-horizon degradation but not proven as its sole cause. `reports/tables/ml_horizon_comparison_summary.md` preserves the measured details.
+
+The normalized gain groups are rolling demand 93.146%, sales lags 2.348%, calendar/event 1.939%, product identity 1.897%, and price 0.670% for LightGBM; and rolling 95.527%, sales lags 1.659%, price 1.681%, calendar/event 0.735%, and product identity 0.398% for XGBoost. Shared top features are `rolling_mean_7`, `rolling_mean_14`, and `rolling_mean_28`. These gains are descriptive fitted-model behavior, not causal evidence or proof that lower-gain features are dispensable.
+
+`configs/experiments/xgboost_feature_ablation_v1.yaml` freezes the next experiment, without executing it. Its only variable is the feature group: `FULL_V1` reuses the existing 25-feature XGBoost reference; `NO_PRICE` removes exactly five price features (20 total); `NO_CALENDAR_EVENT` removes exactly nine calendar/event features (16 total); and `DEMAND_PRODUCT_ONLY` keeps nine demand-history plus two product-identity fields (11 total). All variants retain the XGBoost V1 parameters/seed, 1,437 series, `d_1`–`d_1885` train boundary, 28-day recursive `d_1886`–`d_1913` validation, and sealed TEST. WAPE is the frozen primary ablation metric, with MAE and RMSE secondary.
+
+The frozen questions are whether demand history supplies most performance, whether calendar/event and price groups improve validation forecasts, and whether the 11-feature model retains comparable or better error. Importance is not used to preselect a top-k model. LightGBM is computationally lighter (49.370 s; 2.447 MiB) while XGBoost has better current validation error (109.747 s; 93.565 MiB); no arbitrary combined score is used.
+
 Planned ML models:
 
 - LightGBM
@@ -123,7 +135,7 @@ Optional only: LSTM / Transformer.
 
 Primary thesis metrics are **MAE**, **RMSE**, and **WAPE**. Do not report Accuracy for forecasting. Do not use MAPE as the sole primary metric because many SKU-days have zero observed sales. Future reports must provide both aggregate metrics across all `CA_1`/`FOODS` observations and per-SKU/error-distribution analysis so high-volume products do not hide poor SKU-level performance.
 
-The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → initial XGBoost (complete) → validation comparison/model selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
+The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → initial XGBoost (complete) → formal validation comparison (complete) → controlled XGBoost feature-group ablation → model selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
 
 ## Future Model Lifecycle
 

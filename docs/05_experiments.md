@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: `IN_PROGRESS` — validation baselines, FEATURE_SET_V1, and the initial LightGBM/XGBoost models are complete; formal comparison and model selection remain.
+Status: `IN_PROGRESS` — formal validation comparison is complete; frozen XGBoost feature-group ablation and final model selection remain.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -10,9 +10,9 @@ Status: `IN_PROGRESS` — validation baselines, FEATURE_SET_V1, and the initial 
 | E2A | FEATURE_SET_V1 construction and leakage audit — DONE |
 | E3 | LightGBM forecasting — DONE |
 | E4 | XGBoost forecasting — DONE |
-| E5 | Feature ablation: without lag/rolling vs with lag/rolling |
+| E5 | XGBoost feature-group ablation — TODO (frozen plan) |
 | E6 | Forecast-horizon comparison, if appropriate |
-| E7 | Forecast-model comparison |
+| E7 | Formal validation model comparison — DONE |
 | E8 | Minimum-stock inventory simulation |
 | E9 | Forecast-based reorder simulation |
 | E10 | Minimum-stock vs forecast-based inventory comparison |
@@ -110,3 +110,17 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Tracked artifacts:** `configs/models/xgboost_v1.yaml`, `scripts/ml/train_xgboost.py`, `data/manifests/xgboost_v1_validation.json`, `reports/tables/xgboost_v1_*.csv`, `reports/tables/xgboost_v1_validation_summary.md`, `reports/tables/ml_models_runtime_comparison.csv`, and six XGBoost/cross-model figures.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
 - **Decision / next:** conduct the formal validation comparison in E7/NEXT-010; do not select a model or open TEST yet.
+
+## E7 — Formal Validation Model Comparison
+
+- **Date:** 2026-09-21
+- **Status:** `DONE` — analysis of existing tracked validation outputs only; no model was trained or retrained.
+- **Four-method evidence:** Seasonal Naive MAE/RMSE/WAPE = 1.739785 / 3.357394 / 82.678226%; Moving Average = 1.438625 / 2.726401 / 68.366443%; LightGBM = 1.523283 / 2.730151 / 72.389572%; XGBoost = 1.402449 / 2.568234 / 66.647316%.
+- **Validation interpretation:** Seasonal Naive is weakest; Moving Average is a strong simple reference; LightGBM improves Seasonal Naive but not Moving Average. **XGBOOST_V1 is the CURRENT VALIDATION LEADER**, not the final model, because TEST is sealed and ablation remains.
+- **Horizon evidence:** XGBoost has lower MAE on all 28 horizons. Both models reach minimum MAE at horizon 3 and maximum at horizon 14, have higher day-28 than day-1 MAE, and fluctuate rather than increase monotonically. Recursive error feedback is a plausible contributor, not a proved sole cause.
+- **Feature-group evidence:** rolling demand gain dominates both models (93.146% LightGBM; 95.527% XGBoost). Gains are descriptive, not causal or a basis to remove low-gain fields without experiment.
+- **Resource trade-off:** LightGBM is lighter (49.370 s; 2.447 MiB) while XGBoost has the better current validation error (109.747 s; 93.565 MiB). Runtime and model size are not combined into an arbitrary winner score.
+- **Decision:** freeze E5 as `XGBOOST_FEATURE_ABLATION_V1`, primary WAPE and secondary MAE/RMSE. Variants are FULL_V1 (25, existing result reused), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11); only features may vary.
+- **Research questions:** whether demand history supplies most performance, whether calendar/event or price groups improve error, and whether 11 features retain comparable or better validation error. These are unanswered until E5 is executed.
+- **Artifacts:** `configs/experiments/xgboost_feature_ablation_v1.yaml`, `scripts/ml/formal_model_comparison.py`, the formal comparison/feature-group/horizon/resource tables, and three P10 figures.
+- **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.

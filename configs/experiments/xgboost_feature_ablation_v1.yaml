@@ -1,0 +1,68 @@
+# CHECKPOINT-010: frozen plan only. NEXT-010A will execute it; this file does not train models.
+experiment_name: XGBOOST_FEATURE_ABLATION_V1
+status: FROZEN_NOT_EXECUTED
+reference_variant: FULL_V1
+model_config: configs/models/xgboost_v1.yaml
+feature_set: FEATURE_SET_V1
+primary_metric: WAPE
+secondary_metrics:
+  - MAE
+  - RMSE
+
+fixed_protocol:
+  store_id: CA_1
+  category_id: FOODS
+  expected_item_store_series: 1437
+  train_end_d: d_1885
+  validation_start_d: d_1886
+  validation_end_d: d_1913
+  forecast_horizon_days: 28
+  forecast_strategy: global_one_step_recursive
+  random_seed: 42
+  test_access: sealed
+
+variants:
+  FULL_V1:
+    expected_feature_count: 25
+    feature_source: FEATURE_SET_V1
+    execution: reuse_existing_xgboost_v1_result
+  NO_PRICE:
+    expected_feature_count: 20
+    remove_features:
+      - last_known_sell_price
+      - price_lag_7
+      - price_change_from_7_days_ago
+      - price_available
+      - price_missing
+  NO_CALENDAR_EVENT:
+    expected_feature_count: 16
+    remove_features:
+      - wday
+      - month
+      - year
+      - is_weekend
+      - snap_CA
+      - event_name_1_code
+      - event_type_1_code
+      - event_name_2_code
+      - event_type_2_code
+  DEMAND_PRODUCT_ONLY:
+    expected_feature_count: 11
+    keep_features:
+      - lag_1
+      - lag_7
+      - lag_14
+      - lag_28
+      - rolling_mean_7
+      - rolling_mean_14
+      - rolling_mean_28
+      - rolling_std_7
+      - rolling_std_28
+      - item_code
+      - dept_code
+
+research_questions:
+  RQ_A: Do historical demand features alone provide most of the forecasting performance?
+  RQ_B: Do calendar/event features improve validation forecasting?
+  RQ_C: Do historical price features improve validation forecasting?
+  RQ_D: Can a substantially smaller feature set achieve comparable or better forecasting error than the full 25-feature model?

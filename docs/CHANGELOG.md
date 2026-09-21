@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-010: Formal validation comparison and frozen ablation protocol
+
+- Added a reproducible analysis runner that reads tracked validation artifacts only, produces formal four-method, horizon, feature-group, and resource-trade-off evidence, and does not load raw M5 or train a model.
+- Identified `XGBOOST_V1` as the CURRENT VALIDATION LEADER: it is lower than all current methods on aggregate MAE/RMSE/WAPE and lower than LightGBM on all 28 measured horizons; final selection remains deferred.
+- Froze `XGBOOST_FEATURE_ABLATION_V1` with FULL_V1 (25), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11), using WAPE primary and MAE/RMSE secondary.
+- TEST sales values were not read, forecast, scored, summarized, or plotted. No new model was trained, tuned, ablated, selected, or evaluated.
+
 ## 2026-09-21 — CHECKPOINT-009: Initial XGBoost recursive validation complete
 
 - Added the exact, untuned CPU `XGBOOST_V1` configuration, native-categorical XGBoost wrapper, reusable four-method comparison utility, and synthetic XGBoost/config/reload tests.

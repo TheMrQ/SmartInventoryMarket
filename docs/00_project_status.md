@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P10 Formal Model Comparison
+Overall status: `IN_PROGRESS` — P10 Feature Ablation and Model Selection
 
 ## Quick Human Summary
 
@@ -37,6 +37,8 @@ What we did:
 - Converted train sales into leakage-safe ML features: past sales lags, rolling demand, calendar/events, product codes, and historical prices.
 - Trained and evaluated the initial global `LIGHTGBM_V1` model using a recursive 28-day validation forecast.
 - Trained the initial global `XGBOOST_V1` model under the identical frozen data, feature, and recursive-validation protocol.
+- Formally compared all four validation methods, their horizon behavior, feature-group gain patterns, and ML resource trade-offs without training another model.
+- Froze the controlled XGBoost feature-group ablation protocol for the next experiment.
 
 What we learned:
 
@@ -50,8 +52,10 @@ What we learned:
 - Recursive forecasts were created before validation actuals were loaded; TEST sales values remain unread, unforecast, unscored, unsummarized, and unplotted.
 - `XGBOOST_V1` achieved validation MAE/RMSE/WAPE of 1.402449 / 2.568234 / 66.647316%. It beat Seasonal Naive, the Moving Average (2.515% MAE/WAPE and 5.801% RMSE improvement), and `LIGHTGBM_V1` (7.932% MAE/WAPE and 5.931% RMSE improvement).
 - XGBoost took 109.747 seconds and its ignored JSON artifact is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB. Performance and resource cost remain separate considerations.
+- `XGBOOST_V1` is the **CURRENT VALIDATION LEADER**, with the lowest observed validation MAE, RMSE, and WAPE; it is not the final model because TEST remains sealed and ablation has not yet tested group contributions.
+- Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 
-What happens next: formally compare the validation evidence across the two baselines, LightGBM, and XGBoost; analyze horizon/feature behavior and decide the justified next experiment. TEST remains sealed.
+What happens next: retrain XGBoost under controlled feature-group removals to test whether price/calendar groups help and whether a smaller feature set retains comparable performance. TEST remains sealed.
 
 ## Roadmap
 
@@ -67,7 +71,7 @@ What happens next: formally compare the validation evidence across the two basel
 | P7 Time-series feature engineering | DONE |
 | P8 LightGBM forecasting | DONE |
 | P9 XGBoost forecasting | DONE |
-| P10 Forecast comparison + model selection | TODO |
+| P10 Forecast comparison + model selection | IN_PROGRESS |
 | P11 Inventory simulation protocol | TODO |
 | P12 Minimum-stock vs forecast-based reorder experiment | TODO |
 | P13 MySQL + FastAPI core | TODO |
@@ -80,17 +84,17 @@ What happens next: formally compare the validation evidence across the two basel
 
 ## Current Task
 
-P9 is complete. `XGBOOST_V1` trained one global native-categorical Poisson XGBoost model on the same 2,668,509 frozen FEATURE_SET_V1 rows and generated 40,236 recursive validation predictions. It beat every prior validation method on aggregate MAE, RMSE, and WAPE. Both ML experiments remain initial and untuned; no model-selection decision has been made. TEST remains sealed.
+The formal validation comparison is complete. `XGBOOST_V1` is the CURRENT VALIDATION LEADER, lower than every current method on MAE, RMSE, and WAPE and on all 28 per-horizon MAEs. The next step is a frozen group ablation, not a final selection: FULL_V1 (25), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11). P10 remains IN_PROGRESS and TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-009` — First XGBoost recursive validation complete
+`CHECKPOINT-010` — Formal validation comparison complete and feature ablation protocol frozen
 
 ## Next Exact Step
 
-`NEXT-010` — Perform the formal validation comparison across baselines, `LIGHTGBM_V1`, and `XGBOOST_V1`; analyze feature/horizon behavior and decide the justified next modeling experiment before opening TEST.
+`NEXT-010A` — Run the frozen XGBoost feature-group ablation experiment using FULL_V1, NO_PRICE, NO_CALENDAR_EVENT, and DEMAND_PRODUCT_ONLY under the identical recursive validation protocol.
 
-NEXT-010 must preserve the frozen scope/split and test isolation. It must not open or evaluate TEST.
+NEXT-010A must preserve the frozen scope/split, hyperparameters, recursive forecast protocol, and test isolation. It must not open or evaluate TEST.
 
 ## Known Blockers
 
