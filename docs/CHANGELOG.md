@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-010A: XGBoost feature-group ablation complete
+
+- Reused verified FULL_V1 and trained the three frozen reduced XGBoost variants (NO_PRICE, NO_CALENDAR_EVENT, and DEMAND_PRODUCT_ONLY) under unchanged scope, parameters, recursive validation, and categorical policy.
+- Generated tracked ablation results, summary, horizon metrics, manifest, and feature-count/metrics/runtime/horizon figures. FULL_V1 remains lowest on validation WAPE, MAE, and RMSE; it is the recommended candidate for formal selection.
+- Added synthetic ablation/config/recommendation tests and corrected the report-layer WAPE field mapping without retraining models.
+- Standardized human-readable status markers in project status and documented the convention. TEST sales values were not read, forecast, scored, summarized, or plotted.
+
 ## 2026-09-21 — CHECKPOINT-010: Formal validation comparison and frozen ablation protocol
 
 - Added a reproducible analysis runner that reads tracked validation artifacts only, produces formal four-method, horizon, feature-group, and resource-trade-off evidence, and does not load raw M5 or train a model.

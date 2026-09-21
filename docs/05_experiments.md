@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: `IN_PROGRESS` — formal validation comparison is complete; frozen XGBoost feature-group ablation and final model selection remain.
+Status: 🟡 **IN_PROGRESS** — feature-group ablation is complete; formal model/feature-set selection remains.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -10,7 +10,7 @@ Status: `IN_PROGRESS` — formal validation comparison is complete; frozen XGBoo
 | E2A | FEATURE_SET_V1 construction and leakage audit — DONE |
 | E3 | LightGBM forecasting — DONE |
 | E4 | XGBoost forecasting — DONE |
-| E5 | XGBoost feature-group ablation — TODO (frozen plan) |
+| E5 | XGBoost feature-group ablation — DONE |
 | E6 | Forecast-horizon comparison, if appropriate |
 | E7 | Formal validation model comparison — DONE |
 | E8 | Minimum-stock inventory simulation |
@@ -123,4 +123,17 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Decision:** freeze E5 as `XGBOOST_FEATURE_ABLATION_V1`, primary WAPE and secondary MAE/RMSE. Variants are FULL_V1 (25, existing result reused), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11); only features may vary.
 - **Research questions:** whether demand history supplies most performance, whether calendar/event or price groups improve error, and whether 11 features retain comparable or better validation error. These are unanswered until E5 is executed.
 - **Artifacts:** `configs/experiments/xgboost_feature_ablation_v1.yaml`, `scripts/ml/formal_model_comparison.py`, the formal comparison/feature-group/horizon/resource tables, and three P10 figures.
+- **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
+
+## E5 — XGBoost Feature-Group Ablation
+
+- **Date:** 2026-09-21
+- **Status:** `DONE` — FULL_V1 reused; NO_PRICE, NO_CALENDAR_EVENT, and DEMAND_PRODUCT_ONLY were trained under the frozen fair-comparison protocol.
+- **Controls:** all variants use M5 CA_1/FOODS, 1,437 series, 2,668,509 train rows, d_1886–d_1913 recursive validation, the unchanged XGBOOST_V1 Poisson/hist parameters and seed, native categorical policy, and MAE/RMSE/WAPE. FULL_V1 has 25 features; NO_PRICE 20; NO_CALENDAR_EVENT 16; DEMAND_PRODUCT_ONLY 11.
+- **Results:** FULL_V1 1.402449 / 2.568234 / 66.647316%; NO_PRICE 1.410193 / 2.590741 / 67.015300%; NO_CALENDAR_EVENT 1.436128 / 2.637362 / 68.247805%; DEMAND_PRODUCT_ONLY 1.436787 / 2.659655 / 68.279111% (MAE / RMSE / WAPE).
+- **Interpretation:** FULL_V1 is lowest on all three metrics. NO_PRICE is best among reduced variants but degrades WAPE by 0.552%, MAE by 0.552%, and RMSE by 0.876%. Calendar/event removal degrades WAPE by 2.401%; demand/product-only degrades WAPE by 2.448%. Historical demand is highly informative, but the 11-feature model is not sufficient by the strict all-metrics criterion; price and calendar/event groups help this validation experiment.
+- **Resources:** runtime/model-size: FULL_V1 109.747 s / 93.565 MiB; NO_PRICE 76.427 s / 102.569 MiB; NO_CALENDAR_EVENT 88.416 s / 101.622 MiB; DEMAND_PRODUCT_ONLY 61.235 s / 107.880 MiB. Fewer features are faster here but not smaller artifacts.
+- **Horizon/per-SKU:** every variant generated 40,236 predictions; all retain 81 undefined per-SKU WAPEs from zero validation-demand denominators. The full-vs-best-reduced horizon evidence is tracked; no reduced variant wins aggregate validation.
+- **Recommendation:** **FULL_V1 is the recommended candidate for NEXT-010B** under the frozen WAPE-first rule. This is not final model selection.
+- **Artifacts:** `scripts/ml/run_xgboost_feature_ablation.py`, `data/manifests/xgboost_feature_ablation_v1.json`, ablation results/summary/horizon tables, and four ablation figures.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.

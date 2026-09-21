@@ -54,6 +54,28 @@ Treat a successful file list as authentication verification only; verify downloa
 
 ## Problem Record Template
 
+## 2026-09-21 — Ablation-summary WAPE mapping corrected
+
+Symptom:
+
+The first ablation report rendered reduced-variant WAPE cells as blank despite successful model training and recursive prediction generation.
+
+Root cause:
+
+The shared metric utility returns the aggregate field as `WAPE_percent`, while the ablation result schema requires `WAPE`.
+
+Fix:
+
+Mapped the shared field explicitly to `WAPE`, added a unit test, and regenerated reports from the already saved ignored XGBoost artifacts using recursive inference only; no model was retrained.
+
+Verification:
+
+All four variants have finite MAE, RMSE, and WAPE values in the tracked result table; the full pytest suite passes.
+
+Prevention:
+
+Normalize shared metric names at report boundaries and test the output schema rather than assuming identical field names.
+
 ## YYYY-MM-DD — Problem title
 
 Symptom:

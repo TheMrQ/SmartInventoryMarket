@@ -1,6 +1,6 @@
 # Demand Forecasting
 
-Status: `IN_PROGRESS` — formal validation comparison is complete and a controlled XGBoost feature-group ablation is frozen; final model selection remains.
+Status: 🟡 **IN_PROGRESS** — feature-group ablation is complete and a pre-registered recommendation exists; final model/feature-set selection remains.
 
 ## Dataset and Models
 
@@ -108,6 +108,21 @@ The normalized gain groups are rolling demand 93.146%, sales lags 2.348%, calend
 
 The frozen questions are whether demand history supplies most performance, whether calendar/event and price groups improve validation forecasts, and whether the 11-feature model retains comparable or better error. Importance is not used to preselect a top-k model. LightGBM is computationally lighter (49.370 s; 2.447 MiB) while XGBoost has better current validation error (109.747 s; 93.565 MiB); no arbitrary combined score is used.
 
+## XGBoost Feature-Group Ablation V1 (CHECKPOINT-010A)
+
+The frozen ablation was executed without changing XGBOOST_V1 hyperparameters, seed, categorical treatment, data scope, 2,668,509 train rows, 1,437 series, feature values, 28-step recursive procedure, or TEST isolation. FULL_V1 was reused from its verified 25-feature result; the runner trained only NO_PRICE (20 features), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11). All three reduced variants completed 40,236 recursive validation predictions before validation actual sales were loaded.
+
+| Variant | Features | MAE | RMSE | WAPE | WAPE change vs FULL |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| FULL_V1 | 25 | 1.402449 | 2.568234 | 66.647316% | 0.000% |
+| NO_PRICE | 20 | 1.410193 | 2.590741 | 67.015300% | -0.552% |
+| NO_CALENDAR_EVENT | 16 | 1.436128 | 2.637362 | 68.247805% | -2.401% |
+| DEMAND_PRODUCT_ONLY | 11 | 1.436787 | 2.659655 | 68.279111% | -2.448% |
+
+FULL_V1 is lowest on WAPE, MAE, and RMSE, so it is the **RECOMMENDED CANDIDATE FOR NEXT-010B** under the pre-registered WAPE-first rule. This is not yet the formally frozen model/feature set. NO_PRICE is the best reduced variant but does not meet the criterion for a reduced set because all its validation metrics are worse. Removing calendar/event features or reducing to demand/product-only worsens every aggregate metric. Thus, historical demand is highly informative but the 11-feature variant is not sufficient under the strict full-model comparison; price and calendar/event groups help this validation experiment. These are validation-specific findings, not universal causal claims.
+
+Runtime is 109.747 s FULL_V1, 76.427 s NO_PRICE, 88.416 s NO_CALENDAR_EVENT, and 61.235 s DEMAND_PRODUCT_ONLY. Artifact sizes are 93.565, 102.569, 101.622, and 107.880 MiB respectively; fewer features did not reduce artifact size in this fixed-parameter run. The full and best-reduced horizon figure shows broadly similar shape but NO_PRICE does not outperform FULL_V1 in aggregate. Tracked results, horizons, metadata, and four figures are under `reports/tables/xgboost_feature_ablation_v1_*`, `data/manifests/xgboost_feature_ablation_v1.json`, and `reports/figures/xgboost_*ablation*`.
+
 Planned ML models:
 
 - LightGBM
@@ -135,7 +150,7 @@ Optional only: LSTM / Transformer.
 
 Primary thesis metrics are **MAE**, **RMSE**, and **WAPE**. Do not report Accuracy for forecasting. Do not use MAPE as the sole primary metric because many SKU-days have zero observed sales. Future reports must provide both aggregate metrics across all `CA_1`/`FOODS` observations and per-SKU/error-distribution analysis so high-volume products do not hide poor SKU-level performance.
 
-The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → initial XGBoost (complete) → formal validation comparison (complete) → controlled XGBoost feature-group ablation → model selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
+The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → initial XGBoost (complete) → formal validation comparison (complete) → controlled XGBoost feature-group ablation (complete) → model/feature-set selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
 
 ## Future Model Lifecycle
 

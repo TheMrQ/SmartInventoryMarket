@@ -13,6 +13,10 @@ Read [Project Status](00_project_status.md). It records completed work, the curr
 - Application database: MySQL, administered/designed with MySQL Workbench and accessed by FastAPI through SQLAlchemy.
 - Sales ingestion: initial historical CSV import for the thesis MVP, with a future POS/API integration boundary for ongoing sales sync.
 
+## Status Markers
+
+Use these human-readable markers consistently in project status: 🟢 **DONE**, 🟡 **IN_PROGRESS**, ⚪ **TODO**, 🔴 **BLOCKED**, and 🔵 **OPTIONAL**. The underlying status words remain the project’s canonical values.
+
 ## What Each File Is For
 
 - **`00_project_status.md`** — current progress / save point of the whole project.

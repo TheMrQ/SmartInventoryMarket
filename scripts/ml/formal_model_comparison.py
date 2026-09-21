@@ -93,8 +93,8 @@ def build_feature_group_importance(lightgbm: pd.DataFrame, xgboost: pd.DataFrame
 
 def validate_ablation_config(config: dict, all_features: set[str]) -> None:
     """Verify prescribed ablation groups are mutually interpretable and correctly sized."""
-    if config["status"] != "FROZEN_NOT_EXECUTED" or config["primary_metric"] != "WAPE":
-        raise ValueError("Ablation plan must remain frozen and use WAPE as the primary metric.")
+    if config["status"] not in {"TODO", "DONE"} or config["primary_metric"] != "WAPE":
+        raise ValueError("Ablation plan must use a canonical status and WAPE as the primary metric.")
     variants = config["variants"]
     if set(variants) != {"FULL_V1", "NO_PRICE", "NO_CALENDAR_EVENT", "DEMAND_PRODUCT_ONLY"}:
         raise ValueError("Ablation plan variants differ from the prescribed four variants.")

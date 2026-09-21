@@ -38,13 +38,13 @@ def load_model_config(config_path: str | Path) -> dict[str, Any]:
 def build_categorical_schema(
     features: pd.DataFrame, extra_levels: dict[str, list[int]] | None = None
 ) -> CategoricalSchema:
-    """Freeze categorical code levels for consistent train/inference dtypes."""
-    missing = set(CATEGORICAL_FEATURES).difference(features.columns)
-    if missing:
-        raise ValueError(f"FEATURE_SET_V1 is missing categorical model features: {sorted(missing)}")
+    """Freeze levels for categorical fields retained by a frozen feature variant."""
+    categorical_columns = [column for column in CATEGORICAL_FEATURES if column in features.columns]
+    if not categorical_columns:
+        raise ValueError("A feature variant must retain at least one categorical FEATURE_SET_V1 field.")
     extra_levels = extra_levels or {}
     schema: CategoricalSchema = {}
-    for column in CATEGORICAL_FEATURES:
+    for column in categorical_columns:
         values = {int(value) for value in features[column].dropna().unique()}
         values.update(int(value) for value in extra_levels.get(column, []))
         schema[column] = sorted(values)
@@ -54,7 +54,7 @@ def build_categorical_schema(
 def prepare_features(features: pd.DataFrame, schema: CategoricalSchema) -> pd.DataFrame:
     """Use native categorical dtypes while preserving the frozen integer values."""
     result = features.copy()
-    for column in CATEGORICAL_FEATURES:
+    for column in schema:
         if column not in result.columns or column not in schema:
             raise ValueError(f"Missing categorical feature/schema entry: {column}")
         original = result[column]

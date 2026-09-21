@@ -1,6 +1,7 @@
-# CHECKPOINT-010: frozen plan only. NEXT-010A will execute it; this file does not train models.
+# CHECKPOINT-010A: frozen plan executed under the recorded fair-comparison protocol.
 experiment_name: XGBOOST_FEATURE_ABLATION_V1
-status: FROZEN_NOT_EXECUTED
+status: DONE
+execution_checkpoint: CHECKPOINT-010A
 reference_variant: FULL_V1
 model_config: configs/models/xgboost_v1.yaml
 feature_set: FEATURE_SET_V1

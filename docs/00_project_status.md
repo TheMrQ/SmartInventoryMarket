@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P10 Feature Ablation and Model Selection
+Overall status: 🟡 **IN_PROGRESS** — P10 Feature Ablation and Model Selection
 
 ## Quick Human Summary
 
@@ -39,6 +39,7 @@ What we did:
 - Trained the initial global `XGBOOST_V1` model under the identical frozen data, feature, and recursive-validation protocol.
 - Formally compared all four validation methods, their horizon behavior, feature-group gain patterns, and ML resource trade-offs without training another model.
 - Froze the controlled XGBoost feature-group ablation protocol for the next experiment.
+- Reused FULL_V1 and trained the three frozen reduced XGBoost variants under the same recursive validation protocol.
 
 What we learned:
 
@@ -54,47 +55,48 @@ What we learned:
 - XGBoost took 109.747 seconds and its ignored JSON artifact is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB. Performance and resource cost remain separate considerations.
 - `XGBOOST_V1` is the **CURRENT VALIDATION LEADER**, with the lowest observed validation MAE, RMSE, and WAPE; it is not the final model because TEST remains sealed and ablation has not yet tested group contributions.
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
+- FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: retrain XGBoost under controlled feature-group removals to test whether price/calendar groups help and whether a smaller feature set retains comparable performance. TEST remains sealed.
+What happens next: formally select the forecasting model and feature set using the pre-registered validation criteria, freeze that choice for downstream work, and stop before TEST evaluation.
 
 ## Roadmap
 
 | Phase | Status |
 | --- | --- |
-| P0 Topic selected and roadmap reviewed | DONE |
-| P1 Repository + environment + long-term memory | DONE |
-| P2 Retail dataset candidate audit | DONE |
-| P3 Official dataset strategy + architecture decisions | DONE |
-| P4 M5 acquisition + formal local schema audit | DONE |
-| P5 Subset + forecast horizon + chronological split freeze | DONE |
-| P6 Naive / Moving Average baselines | DONE |
-| P7 Time-series feature engineering | DONE |
-| P8 LightGBM forecasting | DONE |
-| P9 XGBoost forecasting | DONE |
-| P10 Forecast comparison + model selection | IN_PROGRESS |
-| P11 Inventory simulation protocol | TODO |
-| P12 Minimum-stock vs forecast-based reorder experiment | TODO |
-| P13 MySQL + FastAPI core | TODO |
-| P14 Inventory/product/supplier modules | TODO |
-| P15 Sales ingestion + forecasting API | TODO |
-| P16 Inventory decision engine | TODO |
-| P17 React dashboard + integration | TODO |
-| P18 Testing + final experiments | TODO |
-| P19 Thesis report + defense package | TODO |
+| P0 Topic selected and roadmap reviewed | 🟢 **DONE** |
+| P1 Repository + environment + long-term memory | 🟢 **DONE** |
+| P2 Retail dataset candidate audit | 🟢 **DONE** |
+| P3 Official dataset strategy + architecture decisions | 🟢 **DONE** |
+| P4 M5 acquisition + formal local schema audit | 🟢 **DONE** |
+| P5 Subset + forecast horizon + chronological split freeze | 🟢 **DONE** |
+| P6 Naive / Moving Average baselines | 🟢 **DONE** |
+| P7 Time-series feature engineering | 🟢 **DONE** |
+| P8 LightGBM forecasting | 🟢 **DONE** |
+| P9 XGBoost forecasting | 🟢 **DONE** |
+| P10 Forecast comparison + model selection | 🟡 **IN_PROGRESS** |
+| P11 Inventory simulation protocol | ⚪ **TODO** |
+| P12 Minimum-stock vs forecast-based reorder experiment | ⚪ **TODO** |
+| P13 MySQL + FastAPI core | ⚪ **TODO** |
+| P14 Inventory/product/supplier modules | ⚪ **TODO** |
+| P15 Sales ingestion + forecasting API | ⚪ **TODO** |
+| P16 Inventory decision engine | ⚪ **TODO** |
+| P17 React dashboard + integration | ⚪ **TODO** |
+| P18 Testing + final experiments | ⚪ **TODO** |
+| P19 Thesis report + defense package | ⚪ **TODO** |
 
 ## Current Task
 
-The formal validation comparison is complete. `XGBOOST_V1` is the CURRENT VALIDATION LEADER, lower than every current method on MAE, RMSE, and WAPE and on all 28 per-horizon MAEs. The next step is a frozen group ablation, not a final selection: FULL_V1 (25), NO_PRICE (20), NO_CALENDAR_EVENT (16), and DEMAND_PRODUCT_ONLY (11). P10 remains IN_PROGRESS and TEST remains sealed.
+Feature-group ablation is complete. All three reduced variants generated 40,236 validation predictions after train-only recursive inference; none beat FULL_V1. FULL_V1 is the recommended candidate for NEXT-010B under the pre-registered WAPE-first rule, but formal selection has not yet occurred. P10 remains 🟡 **IN_PROGRESS** and TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-010` — Formal validation comparison complete and feature ablation protocol frozen
+`CHECKPOINT-010A` — XGBoost feature-group ablation complete
 
 ## Next Exact Step
 
-`NEXT-010A` — Run the frozen XGBoost feature-group ablation experiment using FULL_V1, NO_PRICE, NO_CALENDAR_EVENT, and DEMAND_PRODUCT_ONLY under the identical recursive validation protocol.
+`NEXT-010B` — Formally select the forecasting model and feature set using the pre-registered validation criteria, freeze that choice for downstream inventory/application work, and stop before TEST evaluation.
 
-NEXT-010A must preserve the frozen scope/split, hyperparameters, recursive forecast protocol, and test isolation. It must not open or evaluate TEST.
+NEXT-010B must preserve test isolation. It must not open, forecast, score, summarize, or evaluate TEST.
 
 ## Known Blockers
 

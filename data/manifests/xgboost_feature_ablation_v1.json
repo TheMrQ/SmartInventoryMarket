@@ -1,0 +1,31 @@
+{
+  "experiment_name": "XGBOOST_FEATURE_ABLATION_V1",
+  "status": "VALIDATION_COMPLETE_RECOMMENDATION_PENDING_SELECTION",
+  "git_commit_at_run": "a2cef024404782cdeac13a172bf812cc8566d19a",
+  "scope": {
+    "store_id": "CA_1",
+    "category_id": "FOODS",
+    "series_count": 1437
+  },
+  "training_rows": 2668509,
+  "feature_counts": {
+    "FULL_V1": 25,
+    "NO_PRICE": 20,
+    "NO_CALENDAR_EVENT": 16,
+    "DEMAND_PRODUCT_ONLY": 11
+  },
+  "prediction_counts": {
+    "FULL_V1": 40236,
+    "NO_PRICE": 40236,
+    "NO_CALENDAR_EVENT": 40236,
+    "DEMAND_PRODUCT_ONLY": 40236
+  },
+  "primary_metric": "WAPE",
+  "secondary_metrics": [
+    "MAE",
+    "RMSE"
+  ],
+  "recommended_candidate_for_next_010b": "FULL_V1",
+  "results_path": "reports/tables/xgboost_feature_ablation_v1_results.csv",
+  "test_access_policy": "TEST sales values were not read, forecast, scored, summarized, or plotted."
+}

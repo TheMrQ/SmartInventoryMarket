@@ -52,6 +52,14 @@ def test_xgboost_config_and_four_method_comparison() -> None:
     assert compared.loc[2, "MAE_improvement_pct_vs_lightgbm_v1"] == (1.5 - 1.0) / 1.5 * 100
 
 
+def test_xgboost_wrapper_supports_a_frozen_categorical_feature_subset() -> None:
+    features = _features().loc[:, ["lag_1", "item_code", "dept_code"]]
+    model, schema = fit_global_model(features, np.arange(len(features)) % 5, _config())
+
+    assert set(schema) == {"item_code", "dept_code"}
+    assert predict_checked(model, features.iloc[:2], schema).shape == (2,)
+
+
 def test_horizon_metrics_support_xgboost_validation_shape() -> None:
     actual = np.tile(np.array([[1.0, 2.0]]), (2, 1))
     forecast = np.tile(np.array([[1.0, 1.0]]), (2, 1))
