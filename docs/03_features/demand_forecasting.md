@@ -1,6 +1,6 @@
 # Demand Forecasting
 
-Status: `IN_PROGRESS` — the frozen protocol, validation baselines, FEATURE_SET_V1, and the initial LightGBM validation run are complete; XGBoost and model selection remain.
+Status: `IN_PROGRESS` — the frozen protocol, validation baselines, FEATURE_SET_V1, and both initial ML validation runs are complete; formal model comparison and selection remain.
 
 ## Dataset and Models
 
@@ -77,6 +77,25 @@ The first LightGBM run improves every aggregate metric over Seasonal Naive but i
 
 Gain importance is descriptive of the fitted trees, not causal: `rolling_mean_7` contributes 71.563% of total gain, followed by `rolling_mean_14` (17.714%), `rolling_mean_28` (2.941%), `lag_1` (1.974%), and `item_code` (1.876%). The ignored model artifact is `artifacts/models/lightgbm_v1.joblib` (2.447 MiB, SHA-256 recorded in the tracked manifest); fitting took 49.370 seconds on the local CPU. Tracked evidence is the `lightgbm_v1_*` manifest, tables, and figures under `data/manifests/` and `reports/`.
 
+## XGBOOST_V1 — Initial Global Recursive Validation (CHECKPOINT-009)
+
+`configs/models/xgboost_v1.yaml` freezes the first intentionally untuned CPU configuration: `count:poisson`, `hist`, 400 estimators, learning rate 0.05, maximum depth 8, `min_child_weight=10`, full row/column sampling, `reg_lambda=1`, and seed 42. `ml/models/xgboost_model.py` uses XGBoost 3.4.1 native categorical support (`enable_categorical=True`): the same deterministic FEATURE_SET_V1 integer codes are cast to pandas categorical dtype with a fixed schema for all train and recursive-inference calls. No one-hot encoding, feature selection, special XGBoost feature, backward fill, or future price was introduced. Native missing-value handling retains the existing missing-price values and indicators.
+
+One global XGBoost model trained on the same 2,668,509 rows, 1,437 series, and 25 features as LightGBM. Its runner generated all 40,236 recursive `d_1886`–`d_1913` predictions before loading validation actuals; prior continuous XGBoost predictions, never validation actuals, were appended to history between steps. The JSON artifact was reload-checked on a small prediction probe. TEST sales values were not read, forecast, scored, summarized, or plotted.
+
+| Method | Validation MAE | Validation RMSE | Validation WAPE |
+| --- | ---: | ---: | ---: |
+| Seasonal Naive (`lag_7`) | 1.739785 | 3.357394 | 82.678226% |
+| 28-day Moving Average | 1.438625 | 2.726401 | 68.366443% |
+| `LIGHTGBM_V1` | 1.523283 | 2.730151 | 72.389572% |
+| `XGBOOST_V1` | 1.402449 | 2.568234 | 66.647316% |
+
+XGBoost improves on the Moving Average by 2.515% MAE/WAPE and 5.801% RMSE, and on LightGBM by 7.932% MAE/WAPE and 5.931% RMSE. It improves on Seasonal Naive by 19.390% MAE/WAPE and 23.505% RMSE. These validation results do not yet choose a final model; NEXT-010 owns the formal comparison decision.
+
+Per-SKU XGBoost MAE median/mean/p90 is 1.014283 / 1.402449 / 2.602418; 81 of 1,437 series retain undefined per-SKU WAPE because validation actual demand totals zero. Horizon MAE is 1.219299 at day 1 and 1.711911 at day 28 (minimum 1.097862; maximum 1.800677), with fluctuating rather than monotonic recursive error. Gain is descriptive, not causal: top features are `rolling_mean_7` (64.695%), `rolling_mean_14` (28.983%), `rolling_mean_28` (1.606%), `last_known_sell_price` (0.847%), and `lag_1` (0.801%).
+
+Training took 109.747 seconds. The ignored `artifacts/models/xgboost_v1.json` is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB; speed and size do not independently determine the model decision. The tracked `xgboost_v1_*` artifacts and `ml_models_runtime_comparison.csv` record configuration, version, hash, metrics, importance, runtime, and report figures.
+
 Planned ML models:
 
 - LightGBM
@@ -104,7 +123,7 @@ Optional only: LSTM / Transformer.
 
 Primary thesis metrics are **MAE**, **RMSE**, and **WAPE**. Do not report Accuracy for forecasting. Do not use MAPE as the sole primary metric because many SKU-days have zero observed sales. Future reports must provide both aggregate metrics across all `CA_1`/`FOODS` observations and per-SKU/error-distribution analysis so high-volume products do not hide poor SKU-level performance.
 
-The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → XGBoost → validation comparison/model selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
+The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → initial XGBoost (complete) → validation comparison/model selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
 
 ## Future Model Lifecycle
 

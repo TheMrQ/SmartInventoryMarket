@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: `IN_PROGRESS` — validation baselines, FEATURE_SET_V1, and the initial LightGBM model are complete; XGBoost and model selection remain.
+Status: `IN_PROGRESS` — validation baselines, FEATURE_SET_V1, and the initial LightGBM/XGBoost models are complete; formal comparison and model selection remain.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -9,7 +9,7 @@ Status: `IN_PROGRESS` — validation baselines, FEATURE_SET_V1, and the initial 
 | E2 | 28-day Moving Average validation baseline — DONE |
 | E2A | FEATURE_SET_V1 construction and leakage audit — DONE |
 | E3 | LightGBM forecasting — DONE |
-| E4 | XGBoost forecasting |
+| E4 | XGBoost forecasting — DONE |
 | E5 | Feature ablation: without lag/rolling vs with lag/rolling |
 | E6 | Forecast-horizon comparison, if appropriate |
 | E7 | Forecast-model comparison |
@@ -94,3 +94,19 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Tracked artifacts:** `configs/models/lightgbm_v1.yaml`, `scripts/ml/train_lightgbm.py`, `data/manifests/lightgbm_v1_validation.json`, `reports/tables/lightgbm_v1_validation_metrics.csv`, `reports/tables/lightgbm_v1_horizon_metrics.csv`, `reports/tables/lightgbm_v1_feature_importance.csv`, `reports/tables/lightgbm_v1_validation_summary.md`, and five `reports/figures/lightgbm_v1_*.png` figures.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
 - **Decision / next:** retain the Moving Average as the current validation reference. Run the predeclared XGBoost experiment under the same frozen scope and recursive validation protocol before any model selection.
+
+## E4 — XGBOOST_V1 Global Recursive Forecasting
+
+- **Date:** 2026-09-21
+- **Status:** `DONE` — initial, untuned validation-only XGBoost experiment; it does not select the final model.
+- **Dataset / fairness:** the exact frozen M5 `CA_1` + `FOODS` scope, 1,437 series, 2,668,509 `d_29`–`d_1885` FEATURE_SET_V1 rows, 25 unchanged features, `d_1886`–`d_1913` validation, and 28-day global one-step recursive protocol used by LightGBM. TEST remains sealed.
+- **Model / environment:** XGBoost 3.4.1, CPU `hist`, `count:poisson`, 400 estimators, learning rate 0.05, depth 8, `min_child_weight=10`, full row/column sampling, `reg_alpha=0`, `reg_lambda=1`, seed 42, and `n_jobs=-1`. No grid search, early stopping, feature selection, or XGBoost-only features.
+- **Categorical / missing-value policy:** the same deterministic product, calendar/SNAP, and event code values are native pandas categoricals with fixed levels and `enable_categorical=True`; no million-row one-hot encoding. XGBoost native missing handling preserves past-only missing-price values and their availability/missing indicators.
+- **Forecast protocol:** all 40,236 recursive predictions existed before validation actuals were loaded. Each later feature row saw only train history plus earlier XGBoost predictions; future prices remained `NaN`. A saved JSON artifact reload produced consistent small-sample predictions.
+- **Results:** MAE **1.402449**, RMSE **2.568234**, WAPE **66.647316%**. Against Moving Average, XGBoost improves MAE/WAPE by 2.515% and RMSE by 5.801%; against LightGBM, MAE/WAPE by 7.932% and RMSE by 5.931%; against Seasonal Naive, MAE/WAPE by 19.390% and RMSE by 23.505%.
+- **Per-SKU / horizon:** median/mean/p90 MAE = 1.014283 / 1.402449 / 2.602418. WAPE is undefined for the same 81 zero-total validation-demand series. Horizon-1 MAE is 1.219299 and horizon-28 MAE is 1.711911 (min 1.097862; max 1.800677).
+- **Feature behavior:** gain is led by `rolling_mean_7` (64.695%), `rolling_mean_14` (28.983%), `rolling_mean_28` (1.606%), `last_known_sell_price` (0.847%), and `lag_1` (0.801%). This describes model behavior, not causal effects; no features were removed.
+- **Runtime / artifact:** 109.747 seconds, 400 final trees, and 12 detected CPUs. Ignored native JSON artifact is 98,109,535 bytes (93.565 MiB); SHA-256 is in the tracked manifest. LightGBM required 49.370 seconds and 2,565,567 bytes (2.447 MiB); neither runtime nor size alone chooses the model.
+- **Tracked artifacts:** `configs/models/xgboost_v1.yaml`, `scripts/ml/train_xgboost.py`, `data/manifests/xgboost_v1_validation.json`, `reports/tables/xgboost_v1_*.csv`, `reports/tables/xgboost_v1_validation_summary.md`, `reports/tables/ml_models_runtime_comparison.csv`, and six XGBoost/cross-model figures.
+- **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED.
+- **Decision / next:** conduct the formal validation comparison in E7/NEXT-010; do not select a model or open TEST yet.

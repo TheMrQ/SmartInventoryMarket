@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: `IN_PROGRESS` — P9 XGBoost Forecasting
+Overall status: `IN_PROGRESS` — P10 Formal Model Comparison
 
 ## Quick Human Summary
 
@@ -36,6 +36,7 @@ What we did:
 - Prepared the frozen source boundary and generated the first fixed-origin 28-day validation forecasts.
 - Converted train sales into leakage-safe ML features: past sales lags, rolling demand, calendar/events, product codes, and historical prices.
 - Trained and evaluated the initial global `LIGHTGBM_V1` model using a recursive 28-day validation forecast.
+- Trained the initial global `XGBOOST_V1` model under the identical frozen data, feature, and recursive-validation protocol.
 
 What we learned:
 
@@ -47,8 +48,10 @@ What we learned:
 - FEATURE_SET_V1 contains 25 model features across 2,668,509 train rows; tests confirm features cannot see their own target or future sales.
 - `LIGHTGBM_V1` completed 400 deterministic CPU trees in 49.370 seconds. Its validation MAE/RMSE/WAPE were 1.523283 / 2.730151 / 72.389572%: better than Seasonal Naive, but not the 28-day Moving Average reference (1.438625 / 2.726401 / 68.366443%).
 - Recursive forecasts were created before validation actuals were loaded; TEST sales values remain unread, unforecast, unscored, unsummarized, and unplotted.
+- `XGBOOST_V1` achieved validation MAE/RMSE/WAPE of 1.402449 / 2.568234 / 66.647316%. It beat Seasonal Naive, the Moving Average (2.515% MAE/WAPE and 5.801% RMSE improvement), and `LIGHTGBM_V1` (7.932% MAE/WAPE and 5.931% RMSE improvement).
+- XGBoost took 109.747 seconds and its ignored JSON artifact is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB. Performance and resource cost remain separate considerations.
 
-What happens next: train the initial XGBoost global model under the same frozen FEATURE_SET_V1 and recursive validation protocol, then compare validation-only results. TEST remains sealed.
+What happens next: formally compare the validation evidence across the two baselines, LightGBM, and XGBoost; analyze horizon/feature behavior and decide the justified next experiment. TEST remains sealed.
 
 ## Roadmap
 
@@ -63,7 +66,7 @@ What happens next: train the initial XGBoost global model under the same frozen 
 | P6 Naive / Moving Average baselines | DONE |
 | P7 Time-series feature engineering | DONE |
 | P8 LightGBM forecasting | DONE |
-| P9 XGBoost forecasting | TODO |
+| P9 XGBoost forecasting | DONE |
 | P10 Forecast comparison + model selection | TODO |
 | P11 Inventory simulation protocol | TODO |
 | P12 Minimum-stock vs forecast-based reorder experiment | TODO |
@@ -77,17 +80,17 @@ What happens next: train the initial XGBoost global model under the same frozen 
 
 ## Current Task
 
-P8 is complete. `LIGHTGBM_V1` trained one global deterministic Poisson LightGBM on the 2,668,509 frozen FEATURE_SET_V1 train rows and generated 40,236 recursive validation predictions. It beat Seasonal Naive but did not beat the frozen Moving Average on aggregate MAE, RMSE, or WAPE. The experiment is initial and untuned; no selection decision has been made. TEST remains sealed.
+P9 is complete. `XGBOOST_V1` trained one global native-categorical Poisson XGBoost model on the same 2,668,509 frozen FEATURE_SET_V1 rows and generated 40,236 recursive validation predictions. It beat every prior validation method on aggregate MAE, RMSE, and WAPE. Both ML experiments remain initial and untuned; no model-selection decision has been made. TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-008` — First LightGBM recursive validation complete
+`CHECKPOINT-009` — First XGBoost recursive validation complete
 
 ## Next Exact Step
 
-`NEXT-009` — Train the first XGBoost global forecasting model using FEATURE_SET_V1, generate its 28-day recursive validation forecast, and compare it with the frozen baselines and `LIGHTGBM_V1`.
+`NEXT-010` — Perform the formal validation comparison across baselines, `LIGHTGBM_V1`, and `XGBOOST_V1`; analyze feature/horizon behavior and decide the justified next modeling experiment before opening TEST.
 
-NEXT-009 must preserve the frozen scope/split and test isolation. It may train/evaluate on validation, but must not evaluate TEST.
+NEXT-010 must preserve the frozen scope/split and test isolation. It must not open or evaluate TEST.
 
 ## Known Blockers
 

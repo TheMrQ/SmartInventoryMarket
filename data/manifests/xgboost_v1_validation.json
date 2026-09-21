@@ -1,0 +1,74 @@
+{
+  "model_name": "XGBOOST_V1",
+  "status": "INITIAL_UNTUNED_VALIDATION_ONLY",
+  "git_commit_at_run": "3d111ed8458d1ebbbbbb5f75d9a331df6dccab4e",
+  "feature_set": "FEATURE_SET_V1",
+  "scope": {
+    "store_id": "CA_1",
+    "category_id": "FOODS",
+    "series_count": 1437
+  },
+  "training": {
+    "rows": 2668509,
+    "feature_count": 25,
+    "target": "sales_target",
+    "duration_seconds": 109.747,
+    "final_trees": 400,
+    "cpu_count": 12,
+    "parameters": {
+      "model_name": "XGBOOST_V1",
+      "feature_set": "FEATURE_SET_V1",
+      "objective": "count:poisson",
+      "tree_method": "hist",
+      "n_estimators": 400,
+      "learning_rate": 0.05,
+      "max_depth": 8,
+      "min_child_weight": 10,
+      "subsample": 1.0,
+      "colsample_bytree": 1.0,
+      "reg_alpha": 0.0,
+      "reg_lambda": 1.0,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "categorical_policy": "native_pandas_category_enable_categorical_true",
+    "categorical_level_counts": {
+      "item_code": 1437,
+      "dept_code": 3,
+      "wday": 7,
+      "month": 12,
+      "year": 6,
+      "is_weekend": 2,
+      "snap_CA": 2,
+      "event_name_1_code": 31,
+      "event_type_1_code": 5,
+      "event_name_2_code": 5,
+      "event_type_2_code": 3
+    }
+  },
+  "validation": {
+    "days": 28,
+    "prediction_count": 40236,
+    "metrics": {
+      "MAE": 1.4024492791741445,
+      "RMSE": 2.568234060409177,
+      "WAPE_percent": 66.64731562910531
+    },
+    "undefined_per_sku_wape_count": 81,
+    "horizon_mae_first": 1.2192989479317462,
+    "horizon_mae_last": 1.711910594869781
+  },
+  "versions": {
+    "python": "3.12.10",
+    "xgboost": "3.4.1",
+    "pandas": "3.0.5",
+    "numpy": "2.5.2",
+    "scikit_learn": "1.9.0"
+  },
+  "model_artifact": {
+    "path": "artifacts/models/xgboost_v1.json (Git-ignored)",
+    "size_bytes": 98109535,
+    "sha256": "40d6f8fb9322639b3f8e6ea6762a6e86a39d904cdca202b4675deee1aaf61326"
+  },
+  "test_access_policy": "TEST sales values were not read, forecast, scored, summarized, or plotted."
+}

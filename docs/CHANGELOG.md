@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-09-21 — CHECKPOINT-009: Initial XGBoost recursive validation complete
+
+- Added the exact, untuned CPU `XGBOOST_V1` configuration, native-categorical XGBoost wrapper, reusable four-method comparison utility, and synthetic XGBoost/config/reload tests.
+- Trained one 400-tree global Poisson XGBoost model on the same 2,668,509 FEATURE_SET_V1 rows used by LightGBM and generated all 40,236 recursive validation predictions before validation actuals were loaded.
+- Generated tracked four-method validation, horizon, feature-importance, runtime/model-size, manifest, table, and six figure artifacts. XGBoost beat both baselines and LightGBM on aggregate validation metrics; formal selection remains deferred.
+- Kept the 93.565 MiB native JSON model Git-ignored. TEST sales values were not read, forecast, scored, summarized, or plotted; no feature selection, inventory simulation, application work, or final model choice was performed.
+
 ## 2026-09-21 — CHECKPOINT-008: Initial LightGBM recursive validation complete
 
 - Added the exact, version-controlled `LIGHTGBM_V1` configuration, reusable global-model and recursive-inference utilities, and 15 passing Python tests covering the feature, baseline, model, and recursive paths.

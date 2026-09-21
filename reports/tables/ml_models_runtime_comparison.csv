@@ -1,0 +1,3 @@
+model,training_seconds,model_size_bytes
+LIGHTGBM_V1,49.37,2565567
+XGBOOST_V1,109.74699630006216,98109535

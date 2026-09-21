@@ -1,0 +1,5 @@
+Method,MAE,RMSE,WAPE_percent,MAE_difference_vs_28_day_moving_average,MAE_improvement_pct_vs_28_day_moving_average,RMSE_difference_vs_28_day_moving_average,RMSE_improvement_pct_vs_28_day_moving_average,WAPE_percent_difference_vs_28_day_moving_average,WAPE_percent_improvement_pct_vs_28_day_moving_average,MAE_difference_vs_lightgbm_v1,MAE_improvement_pct_vs_lightgbm_v1,RMSE_difference_vs_lightgbm_v1,RMSE_improvement_pct_vs_lightgbm_v1,WAPE_percent_difference_vs_lightgbm_v1,WAPE_percent_improvement_pct_vs_lightgbm_v1,final_trees
+Seasonal Naive (lag 7),1.7397852669251417,3.3573940253736194,82.67822553975527,,,,,,,,,,,,,
+28-day Moving Average,1.4386246147728403,2.7264013417842645,68.36644304814098,,,,,,,,,,,,,
+LIGHTGBM_V1,1.523282698633461,2.730150838083273,72.38957181250998,,,,,,,,,,,,,
+XGBOOST_V1,1.4024492791741445,2.568234060409177,66.64731562910531,-0.03617533559869579,2.5145778285190747,-0.1581672813750874,5.801320552152329,-1.7191274190356722,2.514577828519073,-0.12083341945931658,7.932435625226781,-0.16191677767409596,5.930689814478202,-5.7422561834046775,7.9324356252267965,400.0

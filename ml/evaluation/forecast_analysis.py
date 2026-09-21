@@ -21,6 +21,29 @@ def compare_to_moving_average(metrics: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def compare_candidate_to_references(
+    metrics: pd.DataFrame, candidate_name: str, reference_names: tuple[str, ...]
+) -> pd.DataFrame:
+    """Add candidate deltas and improvement percentages versus named references."""
+    result = metrics.copy()
+    candidate = result.loc[result["Method"] == candidate_name]
+    if len(candidate) != 1:
+        raise ValueError(f"Exactly one {candidate_name} candidate row is required.")
+    for reference_name in reference_names:
+        reference = result.loc[result["Method"] == reference_name]
+        if len(reference) != 1:
+            raise ValueError(f"Exactly one {reference_name} reference row is required.")
+        slug = reference_name.lower().replace(" ", "_").replace("-", "_")
+        for metric in ("MAE", "RMSE", "WAPE_percent"):
+            reference_value = float(reference.iloc[0][metric])
+            result[f"{metric}_difference_vs_{slug}"] = np.nan
+            result[f"{metric}_improvement_pct_vs_{slug}"] = np.nan
+            index = candidate.index[0]
+            result.loc[index, f"{metric}_difference_vs_{slug}"] = float(candidate.iloc[0][metric]) - reference_value
+            result.loc[index, f"{metric}_improvement_pct_vs_{slug}"] = (reference_value - float(candidate.iloc[0][metric])) / reference_value * 100
+    return result
+
+
 def horizon_metrics(actual: np.ndarray, forecast: np.ndarray, dates: tuple[str, ...]) -> pd.DataFrame:
     """Calculate aggregate MAE/RMSE/WAPE separately for each recursive horizon."""
     actual_values = np.asarray(actual)
