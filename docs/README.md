@@ -6,6 +6,8 @@ This folder is the project memory for both the user and AI agents. You do **not*
 
 Read [Project Status](00_project_status.md). It records completed work, the current task, the latest stable checkpoint, blockers, and the exact next step.
 
+For a simpler Vietnamese summary written for the student/supervisor, read [Tiến độ dự án bằng tiếng Việt — dễ đọc](00_project_progress_vi.md).
+
 ## Current Decisions
 
 - Official forecasting dataset: M5 Forecasting - Accuracy.
