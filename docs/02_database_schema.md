@@ -4,6 +4,8 @@ Status: **FROZEN AND IMPLEMENTED — CHECKPOINT-013**
 
 The single-store MVP uses MySQL 8.x. SQLAlchemy models in `backend/app/db/models/application.py` and Alembic revision `f86d36b27719` are the sole schema source of truth. MySQL Workbench visualizes and administers that schema; it is not the database engine and must not become a second hand-maintained schema.
 
+For a plain MySQL DDL view of all 14 application tables, see [`schema_reference_mysql.sql`](schema_reference_mysql.sql). It is a readability/reference file only; SQLAlchemy models + Alembic remain the schema source of truth.
+
 ## Runtime and Migration Foundation
 
 - **Database:** local MySQL Server database `smart_inventory_market`, configured for `utf8mb4` / `utf8mb4_0900_ai_ci`.
