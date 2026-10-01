@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟢 **DONE** — P10 complete; project intentionally PAUSED BEFORE P11 after the forecasting model was selected.
+Overall status: 🟡 **IN_PROGRESS** — P12 Inventory Policy Experiment
 
 ## Quick Human Summary
 
@@ -15,6 +15,10 @@ What we selected:
 - It achieved the best validation result: MAE 1.402449, RMSE 2.568234, and WAPE 66.647316%.
 - Reducing to 20, 16, or 11 features made validation forecasting worse.
 - TEST is still sealed.
+- Inventory behavior will be simulated because M5 has no stock records.
+- The 7-day lead time is an explicit simulation assumption, not observed Walmart practice.
+- Both future policies share inventory rules; only their demand estimate differs.
+- Business workflows and architecture requirements are frozen enough to guide later database design.
 
 Why:
 
@@ -38,6 +42,7 @@ What we did:
 - Froze the controlled XGBoost feature-group ablation protocol for the next experiment.
 - Reused FULL_V1 and trained the three frozen reduced XGBoost variants under the same recursive validation protocol.
 - Formally selected and froze `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` from validation-only evidence.
+- Froze the lost-sales inventory simulation, minimum-stock and forecast-based reorder policies, human approval workflow, and database requirements without executing the experiment.
 
 What we learned:
 
@@ -55,7 +60,7 @@ What we learned:
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 - FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: the project is intentionally paused before P11. Future work begins with the inventory simulation protocol; it must not evaluate TEST unless the separately planned final-evaluation stage is reached.
+What happens next: execute the frozen P12 final forecasting/inventory policy experiment. TEST remains sealed until the prescribed final forecasting evaluation step; P12 must not tune the model or change the protocol after seeing results.
 
 ## Roadmap
 
@@ -72,7 +77,7 @@ What happens next: the project is intentionally paused before P11. Future work b
 | P8 LightGBM forecasting | 🟢 **DONE** |
 | P9 XGBoost forecasting | 🟢 **DONE** |
 | P10 Forecast comparison + model selection | 🟢 **DONE** |
-| P11 Inventory simulation protocol | ⚪ **TODO** |
+| P11 Inventory simulation protocol | 🟢 **DONE** |
 | P12 Minimum-stock vs forecast-based reorder experiment | ⚪ **TODO** |
 | P13 MySQL + FastAPI core | ⚪ **TODO** |
 | P14 Inventory/product/supplier modules | ⚪ **TODO** |
@@ -84,17 +89,17 @@ What happens next: the project is intentionally paused before P11. Future work b
 
 ## Current Task
 
-P10 is complete. The pre-registered WAPE-first rule (with MAE/RMSE secondary) selected `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` (25 features) from validation evidence. Every reduced variant was worse on all three metrics. The project is intentionally paused before P11; TEST remains sealed.
+P11 is complete. The protocol freezes a daily, lost-sales inventory simulation with a shared 7-day lead time, identical safety-stock/initialization rules, and M5 demand replay. P12 alone will execute `MIN_STOCK_MA28` versus `FORECAST_REORDER_XGBOOST_V1`; TEST remains sealed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-010B` — `XGBOOST_V1` + `FEATURE_SET_V1` formally selected on validation
+`CHECKPOINT-011` — Inventory simulation and business-process protocol frozen
 
 ## Next Exact Step
 
-`P11` — Inventory simulation protocol (TODO; deliberately not started in this task).
+`NEXT-012` — Execute the frozen final forecasting/inventory policy experiment under the P11 protocol.
 
-The project is paused before P11. Any future work must preserve test isolation; it must not open, forecast, score, summarize, or evaluate TEST outside the planned final evaluation.
+NEXT-012 must not alter selected XGBoost configuration, inventory-policy rules, safety-stock proxy, or cost weights after results are observed. It must preserve TEST isolation until the frozen fixed-origin final-evaluation step.
 
 ## Known Blockers
 

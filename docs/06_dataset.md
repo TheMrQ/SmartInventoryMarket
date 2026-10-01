@@ -10,6 +10,10 @@ M5 is the official source of historical retail sales for thesis forecasting deve
 
 M5 was acquired locally and formally audited on 2026-09-17. The forecasting scope, horizon, and chronological split were frozen at CHECKPOINT-005; no preprocessing, model training, feature engineering, or inventory simulation has been performed.
 
+## CHECKPOINT-011 Inventory-Simulation Limitation
+
+The P11 protocol freezes a simulated daily lost-sales design with a fixed 7-day lead time. It does not add observed M5 inventory data, stock-out labels, replenishment records, or actual Walmart lead-time evidence, and it does not execute a simulation. Any later inventory-policy result remains a simulation result under the documented assumptions.
+
 ## Formal Local M5 Audit
 
 Status: **DONE — VERIFIED LOCALLY**

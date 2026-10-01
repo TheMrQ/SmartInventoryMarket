@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: 🟢 **DONE** — `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` was selected on validation; TEST remains sealed.
+Status: 🟡 **IN_PROGRESS** — P11 freezes the inventory-policy protocol; P12 has not executed and TEST remains sealed.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -13,9 +13,9 @@ Status: 🟢 **DONE** — `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` was select
 | E5 | XGBoost feature-group ablation — DONE |
 | E6 | Forecast-horizon comparison, if appropriate |
 | E7 | Formal validation model comparison — DONE |
-| E8 | Minimum-stock inventory simulation |
-| E9 | Forecast-based reorder simulation |
-| E10 | Minimum-stock vs forecast-based inventory comparison |
+| E8 | Minimum-stock inventory simulation — ⚪ TODO (protocol frozen) |
+| E9 | Forecast-based reorder simulation — ⚪ TODO (protocol frozen) |
+| E10 | Minimum-stock vs forecast-based inventory comparison — ⚪ TODO (protocol frozen) |
 
 ## Required Record for Every Future Experiment
 
@@ -148,3 +148,16 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Resources:** selected XGBoost took 109.747 seconds and its ignored JSON is 93.565 MiB; LightGBM took 49.370 seconds and is 2.447 MiB. These are practical trade-offs, not a substitute for the selection rule.
 - **Artifacts:** `configs/models/selected_forecasting_model.yaml`, `reports/tables/selected_forecasting_model_summary.md`, and `reports/figures/selected_forecasting_model_validation_comparison.png`.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED. This is a validation-selected model, not a final test-validated model.
+
+## E8 / E9 / E10 — Frozen Inventory Policy Experiment Protocol
+
+- **Date:** 2026-10-01
+- **Status:** `TODO` — protocol frozen in CHECKPOINT-011; no inventory simulation, forecasting retraining, or TEST evaluation has been executed.
+- **Scope:** all 1,437 M5 `CA_1` / `FOODS` SKU series, one SKU-day simulation unit, daily review, deterministic 7-day lead time, start-of-day receipts, nonnegative on-hand inventory, and lost sales rather than backorders.
+- **Policies:** E8 `MIN_STOCK_MA28` estimates demand with the previous 28 observed days; E9 `FORECAST_REORDER_XGBOOST_V1` uses selected `XGBOOST_V1` + 25-feature `FEATURE_SET_V1` recursive forecasts. E10 compares them. The only intended difference is demand-estimation source.
+- **Common controls:** identical simulated initial inventory, M5 realized-sales demand replay, lead time, review cadence, safety-stock formula, lost-sales rule, receipt timing, inventory-position definition, and upward integer order rounding.
+- **Safety stock / initialization:** `1.645 * population_std(previous 28 observed demand days) * sqrt(7)`; initial on-hand is `ceil(mean_28 * (7 + 1) + initial_safety_stock)` and initial on-order is zero.
+- **Metrics:** total lost-sales units, stockout days, fill rate, average on-hand inventory, reorder count, and total ordered quantity; P12 will also report affected SKU count/percentage, median per-SKU fill rate, and inventory distribution. A fixed normalized cost proxy is secondary only.
+- **Demand limitation:** M5 sales are an exogenous demand proxy. Hypothetical policy stock-outs never modify the sales history used for rolling forecasting; observed zero sales do not prove zero demand or inventory.
+- **Artifacts:** `configs/inventory/inventory_simulation_v1.yaml`, `configs/inventory/inventory_policy_comparison_v1.yaml`, `docs/09_inventory_simulation_protocol.md`, and `ml/inventory_simulation/protocol.py`.
+- **TEST:** P11 did not read TEST actuals. P12 may follow the separately frozen fixed-origin final-evaluation rule only after the selected model/protocol are fixed; future rolling reorder forecasts must use only information known at each decision date.

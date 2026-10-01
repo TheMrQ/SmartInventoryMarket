@@ -1,0 +1,100 @@
+# Inventory-policy simulation protocol -- CHECKPOINT-011.
+# Design only: no inventory simulation is executed by this configuration.
+protocol_name: INVENTORY_SIMULATION_V1
+status: DONE
+checkpoint: CHECKPOINT-011
+
+scope:
+  data_config: configs/data/m5_ca1_foods.yaml
+  store_id: CA_1
+  category_id: FOODS
+  expected_item_store_series: 1437
+  simulation_unit: sku_day
+
+review_period_days: 1
+lead_time_days: 7
+receipt_timing: start_of_day
+
+test_isolation:
+  test_sales_access: sealed
+  test_tuning_allowed: false
+  p11_execution: prohibited
+  rule: Do not load TEST actuals or execute this simulation before P12.
+
+inventory_state:
+  fields:
+    - on_hand
+    - on_order
+    - inventory_position
+    - received_today
+    - demand_today
+    - fulfilled_today
+    - lost_sales_today
+    - order_quantity_today
+  inventory_position_formula: on_hand + on_order
+  physical_inventory_nonnegative: true
+  backorders_enabled: false
+
+lost_sales_assumption:
+  fulfilled_demand_formula: min(on_hand, realized_demand)
+  lost_sales_formula: max(0, realized_demand - on_hand)
+  ending_on_hand_formula: max(0, on_hand - realized_demand)
+  rationale: Supermarket demand unavailable from shelf stock is treated as lost sales, not an individual backorder.
+
+daily_event_order:
+  - receive_orders_due_today_at_start_of_day
+  - add_receipts_to_on_hand
+  - observe_exogenous_realized_demand
+  - fulfill_demand_subject_to_on_hand
+  - record_lost_sales
+  - update_ending_on_hand
+  - update_end_of_day_information
+  - compute_reorder_decision
+  - create_order_with_arrival_after_lead_time
+
+safety_stock:
+  demand_history_days: 28
+  demand_std_definition: population_standard_deviation
+  demand_history_availability: previous_observed_demand_days_only
+  service_factor_z: 1.645
+  formula: z * demand_std_28 * sqrt(lead_time_days)
+  interpretation: Transparent one-sided 95-percent normal-service proxy; not a claim that M5 demand is normally distributed.
+
+initial_inventory:
+  historical_daily_mean_days: 28
+  safety_stock_source: same_frozen_safety_stock_rule
+  initial_on_hand_formula: ceil(historical_daily_mean * (lead_time_days + review_period_days) + initial_safety_stock)
+  initial_on_order: 0
+  policy_specific_initialization_allowed: false
+  rationale: M5 supplies no observed inventory position, so the initial state is simulated from information available before the window.
+
+demand_replay:
+  realized_demand_source: historical_m5_sales_as_exogenous_demand_proxy
+  same_series_for_both_policies: true
+  simulated_stockout_updates_forecasting_history: false
+  limitation: Zero observed sales does not prove zero demand or stock availability; M5 has no uncensored latent-demand signal.
+
+metrics:
+  primary:
+    - total_lost_sales_units
+    - stockout_days
+    - fill_rate
+    - average_on_hand_inventory
+    - reorder_count
+    - total_ordered_quantity
+  additional:
+    - sku_count_with_any_stockout
+    - sku_percentage_with_any_stockout
+    - median_per_sku_fill_rate
+    - inventory_distribution
+  fill_rate_formula: fulfilled_units / realized_demand_units_when_denominator_positive
+
+normalized_cost_proxy:
+  enabled: true
+  currency: normalized_units_not_usd
+  holding_cost_weight_per_unit_day: 1.0
+  lost_sales_cost_weight_per_lost_unit: 5.0
+  order_event_cost_weight_per_reorder: 1.0
+  formula: holding_inventory_cost + lost_sales_cost + order_event_cost
+  primary_selection_metric: false
+  coefficient_tuning_allowed: false

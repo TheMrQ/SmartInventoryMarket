@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-01 — CHECKPOINT-011: inventory simulation and business-process protocol frozen
+
+- Added version-controlled daily lost-sales inventory simulation and fair policy-comparison protocols: shared 7-day lead time, 1-day review cadence, 28-day safety-stock history, common initialization, M5 demand replay, and normalized secondary cost proxy.
+- Froze `MIN_STOCK_MA28` and `FORECAST_REORDER_XGBOOST_V1`; the sole intended experimental difference is their demand-estimation source.
+- Added protocol validation tests and human-readable simulation, workflow, architecture, and database-requirement documentation with Mermaid diagrams.
+- Did not run an inventory simulation, retrain/forecast a model, read TEST actuals, create a database/migration, or implement backend/frontend work. P12 is the next execution task.
+
 ## 2026-09-21 — CHECKPOINT-010B: validation-selected forecasting model frozen
 
 - Formally selected `XGBOOST_V1` with the 25-feature `FEATURE_SET_V1` / `FULL_V1` using the pre-registered validation WAPE-first rule with MAE/RMSE secondary checks.

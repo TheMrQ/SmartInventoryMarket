@@ -1,0 +1,47 @@
+# Fair policy-comparison definition -- CHECKPOINT-011.
+comparison_name: INVENTORY_POLICY_COMPARISON_V1
+status: DONE
+simulation_config: configs/inventory/inventory_simulation_v1.yaml
+only_intended_difference: demand_estimation_source
+
+shared_controls:
+  initial_inventory: identical
+  realized_demand_replay: identical_exogenous_m5_sales_proxy
+  review_period_days: 1
+  lead_time_days: 7
+  receipt_timing: start_of_day
+  safety_stock_formula: identical
+  lost_sales_rule: identical
+  order_quantity_rounding: ceil_to_integer_units
+  inventory_position_formula: on_hand + on_order
+
+policies:
+  MIN_STOCK_MA28:
+    demand_estimation_source: trailing_28_day_observed_demand_mean
+    ml_forecast_used: false
+    historical_daily_demand_formula: mean(previous_28_observed_demand_days)
+    expected_lead_time_demand_formula: historical_daily_demand_estimate * lead_time_days
+    reorder_point_formula: expected_lead_time_demand + safety_stock
+    target_stock_formula: historical_daily_demand_estimate * (lead_time_days + review_period_days) + safety_stock
+    reorder_trigger: inventory_position <= reorder_point
+    recommended_quantity_formula: ceil(max(0, target_stock - inventory_position))
+  FORECAST_REORDER_XGBOOST_V1:
+    demand_estimation_source: recursive_xgboost_forecast
+    selected_model_config: configs/models/selected_forecasting_model.yaml
+    selected_model: XGBOOST_V1
+    selected_feature_set: FEATURE_SET_V1
+    selected_variant: FULL_V1
+    feature_count: 25
+    ml_forecast_used: true
+    forecast_availability_rule: use_only_sales_and_features_known_at_the_decision_date
+    expected_lead_time_demand_formula: sum(xgboost_forecast_days_1_to_7)
+    target_demand_formula: sum(xgboost_forecast_days_1_to_8)
+    reorder_point_formula: forecasted_lead_time_demand + safety_stock
+    target_stock_formula: forecasted_8_day_demand + safety_stock
+    reorder_trigger: inventory_position <= reorder_point
+    recommended_quantity_formula: ceil(max(0, target_stock - inventory_position))
+
+forecasting_boundary:
+  final_test_evaluation: Retrain selected XGBoost once on train plus validation, forecast TEST once, then load TEST actuals only for final scoring.
+  rolling_inventory_decision: At each simulated decision date, use only historical sales available at that date and never use future TEST actuals in features or reorder decisions.
+  p11_action: protocol_only_no_forecast_or_simulation_execution

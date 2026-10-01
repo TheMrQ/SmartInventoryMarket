@@ -27,3 +27,29 @@ MySQL Workbench is a GUI/tool for ERD design, schema inspection, SQL execution, 
 - `reorder_recommendations` — decision-engine recommendations referencing product/inventory context and forecast demand.
 
 Column definitions, constraints, identifiers, and final relationship cardinalities will be designed only after requirements and dataset audit justify them. Do not treat this document as a frozen schema.
+
+## CHECKPOINT-011 Business Requirements for Later Schema Design
+
+The later schema must support the following domains without treating this list as final tables or columns:
+
+- users and roles;
+- categories and products;
+- suppliers and supplier-product relations;
+- current inventory state;
+- immutable, auditable stock transactions;
+- daily sales history;
+- forecasting runs, forecast values, model metadata, and evaluation metrics where appropriate;
+- reorder recommendations and lifecycle status;
+- purchase orders, line items, lifecycle status, incoming quantities, and receipt processing.
+
+The business workflow design also freezes these invariants for P13+:
+
+- Normal transaction handling must not make on-hand inventory negative.
+- Every stock change requires an auditable transaction record.
+- A received purchase-order quantity affects inventory; open purchase-order quantities contribute to incoming/on-order state.
+- Recommendation acceptance does not itself increase on-hand inventory.
+- Only a receipt increases on-hand inventory; sales or stock-out fulfillment decreases it.
+- Cancelled purchase orders do not count as incoming stock.
+- Reorder recommendations are decision support for a manager, not automatic supplier purchasing.
+
+Conceptual state names to support are reorder recommendations `NEW`, `ACCEPTED`, `MODIFIED`, `REJECTED`, `EXPIRED`; purchase orders `DRAFT`, `APPROVED`, `ORDERED`, `IN_TRANSIT`, `RECEIVED`, `CANCELLED`; and stock transactions `RECEIPT`, `SALE`, `ADJUSTMENT_IN`, `ADJUSTMENT_OUT`. P13 will decide representation, constraints, and transition enforcement.

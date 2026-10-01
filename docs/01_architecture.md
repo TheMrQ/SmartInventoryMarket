@@ -72,6 +72,28 @@ sales_daily
 
 The thesis MVP needs CSV sales import and a clearly defined future POS/API integration boundary; it does not need to implement a complete POS. In model development/evaluation, M5 supplies historical sales. In a real deployment, the system must eventually use that supermarket's own POS sales, not Walmart M5 data.
 
+## Layered Backend Design — CHECKPOINT-011
+
+```mermaid
+flowchart TD
+    UI[React Frontend] --> API[FastAPI API Layer]
+    API --> APP[Application / Service Layer]
+    APP --> DOMAIN[Domain / Business Rules]
+    DOMAIN --> REPO[Repository / SQLAlchemy Layer]
+    REPO --> DB[(MySQL)]
+    WB[MySQL Workbench] -. ERD design and administration .-> DB
+
+    APP --> FS[Forecast Service]
+    FS --> FB[Past-only Feature Builder]
+    FS --> MODEL[Loaded XGBOOST_V1 artifact]
+    APP --> IDS[Inventory Decision Service]
+    IDS --> RP[Reorder point and safety stock]
+    IDS --> RISK[Stockout / overstock risk]
+    IDS --> REC[Human-reviewed reorder recommendation]
+```
+
+P13+ must preserve these boundaries: FastAPI routes coordinate requests and responses but must not contain all business rules. Forecasting and inventory decision logic are separate services, while repositories isolate persistence concerns. The system is decision support: recommendation generation ends in human manager review and must not automatically purchase from suppliers.
+
 ## Current Implementation Status
 
-Only a FastAPI smoke application and React/Vite environment scaffold exist. Database, forecasting service, decision engine, and business integrations are planned only.
+Only a FastAPI smoke application and React/Vite environment scaffold exist. CHECKPOINT-011 freezes the future inventory simulation and business-process design, but database, forecasting service, decision engine, routes, and business integrations are still unimplemented.
