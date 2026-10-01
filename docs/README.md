@@ -26,6 +26,7 @@ Use these human-readable markers consistently in project status: 🟢 **DONE**, 
 - **`00_project_status.md`** — current progress / save point of the whole project.
 - **`01_architecture.md`** — how the web app, forecasting pipeline, database, ingestion, and inventory decision engine fit together.
 - **`02_database_schema.md`** — frozen P13 database tables, relationships, constraints, and technology decisions.
+- **`schema_reference_mysql.sql`** — bản SQL dễ đọc của toàn bộ 14 bảng để xem nhanh cột, khóa, quan hệ và constraint; không thay thế Alembic.
 - **`03_features/`** — detailed notes for inventory management, forecasting, decision engine, and dashboard.
 - **`04_troubleshooting.md`** — errors, fixes, and context-recovery steps.
 - **`05_experiments.md`** — future forecasting/inventory experiments, metrics, results, and decisions.
