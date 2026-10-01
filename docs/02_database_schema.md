@@ -1,55 +1,89 @@
 # Database Schema
 
-Status: **PLANNED — NOT FROZEN**. No migrations or database business logic have been implemented.
+Status: **FROZEN AND IMPLEMENTED — CHECKPOINT-013**
 
-## Database Technology Decision
+The single-store MVP uses MySQL 8.x. SQLAlchemy models in `backend/app/db/models/application.py` and Alembic revision `f86d36b27719` are the sole schema source of truth. MySQL Workbench visualizes and administers that schema; it is not the database engine and must not become a second hand-maintained schema.
 
-- **Database engine:** MySQL
-- **Backend access:** SQLAlchemy from FastAPI
-- **Design/admin tool:** MySQL Workbench
+## Runtime and Migration Foundation
 
-MySQL Workbench is a GUI/tool for ERD design, schema inspection, SQL execution, and database administration. It is not the database engine. MySQL is the actual relational database. This decision does not authorize migrations or creation of the final database yet.
+- **Database:** local MySQL Server database `smart_inventory_market`, configured for `utf8mb4` / `utf8mb4_0900_ai_ci`.
+- **Access path:** FastAPI → SQLAlchemy 2.x → PyMySQL → MySQL Server.
+- **Migration:** Alembic revision `f86d36b27719` (`create initial application schema`). `alembic.ini` contains no database URL; `alembic/env.py` reads `DATABASE_URL` through application settings.
+- **Configuration:** a local ignored `.env` provides `DATABASE_URL` in `mysql+pymysql://...` form. The tracked `.env.example` contains placeholders only.
+- **Time convention:** application-generated `created_at`, `updated_at`, `occurred_at`, `generated_at`, and review/receipt timestamps are UTC values. MySQL `DATETIME` does not retain a timezone offset, so the application writes UTC consistently.
+- **Deletion policy:** foreign keys use MySQL's restrictive default. Historical operational records are not cascade-deleted. Users, products, and suppliers use `is_active` rather than routine deletion.
 
-## Expected Entities and Relationships
+## ER Diagram
 
-- `users` — authenticated manager/admin and inventory-staff identities.
-- `categories` — product grouping; one category can group many products.
-- `products` — sellable inventory items, belonging to a category.
-- `suppliers` — vendor records.
-- `supplier_products` — planned many-to-many supplier/product association for supplier-specific information.
-- `inventory` — current stock state associated with a product in the single-store MVP.
-- `stock_transactions` — auditable stock-in, stock-out, and adjustment events associated with products/inventory.
-- `purchase_orders` — orders made to a supplier.
-- `purchase_order_items` — product lines belonging to a purchase order; incoming amounts later inform inventory decisions.
-- `sales_daily` — daily product sales history for application reporting and forecast inputs. Initial history will be imported from a POS CSV export; later production use should receive new sales through a POS/API or database integration boundary.
-- `forecasts` — generated future-demand outputs associated with products and model/run metadata.
-- `model_metrics` — persisted evaluation results associated with a forecast-model run.
-- `reorder_recommendations` — decision-engine recommendations referencing product/inventory context and forecast demand.
+```mermaid
+erDiagram
+    USERS ||--o{ PURCHASE_ORDERS : creates_or_approves
+    USERS ||--o{ STOCK_TRANSACTIONS : records
+    USERS ||--o{ REORDER_RECOMMENDATIONS : reviews
+    CATEGORIES ||--o{ PRODUCTS : groups
+    PRODUCTS ||--|| INVENTORY : has
+    SUPPLIERS ||--o{ SUPPLIER_PRODUCTS : offers
+    PRODUCTS ||--o{ SUPPLIER_PRODUCTS : sourced_as
+    PRODUCTS ||--o{ SALES_DAILY : has
+    SUPPLIERS ||--o{ PURCHASE_ORDERS : receives
+    PURCHASE_ORDERS ||--o{ PURCHASE_ORDER_ITEMS : contains
+    PRODUCTS ||--o{ PURCHASE_ORDER_ITEMS : ordered_as
+    PRODUCTS ||--o{ STOCK_TRANSACTIONS : moves
+    PURCHASE_ORDER_ITEMS ||--o{ STOCK_TRANSACTIONS : may_source_receipt
+    SALES_DAILY ||--o{ STOCK_TRANSACTIONS : may_source_sale
+    FORECAST_RUNS ||--o{ FORECAST_VALUES : produces
+    PRODUCTS ||--o{ FORECAST_VALUES : predicts
+    FORECAST_RUNS ||--o{ REORDER_RECOMMENDATIONS : informs
+    PRODUCTS ||--o{ REORDER_RECOMMENDATIONS : recommends_for
+```
 
-Column definitions, constraints, identifiers, and final relationship cardinalities will be designed only after requirements and dataset audit justify them. Do not treat this document as a frozen schema.
+There is deliberately no `stores` or warehouse table: this thesis MVP is single-store.
 
-## CHECKPOINT-011 Business Requirements for Later Schema Design
+## Implemented Tables
 
-The later schema must support the following domains without treating this list as final tables or columns:
+| Table | Purpose | Important columns and relationships |
+| --- | --- | --- |
+| `users` | Future manager/admin/inventory-staff identities. | Unique indexed `email`, `password_hash` only (never plaintext), `full_name`, controlled `role`, `is_active`; references from orders, transactions, and reviews. |
+| `categories` | Product grouping. | Unique `code`, `name`, optional `description`; one category has many products. |
+| `products` | Sellable inventory products. | Unique indexed `sku`, `name`, `category_id`, `unit`, `is_active`; one inventory row at most and links to sales, suppliers, orders, forecasts, transactions, recommendations. |
+| `suppliers` | Vendor master data. | Unique `code`, contact fields, `is_active`; links to supplier-product options and purchase orders. |
+| `supplier_products` | Supplier/product many-to-many data. | Unique `(supplier_id, product_id)`, optional decimal `unit_cost`, required positive `lead_time_days`, preferred flag. |
+| `inventory` | Current single-store on-hand state. | `product_id` is both PK and FK; nonnegative integer `on_hand`, `updated_at`. It intentionally does not persist a freely editable `on_order` value. |
+| `sales_daily` | Normalized application sales history / future CSV-POS import target. | Unique `(product_id, sale_date)`, nonnegative `quantity_sold`, optional `source`; one product/date/quantity per row, never M5 day columns. |
+| `purchase_orders` | Supplier purchase-order header. | Unique indexed `po_number`, supplier and optional creator/approver FKs, controlled lifecycle `status`, order/arrival/receipt dates, notes. |
+| `purchase_order_items` | Purchase-order lines. | Unique `(purchase_order_id, product_id)`, positive ordered quantity, received quantity between zero and ordered quantity, optional decimal `unit_cost`. |
+| `stock_transactions` | Immutable future audit trail for stock movements. | Product, controlled type, positive quantity, UTC occurrence time, optional PO-item/sales/user provenance, reason. P13 creates persistence only; later services must forbid editing history. |
+| `forecast_runs` | Forecast-run metadata. | Model/feature identifiers, history/forecast dates, positive horizon, UTC generation time. The external model file is not stored in MySQL. |
+| `forecast_values` | Per-product demand forecasts. | Unique `(forecast_run_id, product_id, forecast_date)`, positive horizon day, nonnegative `DECIMAL(14,4)` predicted demand. |
+| `model_metrics` | Compact evaluation metadata. | Model/feature/split identifiers and nullable `DECIMAL(14,6)` MAE, RMSE, WAPE; no bulk report CSV import. |
+| `reorder_recommendations` | Human-reviewed inventory-decision snapshots. | Product/optional forecast run, controlled status, captured on-hand/incoming/lead-time/safety-stock/reorder values, optional approved quantity and reviewer. |
 
-- users and roles;
-- categories and products;
-- suppliers and supplier-product relations;
-- current inventory state;
-- immutable, auditable stock transactions;
-- daily sales history;
-- forecasting runs, forecast values, model metadata, and evaluation metrics where appropriate;
-- reorder recommendations and lifecycle status;
-- purchase orders, line items, lifecycle status, incoming quantities, and receipt processing.
+## Controlled Status Values
 
-The business workflow design also freezes these invariants for P13+:
+SQLAlchemy portable enums (`native_enum=False` with check constraints) represent controlled statuses without MySQL-native `ENUM` lock-in:
 
-- Normal transaction handling must not make on-hand inventory negative.
-- Every stock change requires an auditable transaction record.
-- A received purchase-order quantity affects inventory; open purchase-order quantities contribute to incoming/on-order state.
-- Recommendation acceptance does not itself increase on-hand inventory.
-- Only a receipt increases on-hand inventory; sales or stock-out fulfillment decreases it.
-- Cancelled purchase orders do not count as incoming stock.
-- Reorder recommendations are decision support for a manager, not automatic supplier purchasing.
+| Domain | Values |
+| --- | --- |
+| User role | `ADMIN`, `MANAGER`, `INVENTORY_STAFF` |
+| Purchase order | `DRAFT`, `APPROVED`, `ORDERED`, `IN_TRANSIT`, `RECEIVED`, `CANCELLED` |
+| Stock transaction | `RECEIPT`, `SALE`, `ADJUSTMENT_IN`, `ADJUSTMENT_OUT` |
+| Recommendation | `NEW`, `ACCEPTED`, `MODIFIED`, `REJECTED`, `EXPIRED` |
 
-Conceptual state names to support are reorder recommendations `NEW`, `ACCEPTED`, `MODIFIED`, `REJECTED`, `EXPIRED`; purchase orders `DRAFT`, `APPROVED`, `ORDERED`, `IN_TRANSIT`, `RECEIVED`, `CANCELLED`; and stock transactions `RECEIPT`, `SALE`, `ADJUSTMENT_IN`, `ADJUSTMENT_OUT`. P13 will decide representation, constraints, and transition enforcement.
+## Important Constraints and Indexes
+
+- Monetary fields (`unit_cost`) and continuous forecasts (`predicted_demand`) use `DECIMAL`/`NUMERIC`, never floating-point currency.
+- `inventory.on_hand`, sales quantity, incoming/recommendation quantities, forecast demand, and other quantity-like fields have nonnegative checks; ordered quantity, stock transaction quantity, horizon, and lead time are positive where required.
+- A purchase-order line cannot receive more than it ordered; supplier-product and purchase-order-item pairs are unique.
+- Unique business identifiers: user email, category code, product SKU, supplier code, and purchase-order number.
+- Query indexes include product category/SKU, PO status/number, stock transaction `(product_id, occurred_at)`, forecast `(product_id, forecast_date)` and run, recommendation `(product_id, created_at)` and status. Composite uniqueness on daily sales also serves normal product/date history lookup.
+- P13 does not enforce workflow transitions. P14/P16 must enforce: no negative on-hand inventory in normal transactions, auditable stock movement, receipt-only inventory increase, sale/fulfillment decrease, manager review for recommendations, and no automatic supplier purchase.
+
+## Incoming Stock and Audit Invariants
+
+Incoming/on-order inventory is derived later from `purchase_order_items.ordered_quantity - received_quantity` for eligible open purchase-order statuses. It is intentionally not duplicated in `inventory`, avoiding conflicting editable state. `CANCELLED` orders and completed `RECEIVED` orders do not contribute to incoming quantity.
+
+Accepting or modifying a recommendation does not change `inventory.on_hand`; creating a purchase order does not either. A later receipt service must both record a `RECEIPT` stock transaction and increase inventory atomically. Sales/fulfilled stock-outs must record the appropriate transaction and decrease inventory. P13 establishes the schema required for those rules but does not implement the services.
+
+## Verification Evidence
+
+On 2026-10-01, local MySQL 8.0.46 applied migration `f86d36b27719`; Alembic `current` and `heads` both reported that revision, and `alembic check` found no schema drift. SQLAlchemy inspection found 14 application tables, 19 foreign keys, 26 indexes, and 23 check constraints. A temporary category/product transaction flushed, queried, and rolled back; the product was confirmed absent afterwards. See [database setup](database_setup.md) for reproducible local commands and Workbench ERD instructions.

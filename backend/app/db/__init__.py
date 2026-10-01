@@ -1,1 +1,1 @@
-"""Database integration placeholder; no database logic is implemented yet."""
+"""Database engine, metadata, and ORM models for the application core."""

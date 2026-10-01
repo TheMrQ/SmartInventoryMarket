@@ -98,7 +98,7 @@ Training took 109.747 seconds. The ignored `artifacts/models/xgboost_v1.json` is
 
 ## Formal Validation Comparison and Frozen Ablation Plan (CHECKPOINT-010)
 
-The validation-only four-method comparison identifies **`XGBOOST_V1` as the CURRENT VALIDATION LEADER**, not the final model: it has MAE 1.402449, RMSE 2.568234, and WAPE 66.647316%, lower than Seasonal Naive, Moving Average, and LightGBM. Against the strongest simple reference, Moving Average, it improves MAE/WAPE by 2.515% and RMSE by 5.801%; against LightGBM, it improves MAE/WAPE by 7.932% and RMSE by 5.931%. TEST remains sealed, so validation leadership must not be presented as final TEST performance.
+At CHECKPOINT-010, the validation-only four-method comparison identified **`XGBOOST_V1` as the validation leader**, not yet the final model: it had MAE 1.402449, RMSE 2.568234, and WAPE 66.647316%, lower than Seasonal Naive, Moving Average, and LightGBM. TEST was sealed at that checkpoint. P12 later evaluated that pre-selected configuration exactly once; validation leadership and the final result remain distinct evidence.
 
 XGBoost has lower MAE than LightGBM on all 28 recursive validation horizons. Both profiles fluctuate rather than rise strictly monotonically: their minimum MAE is at horizon 3 and their maximum at horizon 14. Both end with higher day-28 than day-1 MAE, so recursive prediction feedback is a plausible contributor to later-horizon degradation but not proven as its sole cause. `reports/tables/ml_horizon_comparison_summary.md` preserves the measured details.
 
@@ -125,7 +125,7 @@ Runtime is 109.747 s FULL_V1, 76.427 s NO_PRICE, 88.416 s NO_CALENDAR_EVENT, and
 
 ## Selected Forecasting Model
 
-**Status: SELECTED ON VALIDATION — TEST STILL SEALED.**
+**Status: SELECTED ON VALIDATION AND EVALUATED ONCE ON FINAL TEST — FROZEN.**
 
 - **Algorithm:** `XGBOOST_V1`.
 - **Feature set:** `FEATURE_SET_V1` / `FULL_V1`.
@@ -166,14 +166,14 @@ Optional only: LSTM / Transformer.
 ## Evaluation and Leakage Rules
 
 - **No random split.** The frozen chronological train/validation/test windows above are mandatory.
-- **Test isolation.** Test data remains untouched during model development. Hyperparameter and model decisions use train plus validation only; final reported test metrics use test only and must not drive tuning.
+- **Test isolation.** TEST was untouched throughout model development and selection. P12 used it once for final reported metrics only; it must not drive later hyperparameter, feature, or model decisions.
 - **Past-only target features.** No future sales may appear in training features. Lag features must reference past observations only.
 - **Safe rolling features.** Rolling statistics must be shifted before rolling when necessary so that the current or future target never enters a feature.
 - **Prediction-time availability.** Price and calendar features must reflect information that would have been available when the forecast was issued.
 
 Primary thesis metrics are **MAE**, **RMSE**, and **WAPE**. Do not report Accuracy for forecasting. Do not use MAPE as the sole primary metric because many SKU-days have zero observed sales. Future reports must provide both aggregate metrics across all `CA_1`/`FOODS` observations and per-SKU/error-distribution analysis so high-volume products do not hide poor SKU-level performance.
 
-The experiment order is: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM (complete) → initial XGBoost (complete) → formal validation comparison (complete) → controlled XGBoost feature-group ablation (complete) → model/feature-set selection → one final TEST evaluation. TEST stays sealed until that final evaluation; it must never be used to choose a feature, baseline, model, or hyperparameter.
+The completed experiment order was: validation baselines → leakage-safe lag/rolling/calendar/price features → initial LightGBM → initial XGBoost → formal validation comparison → controlled XGBoost feature-group ablation → model/feature-set selection → one final TEST evaluation. TEST was sealed until P12, then consumed exactly once; it must never be used to choose a feature, baseline, model, or hyperparameter after that final evaluation.
 
 ## Future Model Lifecycle
 

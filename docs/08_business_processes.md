@@ -29,7 +29,7 @@ sales_daily
         -> forecast-run and forecast-value storage
 ```
 
-Only information available when a forecast is issued may enter its features. The selected forecasting model is validation-selected `XGBOOST_V1` with 25-feature `FEATURE_SET_V1`; final TEST evaluation remains separate and sealed until its planned stage.
+Only information available when a forecast is issued may enter its features. `XGBOOST_V1` with the 25-feature `FEATURE_SET_V1` was selected before, and evaluated once during, the frozen P12 final TEST step. That TEST result is final evidence only and cannot be reused for model selection or tuning.
 
 ## C. Reorder Recommendation
 

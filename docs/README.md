@@ -6,7 +6,7 @@ This folder is the project memory for both the user and AI agents. You do **not*
 
 Read [Project Status](00_project_status.md). It records completed work, the current task, the latest stable checkpoint, blockers, and the exact next step.
 
-For a simpler Vietnamese summary written for the student/supervisor, read [Tiến độ dự án bằng tiếng Việt — dễ đọc](00_project_progress_vi.md).
+For a simpler Vietnamese summary written for the student/supervisor, read [Tiến độ dự án bằng tiếng Việt — dễ đọc](00_project_progress_vi.md). Future phase work must update this companion progress file together with the technical project status.
 
 ## Current Decisions
 
@@ -25,7 +25,7 @@ Use these human-readable markers consistently in project status: 🟢 **DONE**, 
 
 - **`00_project_status.md`** — current progress / save point of the whole project.
 - **`01_architecture.md`** — how the web app, forecasting pipeline, database, ingestion, and inventory decision engine fit together.
-- **`02_database_schema.md`** — planned database tables, relationships, and technology decisions.
+- **`02_database_schema.md`** — frozen P13 database tables, relationships, constraints, and technology decisions.
 - **`03_features/`** — detailed notes for inventory management, forecasting, decision engine, and dashboard.
 - **`04_troubleshooting.md`** — errors, fixes, and context-recovery steps.
 - **`05_experiments.md`** — future forecasting/inventory experiments, metrics, results, and decisions.

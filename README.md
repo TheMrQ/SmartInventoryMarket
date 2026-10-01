@@ -18,7 +18,7 @@ The thesis will compare naive and moving-average baselines with LightGBM and XGB
 
 - React + Vite frontend
 - FastAPI backend
-- PostgreSQL with SQLAlchemy and Alembic
+- MySQL 8.x with SQLAlchemy 2.x, Alembic, and PyMySQL
 - Pandas, scikit-learn, LightGBM, and XGBoost for reproducible script-based ML
 
 ## Structure
@@ -41,8 +41,8 @@ The thesis will compare naive and moving-average baselines with LightGBM and XGB
 
 ## Current Status
 
-Project initialization only. See [project status](docs/00_project_status.md) for the authoritative roadmap and next step.
+The MySQL relational schema, Alembic initial migration, and FastAPI database-health core are implemented and verified. Full business CRUD modules remain intentionally out of scope until P14. See [project status](docs/00_project_status.md) for the authoritative roadmap and next step.
 
 ## Dataset and Reproducibility
 
-The M5 Forecasting - Accuracy raw dataset is **not** stored in this repository and has not been downloaded or audited during initialization. Official future ML training will be script-based and must record configuration, seed, dataset version/subset, time split, features, parameters, metrics, Git commit, and artifact paths. No model results are claimed yet.
+The M5 Forecasting - Accuracy raw dataset is **not** stored in this repository. The project completed a one-time held-out TEST evaluation in P12; that TEST evidence must never drive later model selection or tuning. Official future ML work remains script-based and reproducible.

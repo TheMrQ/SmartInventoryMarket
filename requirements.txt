@@ -4,7 +4,7 @@ sqlalchemy
 alembic
 pydantic
 pydantic-settings
-psycopg[binary]
+pymysql
 pandas
 numpy
 scikit-learn

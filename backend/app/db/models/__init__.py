@@ -1,0 +1,43 @@
+"""Import all ORM models so Alembic discovers their metadata."""
+
+from backend.app.db.models.application import (
+    Category,
+    ForecastRun,
+    ForecastValue,
+    Inventory,
+    ModelMetric,
+    Product,
+    PurchaseOrder,
+    PurchaseOrderItem,
+    PurchaseOrderStatus,
+    ReorderRecommendation,
+    RecommendationStatus,
+    SalesDaily,
+    StockTransaction,
+    StockTransactionType,
+    Supplier,
+    SupplierProduct,
+    User,
+    UserRole,
+)
+
+__all__ = [
+    "Category",
+    "ForecastRun",
+    "ForecastValue",
+    "Inventory",
+    "ModelMetric",
+    "Product",
+    "PurchaseOrder",
+    "PurchaseOrderItem",
+    "PurchaseOrderStatus",
+    "ReorderRecommendation",
+    "RecommendationStatus",
+    "SalesDaily",
+    "StockTransaction",
+    "StockTransactionType",
+    "Supplier",
+    "SupplierProduct",
+    "User",
+    "UserRole",
+]

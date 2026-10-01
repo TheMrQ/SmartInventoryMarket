@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-10-01 — P13 Alembic MySQL downgrade initially rejected an FK-supporting index
+
+**Symptom:** A safe `alembic downgrade base` on the empty `smart_inventory_market` development schema failed with MySQL error 1553: an index on `stock_transactions` could not be dropped because it supported a foreign key.
+
+**Cause:** Alembic autogeneration emitted standalone index drops before dropping child tables. MySQL keeps an FK-supporting index mandatory until that foreign key/table is removed.
+
+**Resolution:** The initial migration's downgrade now drops child tables in dependency order and lets MySQL remove each table's indexes together with the table. The schema was confirmed empty before the test; the corrected downgrade/upgrade cycle was then rerun.
+
+**Prevention:** Run a safe downgrade/upgrade test for MySQL migrations before marking a migration checkpoint complete. Do not manually drop FK-supporting indexes first.
+
 ## 2026-09-17 — Kaggle CLI authentication required for M5 acquisition — RESOLVED
 
 Symptom:

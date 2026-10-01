@@ -2,6 +2,14 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-01 — CHECKPOINT-013: MySQL relational schema and FastAPI database core verified
+
+- Finalized MySQL 8.x + SQLAlchemy 2.x + Alembic + PyMySQL as the application database stack; removed the unused PostgreSQL `psycopg[binary]` dependency and added `pymysql`.
+- Added environment-backed database settings, SQLAlchemy engine/session dependency, declarative single-store schema, Alembic environment, and initial migration `f86d36b27719`.
+- Created and verified 14 MySQL application tables, portable controlled status values, explicit constraints/indexes/FKs, and a non-secret FastAPI `/health/db` `SELECT 1` health check.
+- Added schema unit tests, an ignored-environment setup guide, MySQL Workbench reverse-engineering instructions, frozen schema documentation, and Vietnamese student/supervisor progress update.
+- Verified the live MySQL 8.0.46 migration, schema inspector, Alembic head/current/no-drift state, and rollback-only category/product smoke transaction. No ML or inventory-policy experiment was changed.
+
 ## 2026-10-01 — CHECKPOINT-012: final held-out forecast and inventory-policy experiment complete
 
 - Retrained validation-selected `XGBOOST_V1` once on TRAIN + VALIDATION through `d_1913` and generated/hashed 40,236 fixed-origin TEST predictions before loading TEST actuals. Final TEST MAE/RMSE/WAPE: 1.454969 / 2.651296 / 64.450274%.

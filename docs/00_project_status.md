@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P13 MySQL + FastAPI Core
+Overall status: 🟡 **IN_PROGRESS** — P14 Inventory / Product / Supplier Modules
 
 ## Quick Human Summary
 
@@ -14,7 +14,7 @@ What we selected:
 - The full 25-feature `FEATURE_SET_V1` / `FULL_V1` is retained.
 - It achieved the best validation result: MAE 1.402449, RMSE 2.568234, and WAPE 66.647316%.
 - Reducing to 20, 16, or 11 features made validation forecasting worse.
-- TEST is still sealed.
+- TEST was sealed during development/model selection, then consumed exactly once by the frozen P12 final evaluation; it must never be used for later tuning or selection.
 - Inventory behavior will be simulated because M5 has no stock records.
 - The 7-day lead time is an explicit simulation assumption, not observed Walmart practice.
 - Both future policies share inventory rules; only their demand estimate differs.
@@ -60,11 +60,11 @@ What we learned:
 - Recursive forecasts were created before validation actuals were loaded; TEST sales values remain unread, unforecast, unscored, unsummarized, and unplotted.
 - `XGBOOST_V1` achieved validation MAE/RMSE/WAPE of 1.402449 / 2.568234 / 66.647316%. It beat Seasonal Naive, the Moving Average (2.515% MAE/WAPE and 5.801% RMSE improvement), and `LIGHTGBM_V1` (7.932% MAE/WAPE and 5.931% RMSE improvement).
 - XGBoost took 109.747 seconds and its ignored JSON artifact is 93.565 MiB, versus LightGBM's 49.370 seconds and 2.447 MiB. Performance and resource cost remain separate considerations.
-- `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` is the **selected forecasting model based on validation**. It is not a final test-validated model because TEST remains sealed.
+- `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` was selected on validation and then evaluated once on held-out TEST in P12; it remains frozen and TEST may not be reused for tuning.
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 - FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: freeze and implement the MySQL relational schema and FastAPI/SQLAlchemy/Alembic core. TEST is now consumed final-evaluation evidence and must not drive any tuning.
+What happens next: implement the product, supplier, inventory, stock-transaction, and purchase-order business modules on the frozen database core. TEST remains final-evaluation evidence only and must not drive any tuning.
 
 ## Roadmap
 
@@ -83,7 +83,7 @@ What happens next: freeze and implement the MySQL relational schema and FastAPI/
 | P10 Forecast comparison + model selection | 🟢 **DONE** |
 | P11 Inventory simulation protocol | 🟢 **DONE** |
 | P12 Minimum-stock vs forecast-based reorder experiment | 🟢 **DONE** |
-| P13 MySQL + FastAPI core | ⚪ **TODO** |
+| P13 MySQL + FastAPI core | 🟢 **DONE** |
 | P14 Inventory/product/supplier modules | ⚪ **TODO** |
 | P15 Sales ingestion + forecasting API | ⚪ **TODO** |
 | P16 Inventory decision engine | ⚪ **TODO** |
@@ -93,17 +93,17 @@ What happens next: freeze and implement the MySQL relational schema and FastAPI/
 
 ## Current Task
 
-P12 is complete. Final TEST forecasting used the model selected before TEST, with 40,236 fixed-origin predictions created before TEST actuals were loaded. In the frozen inventory replay, `FORECAST_REORDER_XGBOOST_V1` reduced lost sales from 5,362 to 4,365 and stockout SKU-days from 1,565 to 1,222, but average on-hand inventory rose from 11.806 to 12.569 and normalized cost proxy from 515,039 to 540,233. No post-TEST tuning occurred.
+P13 is complete. The local MySQL 8.0.46 database `smart_inventory_market` now has 14 Alembic-managed tables created by revision `f86d36b27719`. FastAPI connects through SQLAlchemy 2.0.52 and PyMySQL 1.2.3; `/health/db` performs a non-secret `SELECT 1` check. No P14 CRUD/business workflows, ML retraining, or inventory-policy changes were implemented.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-012` — Final held-out forecasting evaluation and frozen inventory-policy experiment complete
+`CHECKPOINT-013` — MySQL relational schema, Alembic migration, and FastAPI database core implemented and verified
 
 ## Next Exact Step
 
-`NEXT-013` — Freeze and implement the MySQL relational schema and connect the FastAPI/SQLAlchemy/Alembic core.
+`NEXT-014` — Implement product, supplier, inventory, stock-transaction, and purchase-order business modules on the frozen database core.
 
-Do not re-open model selection, change feature/model/protocol values, or tune against TEST. NEXT-013 is application/database implementation only.
+Do not re-open model selection, change feature/model/protocol values, or tune against TEST. P14 must implement transactional business behavior while preserving the P13 schema invariants.
 
 ## Known Blockers
 

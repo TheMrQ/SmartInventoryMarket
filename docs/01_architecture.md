@@ -40,7 +40,7 @@ This is a single-store MVP for a small/medium supermarket, not a full ERP. Plann
 
 ## Database Technology Decision
 
-**MySQL** is the planned relational database engine. **MySQL Workbench is not the database**: it is the GUI/tool for ERD design, schema inspection, SQL execution, and database administration during development. FastAPI will access MySQL through SQLAlchemy. Migrations and the final database are not implemented yet.
+**MySQL 8.x** is the implemented relational database engine. FastAPI accesses the local MySQL Server through SQLAlchemy 2.x and the PyMySQL driver; Alembic revision `f86d36b27719` owns the initial schema. **MySQL Workbench is not the database**: it is the GUI/tool for ERD design, schema inspection, SQL execution, and database administration. It is not an application runtime dependency.
 
 ## Sales Data Ingestion Architecture
 
@@ -96,4 +96,4 @@ P13+ must preserve these boundaries: FastAPI routes coordinate requests and resp
 
 ## Current Implementation Status
 
-Only a FastAPI smoke application and React/Vite environment scaffold exist. CHECKPOINT-011 freezes the future inventory simulation and business-process design, but database, forecasting service, decision engine, routes, and business integrations are still unimplemented.
+P13 implements the FastAPI database core: environment-backed settings, SQLAlchemy engine/session dependency, declarative metadata/models, Alembic initial migration, and `/health/db`. The initial local MySQL migration and rolled-back transaction smoke test passed. Product/supplier/inventory CRUD, transaction processing, forecasting service, decision engine, and frontend workflows remain unimplemented and belong to later phases.
