@@ -22,6 +22,10 @@ The decision engine will compare a traditional minimum-stock replenishment rule 
 
 Recommendations are human decision support with conceptual statuses `NEW`, `ACCEPTED`, `MODIFIED`, `REJECTED`, and `EXPIRED`; they do not automatically buy from suppliers. See `docs/09_inventory_simulation_protocol.md` and `docs/08_business_processes.md` for the authoritative protocol and workflow design.
 
+## P12 Evidence
+
+The frozen TEST replay found that forecast-based reordering reduced simulated lost sales from 5,362 to 4,365 and stockout SKU-days from 1,565 to 1,222, increasing fill rate from 94.097% to 95.194%. It also raised average on-hand inventory from 11.806 to 12.569 and normalized cost proxy from 515,039 to 540,233. This mixed trade-off is experimental evidence for later decision-service design, not authorization to alter the frozen policy or automate purchases.
+
 ## Definition of Done
 
 The completed engine must have documented inputs and assumptions, verified calculations and tests, explainable recommendations, and an experiment-backed comparison with the minimum-stock policy.

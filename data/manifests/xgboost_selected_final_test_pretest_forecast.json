@@ -1,0 +1,10 @@
+{
+  "status": "FIXED_ORIGIN_FORECAST_COMPLETE_BEFORE_TEST_OPEN",
+  "forecast_created_at_utc": "2026-10-01T09:58:08.117013+00:00",
+  "training_boundary": "d_1-d_1913",
+  "forecast_boundary": "d_1914-d_1941",
+  "prediction_count": 40236,
+  "prediction_sha256": "0c60de02ce5259ad4324b32eb366e04353e20a05c062b916de68a87b776af713",
+  "ignored_forecast_artifact": "artifacts/forecasts/xgboost_selected_final_test_forecast.npy",
+  "test_actuals_loaded_at_write_time": false
+}

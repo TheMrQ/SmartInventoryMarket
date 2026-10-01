@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P12 Inventory Policy Experiment
+Overall status: 🟡 **IN_PROGRESS** — P13 MySQL + FastAPI Core
 
 ## Quick Human Summary
 
@@ -19,6 +19,9 @@ What we selected:
 - The 7-day lead time is an explicit simulation assumption, not observed Walmart practice.
 - Both future policies share inventory rules; only their demand estimate differs.
 - Business workflows and architecture requirements are frozen enough to guide later database design.
+- The final held-out XGBoost TEST forecast achieved MAE 1.454969, RMSE 2.651296, and WAPE 64.450274%.
+- Forecast-based reordering reduced simulated lost sales and stockouts, but held more inventory and had a higher normalized cost proxy.
+- TEST was consumed once for final evaluation; no tuning may be performed against it.
 
 Why:
 
@@ -43,6 +46,7 @@ What we did:
 - Reused FULL_V1 and trained the three frozen reduced XGBoost variants under the same recursive validation protocol.
 - Formally selected and froze `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` from validation-only evidence.
 - Froze the lost-sales inventory simulation, minimum-stock and forecast-based reorder policies, human approval workflow, and database requirements without executing the experiment.
+- Retrained the validation-selected XGBoost configuration once through `d_1913`, generated and hashed all 40,236 fixed-origin TEST forecasts before loading TEST actuals, then executed both frozen inventory policies.
 
 What we learned:
 
@@ -60,7 +64,7 @@ What we learned:
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 - FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: execute the frozen P12 final forecasting/inventory policy experiment. TEST remains sealed until the prescribed final forecasting evaluation step; P12 must not tune the model or change the protocol after seeing results.
+What happens next: freeze and implement the MySQL relational schema and FastAPI/SQLAlchemy/Alembic core. TEST is now consumed final-evaluation evidence and must not drive any tuning.
 
 ## Roadmap
 
@@ -78,7 +82,7 @@ What happens next: execute the frozen P12 final forecasting/inventory policy exp
 | P9 XGBoost forecasting | 🟢 **DONE** |
 | P10 Forecast comparison + model selection | 🟢 **DONE** |
 | P11 Inventory simulation protocol | 🟢 **DONE** |
-| P12 Minimum-stock vs forecast-based reorder experiment | ⚪ **TODO** |
+| P12 Minimum-stock vs forecast-based reorder experiment | 🟢 **DONE** |
 | P13 MySQL + FastAPI core | ⚪ **TODO** |
 | P14 Inventory/product/supplier modules | ⚪ **TODO** |
 | P15 Sales ingestion + forecasting API | ⚪ **TODO** |
@@ -89,17 +93,17 @@ What happens next: execute the frozen P12 final forecasting/inventory policy exp
 
 ## Current Task
 
-P11 is complete. The protocol freezes a daily, lost-sales inventory simulation with a shared 7-day lead time, identical safety-stock/initialization rules, and M5 demand replay. P12 alone will execute `MIN_STOCK_MA28` versus `FORECAST_REORDER_XGBOOST_V1`; TEST remains sealed.
+P12 is complete. Final TEST forecasting used the model selected before TEST, with 40,236 fixed-origin predictions created before TEST actuals were loaded. In the frozen inventory replay, `FORECAST_REORDER_XGBOOST_V1` reduced lost sales from 5,362 to 4,365 and stockout SKU-days from 1,565 to 1,222, but average on-hand inventory rose from 11.806 to 12.569 and normalized cost proxy from 515,039 to 540,233. No post-TEST tuning occurred.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-011` — Inventory simulation and business-process protocol frozen
+`CHECKPOINT-012` — Final held-out forecasting evaluation and frozen inventory-policy experiment complete
 
 ## Next Exact Step
 
-`NEXT-012` — Execute the frozen final forecasting/inventory policy experiment under the P11 protocol.
+`NEXT-013` — Freeze and implement the MySQL relational schema and connect the FastAPI/SQLAlchemy/Alembic core.
 
-NEXT-012 must not alter selected XGBoost configuration, inventory-policy rules, safety-stock proxy, or cost weights after results are observed. It must preserve TEST isolation until the frozen fixed-origin final-evaluation step.
+Do not re-open model selection, change feature/model/protocol values, or tune against TEST. NEXT-013 is application/database implementation only.
 
 ## Known Blockers
 

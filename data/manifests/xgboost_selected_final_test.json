@@ -1,0 +1,141 @@
+{
+  "status": "FINAL_HELD_OUT_TEST_AND_INVENTORY_POLICY_EXPERIMENT_COMPLETE",
+  "selected_before_test": {
+    "model": "XGBOOST_V1",
+    "feature_set": "FEATURE_SET_V1",
+    "variant": "FULL_V1",
+    "feature_count": 25
+  },
+  "scope": {
+    "store_id": "CA_1",
+    "category_id": "FOODS",
+    "series_count": 1437
+  },
+  "training": {
+    "boundary": "d_1-d_1913",
+    "rows": 2708745,
+    "feature_count": 25,
+    "fit_seconds": 93.503,
+    "parameters": {
+      "model_name": "XGBOOST_V1",
+      "feature_set": "FEATURE_SET_V1",
+      "objective": "count:poisson",
+      "tree_method": "hist",
+      "n_estimators": 400,
+      "learning_rate": 0.05,
+      "max_depth": 8,
+      "min_child_weight": 10,
+      "subsample": 1.0,
+      "colsample_bytree": 1.0,
+      "reg_alpha": 0.0,
+      "reg_lambda": 1.0,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "final_trees": 400,
+    "categorical_level_counts": {
+      "item_code": 1437,
+      "dept_code": 3,
+      "wday": 7,
+      "month": 12,
+      "year": 6,
+      "is_weekend": 2,
+      "snap_CA": 2,
+      "event_name_1_code": 31,
+      "event_type_1_code": 5,
+      "event_name_2_code": 5,
+      "event_type_2_code": 3
+    }
+  },
+  "fixed_origin_forecast_before_test_actual_load": {
+    "status": "FIXED_ORIGIN_FORECAST_COMPLETE_BEFORE_TEST_OPEN",
+    "forecast_created_at_utc": "2026-10-01T09:58:08.117013+00:00",
+    "training_boundary": "d_1-d_1913",
+    "forecast_boundary": "d_1914-d_1941",
+    "prediction_count": 40236,
+    "prediction_sha256": "0c60de02ce5259ad4324b32eb366e04353e20a05c062b916de68a87b776af713",
+    "ignored_forecast_artifact": "artifacts/forecasts/xgboost_selected_final_test_forecast.npy",
+    "test_actuals_loaded_at_write_time": false
+  },
+  "final_test": {
+    "boundary": "d_1914-d_1941",
+    "prediction_count": 40236,
+    "metrics": {
+      "MAE": 1.4549686238857584,
+      "RMSE": 2.651295733066721,
+      "WAPE_percent": 64.45027418522716
+    },
+    "undefined_per_sku_wape_count": 25
+  },
+  "inventory_simulation": {
+    "days": 28,
+    "lead_time_days": 7,
+    "review_period_days": 1,
+    "receipt_timing": "start_of_day",
+    "identical_initial_states": true,
+    "identical_realized_demand": true,
+    "policies": [
+      {
+        "policy": "MIN_STOCK_MA28",
+        "total_realized_demand": 90833.0,
+        "fulfilled_units": 85471.0,
+        "total_lost_sales_units": 5362.0,
+        "stockout_days": 1565,
+        "fill_rate": 0.9409685907104246,
+        "average_on_hand_inventory": 11.80569639129138,
+        "reorder_count": 13215,
+        "total_ordered_quantity": 87874.0,
+        "sku_count_with_any_stockout": 549,
+        "sku_percentage_with_any_stockout": 38.20459290187891,
+        "median_per_sku_fill_rate": 1.0,
+        "holding_inventory_cost_proxy": 475014.0,
+        "lost_sales_cost_proxy": 26810.0,
+        "order_event_cost_proxy": 13215.0,
+        "normalized_cost_proxy": 515039.0,
+        "total_lost_sales_units_change_pct_vs_MIN_STOCK_MA28": null,
+        "stockout_days_change_pct_vs_MIN_STOCK_MA28": null,
+        "average_on_hand_inventory_change_pct_vs_MIN_STOCK_MA28": null,
+        "reorder_count_change_pct_vs_MIN_STOCK_MA28": null,
+        "normalized_cost_proxy_change_pct_vs_MIN_STOCK_MA28": null,
+        "fill_rate_difference_points_vs_MIN_STOCK_MA28": null
+      },
+      {
+        "policy": "FORECAST_REORDER_XGBOOST_V1",
+        "total_realized_demand": 90833.0,
+        "fulfilled_units": 86468.0,
+        "total_lost_sales_units": 4365.0,
+        "stockout_days": 1222,
+        "fill_rate": 0.951944777779001,
+        "average_on_hand_inventory": 12.569017795009444,
+        "reorder_count": 12681,
+        "total_ordered_quantity": 89108.0,
+        "sku_count_with_any_stockout": 492,
+        "sku_percentage_with_any_stockout": 34.23799582463465,
+        "median_per_sku_fill_rate": 1.0,
+        "holding_inventory_cost_proxy": 505727.0,
+        "lost_sales_cost_proxy": 21825.0,
+        "order_event_cost_proxy": 12681.0,
+        "normalized_cost_proxy": 540233.0,
+        "total_lost_sales_units_change_pct_vs_MIN_STOCK_MA28": -18.593808280492354,
+        "stockout_days_change_pct_vs_MIN_STOCK_MA28": -21.916932907348244,
+        "average_on_hand_inventory_change_pct_vs_MIN_STOCK_MA28": 6.465704168719233,
+        "reorder_count_change_pct_vs_MIN_STOCK_MA28": -4.040862656072645,
+        "normalized_cost_proxy_change_pct_vs_MIN_STOCK_MA28": 4.891668397927147,
+        "fill_rate_difference_points_vs_MIN_STOCK_MA28": 1.0976187068576393
+      }
+    ]
+  },
+  "model_artifact": {
+    "path": "artifacts/models/xgboost_selected_trainval_final.json (Git-ignored)",
+    "size_bytes": 98210242,
+    "sha256": "1b484f3028b012abeb2dcd768b784342ecac340a3b5bb5ad5bc46d790d5f59b7"
+  },
+  "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "scikit_learn": "1.9.0",
+    "xgboost": "3.4.1"
+  },
+  "test_use": "Opened once after fixed-origin prediction hash; no post-TEST tuning, feature selection, or retraining occurred."
+}

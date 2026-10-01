@@ -1,6 +1,6 @@
 # Experiment Plan
 
-Status: 🟡 **IN_PROGRESS** — P11 freezes the inventory-policy protocol; P12 has not executed and TEST remains sealed.
+Status: 🟢 **DONE** — final held-out forecasting evaluation and frozen inventory-policy comparison are complete; TEST is consumed once without tuning.
 
 | ID | Planned experiment |
 | --- | --- |
@@ -13,9 +13,9 @@ Status: 🟡 **IN_PROGRESS** — P11 freezes the inventory-policy protocol; P12 
 | E5 | XGBoost feature-group ablation — DONE |
 | E6 | Forecast-horizon comparison, if appropriate |
 | E7 | Formal validation model comparison — DONE |
-| E8 | Minimum-stock inventory simulation — ⚪ TODO (protocol frozen) |
-| E9 | Forecast-based reorder simulation — ⚪ TODO (protocol frozen) |
-| E10 | Minimum-stock vs forecast-based inventory comparison — ⚪ TODO (protocol frozen) |
+| E8 | Minimum-stock inventory simulation — 🟢 DONE |
+| E9 | Forecast-based reorder simulation — 🟢 DONE |
+| E10 | Minimum-stock vs forecast-based inventory comparison — 🟢 DONE |
 
 ## Required Record for Every Future Experiment
 
@@ -149,10 +149,10 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Artifacts:** `configs/models/selected_forecasting_model.yaml`, `reports/tables/selected_forecasting_model_summary.md`, and `reports/figures/selected_forecasting_model_validation_comparison.png`.
 - **TEST:** NOT READ, FORECAST, SCORED, SUMMARIZED, OR PLOTTED. This is a validation-selected model, not a final test-validated model.
 
-## E8 / E9 / E10 — Frozen Inventory Policy Experiment Protocol
+## E8 / E9 / E10 — Frozen Inventory Policy Experiment
 
 - **Date:** 2026-10-01
-- **Status:** `TODO` — protocol frozen in CHECKPOINT-011; no inventory simulation, forecasting retraining, or TEST evaluation has been executed.
+- **Status:** `DONE` — executed once in CHECKPOINT-012 without changing the frozen protocol.
 - **Scope:** all 1,437 M5 `CA_1` / `FOODS` SKU series, one SKU-day simulation unit, daily review, deterministic 7-day lead time, start-of-day receipts, nonnegative on-hand inventory, and lost sales rather than backorders.
 - **Policies:** E8 `MIN_STOCK_MA28` estimates demand with the previous 28 observed days; E9 `FORECAST_REORDER_XGBOOST_V1` uses selected `XGBOOST_V1` + 25-feature `FEATURE_SET_V1` recursive forecasts. E10 compares them. The only intended difference is demand-estimation source.
 - **Common controls:** identical simulated initial inventory, M5 realized-sales demand replay, lead time, review cadence, safety-stock formula, lost-sales rule, receipt timing, inventory-position definition, and upward integer order rounding.
@@ -160,4 +160,8 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **Metrics:** total lost-sales units, stockout days, fill rate, average on-hand inventory, reorder count, and total ordered quantity; P12 will also report affected SKU count/percentage, median per-SKU fill rate, and inventory distribution. A fixed normalized cost proxy is secondary only.
 - **Demand limitation:** M5 sales are an exogenous demand proxy. Hypothetical policy stock-outs never modify the sales history used for rolling forecasting; observed zero sales do not prove zero demand or inventory.
 - **Artifacts:** `configs/inventory/inventory_simulation_v1.yaml`, `configs/inventory/inventory_policy_comparison_v1.yaml`, `docs/09_inventory_simulation_protocol.md`, and `ml/inventory_simulation/protocol.py`.
-- **TEST:** P11 did not read TEST actuals. P12 may follow the separately frozen fixed-origin final-evaluation rule only after the selected model/protocol are fixed; future rolling reorder forecasts must use only information known at each decision date.
+- **Final forecasting TEST evaluation:** selected XGBoost was retrained once through `d_1913` on 2,708,745 rows. All 40,236 fixed-origin predictions were hashed before TEST actuals loaded. Final TEST MAE/RMSE/WAPE = **1.454969 / 2.651296 / 64.450274%**; no post-TEST tuning, feature change, or model-selection round occurred.
+- **E8 baseline result:** `MIN_STOCK_MA28` lost sales 5,362, stockout SKU-days 1,565, fill rate 94.097%, average on-hand 11.806, reorders 13,215, and normalized cost proxy 515,039.
+- **E9 forecast-policy result:** `FORECAST_REORDER_XGBOOST_V1` lost sales 4,365, stockout SKU-days 1,222, fill rate 95.194%, average on-hand 12.569, reorders 12,681, and normalized cost proxy 540,233.
+- **E10 comparison:** forecast policy reduced lost sales by 18.594%, stockout SKU-days by 21.917%, and reorders by 4.041%, while average on-hand increased 6.466% and normalized cost proxy increased 4.892%; fill rate increased 1.098 percentage points. This is a mixed availability-versus-inventory/cost outcome, not an arbitrary overall winner.
+- **Artifacts:** final forecast manifests/tables/figures plus `reports/tables/inventory_policy_comparison.csv`, `reports/tables/inventory_policy_per_sku_summary.csv`, `reports/tables/inventory_policy_experiment_summary.md`, and six inventory figures.

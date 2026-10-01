@@ -10,7 +10,8 @@ Read [Project Status](00_project_status.md). It records completed work, the curr
 
 - Official forecasting dataset: M5 Forecasting - Accuracy.
 - Inventory-policy evaluation: explicitly simulated inventory and replenishment state; never presented as observed Walmart operations.
-- Frozen inventory-policy protocol: daily lost-sales simulation, 7-day assumed lead time, shared safety-stock/initialization rules, and a fair `MIN_STOCK_MA28` versus `FORECAST_REORDER_XGBOOST_V1` comparison; P12 executes it.
+- Frozen inventory-policy protocol: daily lost-sales simulation, 7-day assumed lead time, shared safety-stock/initialization rules, and a fair `MIN_STOCK_MA28` versus `FORECAST_REORDER_XGBOOST_V1` comparison; P12 completed it without changing the protocol.
+- Final held-out forecasting TEST was consumed once in CHECKPOINT-012. It is evaluation evidence only and cannot be used for later model tuning or selection.
 - Application database: MySQL, administered/designed with MySQL Workbench and accessed by FastAPI through SQLAlchemy.
 - Sales ingestion: initial historical CSV import for the thesis MVP, with a future POS/API integration boundary for ongoing sales sync.
 

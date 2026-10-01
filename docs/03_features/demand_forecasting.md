@@ -1,6 +1,6 @@
 # Demand Forecasting
 
-Status: 🟢 **DONE** — `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` is selected on validation; TEST remains sealed.
+Status: 🟢 **DONE** — `XGBOOST_V1` + `FEATURE_SET_V1` / `FULL_V1` was selected on validation and evaluated once on final held-out TEST; no post-TEST tuning occurred.
 
 ## Dataset and Models
 
@@ -136,7 +136,15 @@ Runtime is 109.747 s FULL_V1, 76.427 s NO_PRICE, 88.416 s NO_CALENDAR_EVENT, and
 
 The pre-registered WAPE-first rule permits a reduced feature set only if WAPE is equal or lower and MAE/RMSE do not worsen. No reduced variant qualified: NO_PRICE (20 features) had WAPE 67.015300%, NO_CALENDAR_EVENT (16) had 68.247805%, and DEMAND_PRODUCT_ONLY (11) had 68.279111%. Price features provide a modest validation benefit and calendar/event features a clearer one in this experiment. Demand/product-only retains much of the performance but does not match FULL_V1. These findings did not improve this validation experiment; they do not establish that the groups are always necessary.
 
-This is the selected forecasting model based on validation, not a final test-validated model. TEST `d_1914`–`d_1941` remains sealed and will be evaluated only at the planned final evaluation stage.
+This is the selected forecasting model based on validation. CHECKPOINT-012 has now consumed the one planned final held-out TEST evaluation without changing this selection.
+
+## Final Held-Out Test Evaluation
+
+`XGBOOST_V1` + 25-feature `FEATURE_SET_V1` / `FULL_V1` was selected before TEST. It was retrained exactly once on TRAIN + VALIDATION sales through `d_1913` (2,708,745 post-warm-up rows), using the unchanged `count:poisson` / `hist` configuration. The full fixed-origin recursive forecast for `d_1914`–`d_1941` was generated and SHA-256 hashed before the isolated TEST-actual loader was called: 40,236 finite, nonnegative predictions, hash `0c60de02ce5259ad4324b32eb366e04353e20a05c062b916de68a87b776af713`.
+
+Final TEST MAE/RMSE/WAPE are **1.454969 / 2.651296 / 64.450274%**. Per-SKU WAPE is undefined for 25 zero-total TEST-demand SKUs. Compared descriptively with validation (1.402449 / 2.568234 / 66.647316%), TEST MAE and RMSE are higher while WAPE is lower; this difference does not authorize any model, feature, or hyperparameter change. The selected algorithm/config remains `XGBOOST_V1`; TEST was not used for tuning or a new model-selection round.
+
+Tracked evidence is `data/manifests/xgboost_selected_final_test_pretest_forecast.json`, `data/manifests/xgboost_selected_final_test.json`, `reports/tables/final_test_forecast_*.csv`, and the final TEST forecast figures.
 
 Planned ML models:
 

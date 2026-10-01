@@ -131,3 +131,19 @@ P11 performs neither activity. TEST remains sealed until the P12 execution proto
 - Observed sales are an imperfect proxy for demand because M5 has no stock-out/censoring signal.
 - The deterministic lead time, normal-service safety-stock proxy, lost-sales assumption, and normalized cost weights are transparent modeling choices.
 - Results will compare policy behavior under these common assumptions, not establish causal operational performance for Walmart or every supermarket.
+
+## P12 Execution Results
+
+CHECKPOINT-012 executed the frozen protocol once over `d_1914`–`d_1941` after the final fixed-origin forecast was generated and hashed. Both policies replayed the identical 90,833 TEST sales units and began from identical simulated inventories. No frozen lead time, safety-stock formula, initialization, cost weight, reorder formula, feature, or XGBoost parameter changed.
+
+| Metric | MIN_STOCK_MA28 | FORECAST_REORDER_XGBOOST_V1 |
+| --- | ---: | ---: |
+| Lost-sales units | 5,362 | 4,365 |
+| Stockout SKU-days | 1,565 | 1,222 |
+| Fill rate | 94.097% | 95.194% |
+| Average on-hand units | 11.806 | 12.569 |
+| Reorder events | 13,215 | 12,681 |
+| SKUs with any stockout | 549 | 492 |
+| Normalized cost proxy (not USD) | 515,039 | 540,233 |
+
+The forecast policy reduced lost sales by 18.594% and stockout SKU-days by 21.917%, but increased average on-hand inventory by 6.466% and normalized cost proxy by 4.892%. It improves availability under this replay while carrying more inventory; the result is mixed and does not prove that lower forecast error automatically produces lower inventory cost. See `reports/tables/inventory_policy_experiment_summary.md` for definitions and full comparison.

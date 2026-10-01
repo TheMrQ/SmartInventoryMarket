@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-01 — CHECKPOINT-012: final held-out forecast and inventory-policy experiment complete
+
+- Retrained validation-selected `XGBOOST_V1` once on TRAIN + VALIDATION through `d_1913` and generated/hashed 40,236 fixed-origin TEST predictions before loading TEST actuals. Final TEST MAE/RMSE/WAPE: 1.454969 / 2.651296 / 64.450274%.
+- Implemented deterministic lost-sales inventory simulation, arrival queue, frozen MA28/forecast policy logic, metrics, cost proxy, synthetic tests, and a reusable P12 runner.
+- Under identical TEST demand replay, forecast reordering reduced simulated lost sales (5,362 to 4,365) and stockout SKU-days (1,565 to 1,222), while increasing average on-hand inventory (11.806 to 12.569) and normalized cost proxy (515,039 to 540,233).
+- Generated final forecasting and inventory tables/figures. TEST was consumed once without post-TEST model selection, tuning, retraining, or protocol changes. P12 is complete.
+
 ## 2026-10-01 — CHECKPOINT-011: inventory simulation and business-process protocol frozen
 
 - Added version-controlled daily lost-sales inventory simulation and fair policy-comparison protocols: shared 7-day lead time, 1-day review cadence, 28-day safety-stock history, common initialization, M5 demand replay, and normalized secondary cost proxy.

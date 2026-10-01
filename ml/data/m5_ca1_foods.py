@@ -42,6 +42,18 @@ class TrainingFeatureSource:
     train_day_keys: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class FinalEvaluationFeatureSource:
+    """Train-plus-validation data and calendar metadata available before TEST opens."""
+
+    metadata: pd.DataFrame
+    train_validation_sales: np.ndarray
+    train_validation_calendar: pd.DataFrame
+    forecast_calendar: pd.DataFrame
+    train_validation_day_keys: tuple[str, ...]
+    test_day_keys: tuple[str, ...]
+
+
 def load_protocol(config_path: str | Path) -> dict[str, Any]:
     """Load and validate the version-controlled frozen protocol."""
     with Path(config_path).open(encoding="utf-8") as file:
@@ -259,4 +271,72 @@ def load_training_feature_source(raw_directory: str | Path, config_path: str | P
         train_calendar=train_calendar,
         validation_calendar=validation_calendar,
         train_day_keys=train_days,
+    )
+
+
+def _full_calendar(calendar_path: Path) -> pd.DataFrame:
+    calendar_columns = [
+        "date", "wm_yr_wk", "weekday", "wday", "month", "year", "d",
+        "event_name_1", "event_type_1", "event_name_2", "event_type_2", "snap_CA",
+    ]
+    calendar = pd.read_csv(calendar_path, usecols=calendar_columns)
+    calendar["d_index"] = calendar["d"].str.removeprefix("d_").astype("int16")
+    return calendar.sort_values("d_index", kind="stable").reset_index(drop=True)
+
+
+def load_final_evaluation_feature_source(raw_directory: str | Path, config_path: str | Path) -> FinalEvaluationFeatureSource:
+    """Load TRAIN+VALIDATION sales only, before the P12 TEST-opening sequence.
+
+    Calendar rows can extend beyond TEST because dates/events are non-target
+    metadata needed for recursive forecasting. TEST sales values are deliberately
+    absent from both this API and its return value.
+    """
+    protocol = load_protocol(config_path)
+    sales_path, calendar_path = _source_paths(raw_directory, protocol)
+    partition_days = _validate_header(_read_header(sales_path), protocol)
+    train_validation_days = partition_days["train"] + partition_days["validation"]
+    usecols = IDENTIFIER_COLUMNS + list(train_validation_days)
+    sales = pd.read_csv(
+        sales_path, usecols=usecols,
+        dtype={column: "int16" for column in train_validation_days},
+    )
+    selected = select_frozen_scope(sales, protocol).sort_values("item_id", kind="stable").reset_index(drop=True)
+    calendar = _full_calendar(calendar_path)
+    train_validation_calendar = calendar.loc[calendar["d"].isin(train_validation_days)].reset_index(drop=True)
+    if tuple(train_validation_calendar["d"]) != train_validation_days:
+        raise ValueError("calendar.csv keys do not match the train-plus-validation boundary.")
+    # Eight forecast days after d_1941 are needed for the final end-of-day policy decisions.
+    forecast_calendar = calendar.loc[
+        (calendar["d_index"] >= 1914) & (calendar["d_index"] <= 1949)
+    ].reset_index(drop=True)
+    if tuple(forecast_calendar["d"].iloc[: len(partition_days["test"])]) != partition_days["test"]:
+        raise ValueError("calendar.csv TEST keys do not match the frozen protocol.")
+    return FinalEvaluationFeatureSource(
+        metadata=selected.loc[:, IDENTIFIER_COLUMNS].copy(),
+        train_validation_sales=selected.loc[:, list(train_validation_days)].to_numpy(dtype=np.int16),
+        train_validation_calendar=train_validation_calendar,
+        forecast_calendar=forecast_calendar,
+        train_validation_day_keys=train_validation_days,
+        test_day_keys=partition_days["test"],
+    )
+
+
+def load_final_test_actuals(raw_directory: str | Path, config_path: str | Path) -> tuple[tuple[str, ...], np.ndarray, tuple[str, ...]]:
+    """Open and load TEST sales only after fixed-origin predictions exist.
+
+    The P12 runner calls this separately and only after persisting a hash of all
+    fixed-origin predictions. Keeping this loader separate makes the TEST-open
+    sequence structural rather than a convention in the caller.
+    """
+    protocol = load_protocol(config_path)
+    sales_path, calendar_path = _source_paths(raw_directory, protocol)
+    partition_days = _validate_header(_read_header(sales_path), protocol)
+    test_days = partition_days["test"]
+    sales = pd.read_csv(sales_path, usecols=IDENTIFIER_COLUMNS + list(test_days), dtype={column: "int16" for column in test_days})
+    selected = select_frozen_scope(sales, protocol).sort_values("item_id", kind="stable").reset_index(drop=True)
+    dates = _calendar_dates(calendar_path, test_days)
+    return (
+        tuple(selected["item_id"].astype(str)),
+        selected.loc[:, list(test_days)].to_numpy(dtype=np.float64),
+        tuple(dates[day] for day in test_days),
     )
