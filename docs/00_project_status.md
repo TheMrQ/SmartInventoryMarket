@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P14 Inventory / Product / Supplier Modules
+Overall status: 🟡 **IN_PROGRESS** — P15 Sales Ingestion + Forecasting API
 
 ## Quick Human Summary
 
@@ -64,7 +64,7 @@ What we learned:
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 - FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: implement the product, supplier, inventory, stock-transaction, and purchase-order business modules on the frozen database core. TEST remains final-evaluation evidence only and must not drive any tuning.
+What happens next: implement sales ingestion and the forecasting API around the frozen XGBOOST_V1 + FEATURE_SET_V1 model. TEST remains final-evaluation evidence only and must not drive any tuning.
 
 ## Roadmap
 
@@ -84,7 +84,7 @@ What happens next: implement the product, supplier, inventory, stock-transaction
 | P11 Inventory simulation protocol | 🟢 **DONE** |
 | P12 Minimum-stock vs forecast-based reorder experiment | 🟢 **DONE** |
 | P13 MySQL + FastAPI core | 🟢 **DONE** |
-| P14 Inventory/product/supplier modules | ⚪ **TODO** |
+| P14 Inventory/product/supplier modules | 🟢 **DONE** |
 | P15 Sales ingestion + forecasting API | ⚪ **TODO** |
 | P16 Inventory decision engine | ⚪ **TODO** |
 | P17 React dashboard + integration | ⚪ **TODO** |
@@ -93,17 +93,17 @@ What happens next: implement the product, supplier, inventory, stock-transaction
 
 ## Current Task
 
-P13 is complete. The local MySQL 8.0.46 database `smart_inventory_market` now has 14 Alembic-managed tables created by revision `f86d36b27719`. FastAPI connects through SQLAlchemy 2.0.52 and PyMySQL 1.2.3; `/health/db` performs a non-secret `SELECT 1` check. No P14 CRUD/business workflows, ML retraining, or inventory-policy changes were implemented.
+P14 is complete. FastAPI now exposes layered category, product, supplier, supplier-product, inventory-read, immutable stock-adjustment/history, purchase-order, state-transition, and goods-receipt endpoints. Product creation atomically creates zero inventory; only adjustments/receipts change on-hand state; incoming stock is derived only from `ORDERED`/`IN_TRANSIT` lines. The local MySQL API smoke workflow passed and removed all marker data. No schema migration, ML retraining, TEST access, forecasting API, recommendation engine, or frontend work was performed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-013` — MySQL relational schema, Alembic migration, and FastAPI database core implemented and verified
+`CHECKPOINT-014` — Product, supplier, inventory, stock-transaction, and purchase-order business modules implemented and verified
 
 ## Next Exact Step
 
-`NEXT-014` — Implement product, supplier, inventory, stock-transaction, and purchase-order business modules on the frozen database core.
+`NEXT-015` — Implement sales ingestion and the forecasting API using the frozen XGBOOST_V1 + FEATURE_SET_V1 model.
 
-Do not re-open model selection, change feature/model/protocol values, or tune against TEST. P14 must implement transactional business behavior while preserving the P13 schema invariants.
+Do not re-open model selection, change feature/model/protocol values, or tune against TEST. P15 must preserve P14 inventory/audit invariants and keep model selection frozen.
 
 ## Known Blockers
 

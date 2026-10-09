@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-10-09 — P14 MySQL smoke cleanup rejected a nested target-table delete — RESOLVED
+
+**Symptom:** The first successful live P14 API smoke flow reached complete receipt, but cleanup failed with MySQL error 1093 while deleting `purchase_order_items` through a subquery on the same table.
+
+**Cause:** MySQL does not permit that target-table/subquery delete form.
+
+**Resolution:** `scripts/db/smoke_p14.py` now fetches its uniquely marked product, purchase-order, and line IDs first, then deletes in explicit foreign-key-safe order. The one marker run was removed with the corrected routine; a second full live smoke run and no-marker-data verification passed.
+
+**Prevention:** Live smoke cleanup must use exact marker IDs and MySQL-compatible deletes. Do not use broad cleanup patterns or leave operational test records behind.
+
 ## 2026-10-01 — P13 Alembic MySQL downgrade initially rejected an FK-supporting index
 
 **Symptom:** A safe `alembic downgrade base` on the empty `smart_inventory_market` development schema failed with MySQL error 1553: an index on `stock_transactions` could not be dropped because it supported a foreign key.

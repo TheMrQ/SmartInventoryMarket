@@ -24,6 +24,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.app.db.base import Base
 
 
+# MySQL keeps BIGINT identifiers; SQLite test databases require INTEGER primary
+# keys to provide equivalent auto-increment behavior.
+ID_TYPE = BIGINT().with_variant(Integer, "sqlite")
+
+
 def utc_now() -> datetime:
     """Return a timezone-naive datetime whose value is explicitly UTC for MySQL."""
     return datetime.now(timezone.utc).replace(tzinfo=None)
@@ -71,7 +76,7 @@ class TimestampMixin:
 class User(TimestampMixin, Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -97,7 +102,7 @@ class User(TimestampMixin, Base):
 class Category(TimestampMixin, Base):
     __tablename__ = "categories"
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     code: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -108,7 +113,7 @@ class Category(TimestampMixin, Base):
 class Product(TimestampMixin, Base):
     __tablename__ = "products"
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     sku: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), index=True, nullable=False)
@@ -128,7 +133,7 @@ class Product(TimestampMixin, Base):
 class Supplier(TimestampMixin, Base):
     __tablename__ = "suppliers"
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     code: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -148,7 +153,7 @@ class SupplierProduct(TimestampMixin, Base):
         CheckConstraint("unit_cost IS NULL OR unit_cost >= 0", name="unit_cost_nonnegative"),
     )
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     supplier_sku: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -178,7 +183,7 @@ class SalesDaily(TimestampMixin, Base):
         CheckConstraint("quantity_sold >= 0", name="quantity_sold_nonnegative"),
     )
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     sale_date: Mapped[date] = mapped_column(Date, nullable=False)
     quantity_sold: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -192,7 +197,7 @@ class PurchaseOrder(TimestampMixin, Base):
     __tablename__ = "purchase_orders"
     __table_args__ = (Index("ix_purchase_orders_status", "status"),)
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     po_number: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id"), nullable=False)
     status: Mapped[PurchaseOrderStatus] = mapped_column(
@@ -227,7 +232,7 @@ class PurchaseOrderItem(TimestampMixin, Base):
         CheckConstraint("unit_cost IS NULL OR unit_cost >= 0", name="unit_cost_nonnegative"),
     )
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     purchase_order_id: Mapped[int] = mapped_column(ForeignKey("purchase_orders.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     ordered_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -246,7 +251,7 @@ class StockTransaction(Base):
         Index("ix_stock_transactions_product_occurred", "product_id", "occurred_at"),
     )
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     transaction_type: Mapped[StockTransactionType] = mapped_column(
         SqlEnum(StockTransactionType, native_enum=False, create_constraint=True, name="stock_transaction_type"),
@@ -270,7 +275,7 @@ class ForecastRun(Base):
     __tablename__ = "forecast_runs"
     __table_args__ = (CheckConstraint("horizon_days > 0", name="horizon_positive"),)
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     model_name: Mapped[str] = mapped_column(String(100), nullable=False)
     feature_set: Mapped[str] = mapped_column(String(100), nullable=False)
     model_version: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -293,7 +298,7 @@ class ForecastValue(Base):
         Index("ix_forecast_values_product_date", "product_id", "forecast_date"),
     )
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     forecast_run_id: Mapped[int] = mapped_column(ForeignKey("forecast_runs.id"), index=True, nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     forecast_date: Mapped[date] = mapped_column(Date, nullable=False)
@@ -308,7 +313,7 @@ class ForecastValue(Base):
 class ModelMetric(Base):
     __tablename__ = "model_metrics"
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     model_name: Mapped[str] = mapped_column(String(100), nullable=False)
     feature_set: Mapped[str] = mapped_column(String(100), nullable=False)
     dataset_split: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -333,7 +338,7 @@ class ReorderRecommendation(Base):
         Index("ix_reorder_recommendations_status", "status"),
     )
 
-    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     forecast_run_id: Mapped[int | None] = mapped_column(ForeignKey("forecast_runs.id"), nullable=True)
     status: Mapped[RecommendationStatus] = mapped_column(

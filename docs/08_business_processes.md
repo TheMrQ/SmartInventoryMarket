@@ -123,3 +123,9 @@ Frozen stock-transaction types are `RECEIPT`, `SALE`, `ADJUSTMENT_IN`, and `ADJU
 - Normal transaction processing must not result in negative on-hand inventory.
 - Reorder recommendations require human review; no automatic supplier purchase is in scope.
 - Purchase-order receipt, not recommendation acceptance or order placement, changes on-hand inventory.
+
+## P14 Implementation Boundary
+
+P14 implements category/product/supplier maintenance, supplier-product eligibility, auditable adjustments, purchase-order creation/line maintenance, a restricted PO state machine, and receipt processing. The state machine is `DRAFT → APPROVED → ORDERED → IN_TRANSIT → RECEIVED`, with cancellation allowed from every nonterminal pre-receipt state. `RECEIVED` can be reached only by complete goods receipt, never by a generic status change.
+
+Creating, approving, ordering, or sending a PO in transit never changes on-hand inventory. Only adjustment and receipt services change it, each with an immutable stock transaction. P14 intentionally leaves sales ingestion, forecasting, reorder recommendation calculation, authentication, and automatic supplier purchasing outside scope.

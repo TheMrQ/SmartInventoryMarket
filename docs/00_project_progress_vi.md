@@ -26,8 +26,8 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P11 — Thiết kế inventory intelligence** | 🟢 **DONE** | Chốt mô phỏng lead time 7 ngày, safety stock, lost sales, luồng review và purchase order. |
 | **P12 — Final forecast và so sánh nhập hàng** | 🟢 **DONE** | Mở TEST đúng một lần theo protocol, đánh giá model cuối và chạy mô phỏng hai chính sách nhập hàng. |
 | **P13 — MySQL + FastAPI core** | 🟢 **DONE** | Đã tạo database MySQL, 14 bảng quan hệ, migration Alembic và kiểm tra FastAPI kết nối được database. Chưa làm CRUD nghiệp vụ. |
-| **P14 — Product / Supplier / Inventory modules** | ⚪ **TODO** | Sẽ làm chức năng quản lý sản phẩm, loại hàng, nhà cung cấp, tồn kho, stock transaction và purchase order. |
-| **P15 — Sales + Forecast API** | ⚪ **TODO** | Sẽ nhận lịch sử sales, lưu database, gọi model XGBoost và trả forecast 7/14/28 ngày. |
+| **P14 — Product / Supplier / Inventory modules** | 🟢 **DONE** | Đã có API cho category, product, supplier, supplier-product, xem tồn kho, điều chỉnh kho có audit, purchase order, chuyển trạng thái và nhận hàng. Product mới có tồn kho bằng 0; chỉ adjustment và receipt mới đổi on-hand. |
+| **P15 — Sales + Forecast API** | 🟡 **IN_PROGRESS** | Bước tiếp theo sẽ nhận lịch sử sales, lưu database, gọi model XGBoost đã chốt và trả forecast 7/14/28 ngày. |
 | **P16 — Inventory Decision Engine** | ⚪ **TODO** | Sẽ biến forecast thành stockout risk, overstock risk, reorder point và số lượng đề xuất nhập. |
 | **P17 — React UI** | ⚪ **TODO** | Sẽ làm giao diện web chính thức. |
 | **P18 — Kiểm thử và hoàn thiện** | ⚪ **TODO** | Sẽ test toàn hệ thống, kiểm tra nghiệp vụ và chuẩn bị evidence cuối. |
@@ -59,6 +59,14 @@ Dùng forecast XGBoost giảm thiếu hàng và stockout, nhưng cần giữ t�
 - Alembic quản lý phiên bản cấu trúc bảng. Migration đầu tiên đã tạo 14 bảng.
 - FastAPI đã kiểm tra được kết nối MySQL qua `/health/db`.
 - Chưa có màn hình CRUD hay luồng nghiệp vụ đầy đủ; các phần đó bắt đầu từ P14.
+
+## Kết quả P14 dễ hiểu
+
+- Backend đã có nhóm API `/api` để quản lý sản phẩm, nhà cung cấp, quan hệ nhà cung cấp–sản phẩm, tồn kho và purchase order.
+- Không cho sửa trực tiếp số lượng tồn kho. Mọi điều chỉnh phải có lý do và tạo dòng lịch sử `stock_transactions`.
+- Purchase order ở `ORDERED` hoặc `IN_TRANSIT` mới được tính là hàng đang về. Draft, approved, cancelled hoặc đã nhận xong không được tính.
+- Khi nhận hàng, hệ thống tăng tồn kho, tăng số lượng đã nhận và ghi giao dịch `RECEIPT` trong cùng một transaction. Nhận một phần vẫn là `IN_TRANSIT`; nhận đủ mới thành `RECEIVED`.
+- Đã chạy smoke test trên MySQL thật và xóa toàn bộ dữ liệu test có nhãn P14 sau khi kiểm tra.
 
 ## Luồng tổng thể
 

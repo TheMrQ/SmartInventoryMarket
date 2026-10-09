@@ -19,6 +19,7 @@ from backend.app.db.models.application import (
     SupplierProduct,
     User,
     UserRole,
+    utc_now,
 )
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "SupplierProduct",
     "User",
     "UserRole",
+    "utc_now",
 ]

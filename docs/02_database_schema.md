@@ -89,3 +89,9 @@ Accepting or modifying a recommendation does not change `inventory.on_hand`; cre
 ## Verification Evidence
 
 On 2026-10-01, local MySQL 8.0.46 applied migration `f86d36b27719`; Alembic `current` and `heads` both reported that revision, and `alembic check` found no schema drift. SQLAlchemy inspection found 14 application tables, 19 foreign keys, 26 indexes, and 23 check constraints. A temporary category/product transaction flushed, queried, and rolled back; the product was confirmed absent afterwards. See [database setup](database_setup.md) for reproducible local commands and Workbench ERD instructions.
+
+## P14 Operational Use Without Schema Change
+
+P14 uses the frozen schema unchanged; Alembic remains at `f86d36b27719`. Product creation creates the one required `inventory` row with `on_hand = 0` in the same transaction. `inventory.on_hand` is not exposed as a generic writable resource: manual adjustments and purchase-order receipts atomically update it and create immutable `stock_transactions` records.
+
+For the P14 inventory read model, incoming quantity is derived at query time as `ordered_quantity - received_quantity` only from purchase orders in `ORDERED` or `IN_TRANSIT`. `DRAFT`, `APPROVED`, `RECEIVED`, and `CANCELLED` orders do not count. Full receipt moves an order from `IN_TRANSIT` to `RECEIVED`, records receipt transactions, and therefore reduces its derived incoming quantity to zero.

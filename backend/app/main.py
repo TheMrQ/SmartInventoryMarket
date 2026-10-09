@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
+from backend.app.api.business import router as business_router
 from backend.app.api.health import router as health_router
+from backend.app.services.errors import DomainError
 
 app = FastAPI(
     title="Smart Inventory Market",
@@ -9,10 +12,17 @@ app = FastAPI(
 )
 
 
+@app.exception_handler(DomainError)
+async def domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:
+    """Return expected business failures without leaking SQL/database detail."""
+    return JSONResponse(status_code=exc.status_code, content={"detail": str(exc)})
+
+
 @app.get("/")
 def project_status() -> dict[str, str]:
-    """Return the minimal project-status response for the application core."""
-    return {"project": "Smart Inventory Market", "status": "database-core"}
+    """Return the minimal project-status response for the operational API core."""
+    return {"project": "Smart Inventory Market", "status": "inventory-operations"}
 
 
 app.include_router(health_router)
+app.include_router(business_router)

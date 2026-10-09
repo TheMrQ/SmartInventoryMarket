@@ -96,4 +96,4 @@ P13+ must preserve these boundaries: FastAPI routes coordinate requests and resp
 
 ## Current Implementation Status
 
-P13 implements the FastAPI database core: environment-backed settings, SQLAlchemy engine/session dependency, declarative metadata/models, Alembic initial migration, and `/health/db`. The initial local MySQL migration and rolled-back transaction smoke test passed. Product/supplier/inventory CRUD, transaction processing, forecasting service, decision engine, and frontend workflows remain unimplemented and belong to later phases.
+P14 adds the first operational API layer on the P13 core. `/api` routes are thin adapters over services and repositories for categories, products, suppliers, supplier-product mappings, inventory reads, stock adjustments/history, purchase orders, state transitions, and goods receipts. Transactions use row locking where inventory/receipt state is changed; no generic editable inventory endpoint exists. Sales ingestion/forecasting, recommendation logic, authentication, and frontend workflows remain later-phase work.

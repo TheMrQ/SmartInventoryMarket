@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-09 — CHECKPOINT-014: operational inventory and purchase-order API complete
+
+- Added layered FastAPI `/api` modules, Pydantic contracts, services, and repositories for categories, products, suppliers, supplier-product mappings, inventory reads, immutable adjustment/history, purchase orders, controlled transitions, and receipts.
+- Enforced nonnegative inventory, transaction audit records, one zero-stock inventory row per new product, unique/active supplier-product ordering checks, draft-only PO item maintenance, and a receipt-only path to `RECEIVED`.
+- Defined incoming quantity as remaining PO quantity only in `ORDERED`/`IN_TRANSIT`; it is derived, never persisted as editable inventory state.
+- Added five isolated API-flow tests (46 total suite tests) plus a marker-cleaning live MySQL API smoke script. Alembic remains unchanged at `f86d36b27719`; no ML, TEST, forecasting, or frontend work changed.
+
 ## 2026-10-01 — CHECKPOINT-013: MySQL relational schema and FastAPI database core verified
 
 - Finalized MySQL 8.x + SQLAlchemy 2.x + Alembic + PyMySQL as the application database stack; removed the unused PostgreSQL `psycopg[binary]` dependency and added `pymysql`.
