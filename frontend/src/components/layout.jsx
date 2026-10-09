@@ -18,6 +18,6 @@ export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobile
       <nav>{links.map(([path, name, Icon]) => <NavLink key={path} to={path} end={path === '/'} onClick={() => setMobileOpen(false)} title={name}><Icon size={19}/><span>{name}</span></NavLink>)}</nav>
       <button className="collapse" onClick={() => setCollapsed(!collapsed)} aria-label="Toggle sidebar"><ChevronLeft size={18}/><span>Collapse sidebar</span></button>
     </aside>
-    <main><header className="topbar"><button className="icon-button menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20}/></button><div><p className="eyebrow">Operations workspace</p><h1>{label}</h1></div><div className={`connection ${health.isSuccess ? 'online' : 'offline'}`}><i />{health.isSuccess ? 'Database connected' : 'Checking connection'}<span>Thesis Demo</span></div></header><div className="page-content">{children}</div></main>
+    <main><header className="topbar"><button className="icon-button menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20}/></button><div><p className="eyebrow">Operations workspace</p><h1>{label}</h1></div><div className={`connection ${health.isSuccess ? 'online' : 'offline'}`}><i />{health.isSuccess ? 'Database connected' : 'Checking connection'}<span>M5 CA_1 · Thesis Demo</span></div></header><div className="page-content">{children}</div></main>
   </div>
 }

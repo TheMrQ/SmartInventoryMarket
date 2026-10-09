@@ -82,6 +82,28 @@ Prevention:
 
 Treat a successful file list as authentication verification only; verify download authorization separately before creating an audit plan.
 
+## 2026-10-09 — Optional UI demo setup reports unavailable frozen prerequisites
+
+Symptom:
+
+`scripts/db/setup_ui_demo.py` stops before preparing the local dashboard state.
+
+Root cause:
+
+The optional demo requires the ignored frozen XGBoost artifact, M5 calendar metadata, source sales/price files, and local MySQL configuration. They are intentionally not committed with the application.
+
+Fix:
+
+Restore the local project prerequisites from the documented thesis environment, then run `.\.venv\Scripts\python.exe scripts\db\setup_ui_demo.py` again. Do not replace missing prerequisites with synthetic predictions or TEST demand.
+
+Verification:
+
+The script prints its persisted forecast run, engine-derived risk distribution, incoming PO quantity, and adjustment-audit count. Rerunning it should not add another forecast, PO, active recommendation, or adjustment when the prepared state is unchanged.
+
+Prevention:
+
+Treat the utility as optional/local-demo setup only. Keep raw M5 files, model artifacts, `.env`, and database dumps ignored.
+
 ## Problem Record Template
 
 ## 2026-09-21 — Ablation-summary WAPE mapping corrected

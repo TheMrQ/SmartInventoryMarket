@@ -18,3 +18,9 @@ The React/Vite UI now supplies a responsive sidebar/top-bar shell, database-heal
 Implemented pages are Dashboard, Products, Inventory, Suppliers, Purchase Orders, Sales, Forecasts, and Inventory Decisions. API mutations wait for backend success and invalidate relevant React Query caches; they do not make unsafe optimistic stock updates. The forecast page draws persisted daily predictions using Recharts and states the M5-compatible SKU limitation. The decision page presents risk calculations and supports recommendation generation plus explicit ACCEPT/MODIFY/REJECT review; it explicitly states that review does not change inventory or automatically create an order.
 
 The Dashboard derives real KPIs, risk distribution, inventory attention, recommendations, and recent orders from API responses. It renders intentional empty states where compatible forecast/supplier context does not yet exist. Local startup instructions are maintained in `frontend/README.md`.
+
+## P17 Polish
+
+The visual system now uses the blue Smart Inventory Market palette: `#2563EB` primary actions, blue slate navigation, blue focus states, and blue forecast-chart treatment. Green is reserved for successful/healthy semantic states. KPI cards now have differentiated icon containers, supporting context, subtle elevation, and responsive hover/focus-safe transitions. Tables, controls, drawers, modals, badges, and empty states use the same restrained feedback language, with `prefers-reduced-motion` support.
+
+The optional local-only `scripts/db/setup_ui_demo.py` prepares genuine presentation state through the existing services. It uses the frozen XGBoost artifact and the real inventory decision engine; the operational quantities exist solely to demonstrate the workflow and are not presented as observed Walmart inventory.

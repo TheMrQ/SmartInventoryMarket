@@ -93,11 +93,11 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 
 ## Current Task
 
-P17 is complete. The React/Vite operational UI now integrates the live FastAPI API through a responsive dashboard, catalog, inventory, supplier, purchase-order, sales, forecast, and decision/recommendation workspace. React Query refreshes affected views after successful mutations; the UI never invents model/risk data or claims recommendation review changes inventory. No model retraining, TEST-demand input, automatic purchase, or authentication work was added.
+P17 is complete, including the focused polish pass. The React/Vite operational UI now uses the blue Smart Inventory Market identity, restrained motion, semantic risk colors, improved dashboard hierarchy, and responsive operational views. The optional local `scripts/db/setup_ui_demo.py` creates labeled demo suppliers, service-audited inventory adjustments, an unreceived PO, a real frozen XGBOOST_V1 forecast, and real decision/recommendation state for the existing five M5 demo SKUs. React Query refreshes affected views after successful mutations; the UI never invents model/risk data or claims recommendation review changes inventory. No model retraining, TEST-demand input, automatic purchase, or authentication work was added.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-017` — Modern responsive React dashboard and operational UI integrated with the Smart Inventory Market FastAPI backend
+`CHECKPOINT-017` — Polished blue React dashboard and real local thesis-demo workflow integrated with the Smart Inventory Market FastAPI backend
 
 ## Next Exact Step
 

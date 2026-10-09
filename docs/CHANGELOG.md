@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-09 — CHECKPOINT-017 polish: blue theme and real thesis-demo state
+
+- Refined the existing React UI with the blue Smart Inventory Market palette, stronger dashboard contrast, semantic risk colors, consistent icons, restrained responsive transitions, blue forecast chart treatment, and reduced-motion support.
+- Added optional, idempotent `scripts/db/setup_ui_demo.py`, which verifies prerequisites then uses the established services to prepare two labeled demo suppliers, five preferred mappings, a genuine persisted 28-day frozen XGBoost forecast, audited adjustment-based inventory positions, `DEMO-PO-001` in transit, and real recommendation records.
+- The demo script does not retrain, read held-out TEST actuals, directly change `inventory.on_hand`, fake forecast/risk/reorder values, or create duplicate active recommendations on rerun.
+
 ## 2026-10-09 — CHECKPOINT-017: responsive React operational dashboard integrated
 
 - Replaced the Vite starter with a responsive React Router operations workspace covering dashboard, products, inventory adjustments/history, suppliers/mappings, purchase-order workflow, sales/import, forecasts, and inventory decisions/recommendation review.
