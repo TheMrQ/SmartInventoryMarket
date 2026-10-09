@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-09 — CHECKPOINT-017: responsive React operational dashboard integrated
+
+- Replaced the Vite starter with a responsive React Router operations workspace covering dashboard, products, inventory adjustments/history, suppliers/mappings, purchase-order workflow, sales/import, forecasts, and inventory decisions/recommendation review.
+- Added React Query cache/refetch behavior, normalized API errors, Sonner feedback, Lucide icons, Recharts forecast/risk visualizations, modal forms, mobile sidebar behavior, and documented local Vite proxy/API configuration.
+- Verified clean frontend lint and production build plus local frontend/backend health responses. No backend business rules, schema, ML artifact, TEST usage, authentication, or automatic purchasing behavior changed.
+
 ## 2026-10-09 — CHECKPOINT-016: inventory decision engine and human review workflow complete
 
 - Added layered inventory-decision and reorder-recommendation APIs/services/repositories using persisted forecast demand, current/incoming inventory, deterministic supplier selection, 28-day population-std safety stock, explainable risks, and frozen protocol rounding.

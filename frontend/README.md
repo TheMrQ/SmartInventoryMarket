@@ -1,16 +1,30 @@
-# React + Vite
+# Smart Inventory Market frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Responsive React/Vite operations dashboard for the FastAPI backend. It opens directly in thesis-demo mode; authentication is not implemented.
 
-Currently, two official plugins are available:
+## Local run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Terminal 1, from the repository root:
 
-## React Compiler
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Terminal 2:
 
-## Expanding the Oxlint configuration
+```powershell
+cd frontend
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Open [http://localhost:5173](http://localhost:5173). Vite proxies `/api` and `/health` to `http://127.0.0.1:8000` locally. For a deployed backend, set the optional safe `VITE_API_BASE_URL` in a local ignored `.env` file.
+
+## Verification
+
+```powershell
+npm run lint
+npm run build
+```
+
+The UI uses React Router, TanStack React Query, Lucide icons, Recharts, and Sonner. It contains dashboard, catalog, inventory, supplier mapping, purchase-order, sales/import, forecast, and inventory-decision/recommendation views. The frozen forecast model remains M5-specific; the UI presents that limitation instead of claiming arbitrary-SKU support.

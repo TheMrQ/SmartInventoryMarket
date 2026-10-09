@@ -43,7 +43,7 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P14 — Product / Supplier / Inventory modules** | 🟢 **DONE** | Đã có API cho category, product, supplier, supplier-product, xem tồn kho, điều chỉnh kho có audit, purchase order, chuyển trạng thái và nhận hàng. Product mới có tồn kho bằng 0; chỉ adjustment và receipt mới đổi on-hand. |
 | **P15 — Sales + Forecast API** | 🟢 **DONE** | Đã có import CSV lịch sử bán hàng, ghi nhận bán hàng thực tế trừ tồn kho có audit, và API dự báo 7/14/28 ngày bằng XGBoost đã chốt. Chỉ SKU M5 tương thích mới được dự báo. |
 | **P16 — Inventory Decision Engine** | 🟢 **DONE** | Đã có engine tính rủi ro và số lượng đề xuất từ forecast, tồn kho, PO sắp về, lead time, safety stock; mọi đề xuất đều cần người duyệt. |
-| **P17 — React UI** | ⚪ **TODO** | Sẽ làm giao diện web chính thức. |
+| **P17 — React UI** | 🟢 **DONE** | Đã có dashboard React responsive, các màn hình vận hành, biểu đồ forecast và luồng review đề xuất nhập hàng kết nối FastAPI. |
 | **P18 — Kiểm thử và hoàn thiện** | ⚪ **TODO** | Sẽ test toàn hệ thống, kiểm tra nghiệp vụ và chuẩn bị evidence cuối. |
 | **P19 — Báo cáo và bảo vệ** | ⚪ **TODO** | Sẽ tổng hợp methodology, biểu đồ, ERD, screenshot và demo để viết luận văn/bảo vệ. |
 

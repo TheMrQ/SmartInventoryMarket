@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P17 React dashboard and integration next
+Overall status: 🟡 **IN_PROGRESS** — P18 verification and final evidence next
 
 ## Quick Human Summary
 
@@ -64,7 +64,7 @@ What we learned:
 - Recent rolling-demand features account for 93.146% of LightGBM and 95.527% of XGBoost normalized gain. This is descriptive model behavior, not evidence that the other features are unnecessary.
 - FULL_V1 (25 features) remains lowest on validation WAPE/MAE/RMSE. The best reduced model, NO_PRICE (20), worsens WAPE by 0.552%; calendar/event removal and the 11-feature demand/product model worsen it by 2.401% and 2.448%.
 
-What happens next: implement sales ingestion and the forecasting API around the frozen XGBOOST_V1 + FEATURE_SET_V1 model. TEST remains final-evaluation evidence only and must not drive any tuning.
+What happens next: run end-to-end verification, UX polish, integration tests, and consolidate final experiment evidence. TEST remains final-evaluation evidence only and must not drive any tuning.
 
 ## Roadmap
 
@@ -87,21 +87,21 @@ What happens next: implement sales ingestion and the forecasting API around the 
 | P14 Inventory/product/supplier modules | 🟢 **DONE** |
 | P15 Sales ingestion + forecasting API | 🟢 **DONE** |
 | P16 Inventory decision engine | 🟢 **DONE** |
-| P17 React dashboard + integration | ⚪ **TODO** |
-| P18 Testing + final experiments | ⚪ **TODO** |
+| P17 React dashboard + integration | 🟢 **DONE** |
+| P18 Testing + final experiments | 🟡 **IN_PROGRESS** |
 | P19 Thesis report + defense package | ⚪ **TODO** |
 
 ## Current Task
 
-P16 is complete. FastAPI now derives explainable inventory decisions from persisted forecasts, live inventory position, eligible supplier lead time, 28 observed daily sales, and the frozen safety-stock rule. Actionable decisions persist a `NEW` recommendation; zero-quantity decisions remain read-only analysis. Human review has explicit ACCEPT/MODIFY/REJECT actions and never changes inventory or creates a purchase order. No ML retraining, TEST-demand input, automatic purchasing, or frontend work was performed.
+P17 is complete. The React/Vite operational UI now integrates the live FastAPI API through a responsive dashboard, catalog, inventory, supplier, purchase-order, sales, forecast, and decision/recommendation workspace. React Query refreshes affected views after successful mutations; the UI never invents model/risk data or claims recommendation review changes inventory. No model retraining, TEST-demand input, automatic purchase, or authentication work was added.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-016` — Forecast-driven inventory decision engine and human-reviewed reorder recommendation workflow implemented and verified
+`CHECKPOINT-017` — Modern responsive React dashboard and operational UI integrated with the Smart Inventory Market FastAPI backend
 
 ## Next Exact Step
 
-`NEXT-017` — Build and integrate the React dashboard and operational UI with the completed FastAPI backend.
+`NEXT-018` — End-to-end verification, UX polish, integration testing, and final experiment/evidence consolidation.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 
