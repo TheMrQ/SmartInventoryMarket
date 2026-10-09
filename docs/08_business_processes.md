@@ -129,3 +129,9 @@ Frozen stock-transaction types are `RECEIPT`, `SALE`, `ADJUSTMENT_IN`, and `ADJU
 P14 implements category/product/supplier maintenance, supplier-product eligibility, auditable adjustments, purchase-order creation/line maintenance, a restricted PO state machine, and receipt processing. The state machine is `DRAFT → APPROVED → ORDERED → IN_TRANSIT → RECEIVED`, with cancellation allowed from every nonterminal pre-receipt state. `RECEIVED` can be reached only by complete goods receipt, never by a generic status change.
 
 Creating, approving, ordering, or sending a PO in transit never changes on-hand inventory. Only adjustment and receipt services change it, each with an immutable stock transaction. P14 intentionally leaves sales ingestion, forecasting, reorder recommendation calculation, authentication, and automatic supplier purchasing outside scope.
+
+## P15 Implemented Sales and Forecast Boundary
+
+Historical CSV import validates `sku,sale_date,quantity_sold` (with optional `sell_price,source`), rejects malformed/unknown/duplicate-in-file records as an all-or-nothing file, and UPSERTs existing product/date history deterministically. It never changes `inventory.on_hand` because a backfill is not a new physical sale.
+
+Operational sale recording is a separate workflow: active product → lock inventory → reject insufficient stock → increment/create the daily aggregate → update a supplied latest daily price → decrease on-hand → append immutable `SALE` transaction → single commit. Forecast generation reads history only, persists a forecast run and values atomically, and never changes inventory or purchasing state. P16, not P15, will turn stored forecasts into manager-reviewed recommendations.

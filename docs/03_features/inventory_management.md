@@ -1,6 +1,6 @@
 # Inventory Management
 
-Status: `DONE` — P14 implements the operational inventory foundation; sales ingestion and decision recommendations remain later work.
+Status: `DONE` — P15 adds auditable operational sales; decision recommendations remain later work.
 
 ## Purpose
 
@@ -31,7 +31,7 @@ Maintain reliable current inventory for the single-store MVP so later risk analy
 - Incoming quantity counts remaining PO-item quantity only while the PO is `ORDERED` or `IN_TRANSIT`; `DRAFT`, `APPROVED`, `RECEIVED`, and `CANCELLED` are deliberately excluded.
 - A receipt is the only P14 procurement operation that increases on-hand inventory. It validates/locks each line, increments `received_quantity` and inventory, and writes `RECEIPT` transactions in one commit. A partial receipt remains `IN_TRANSIT`; complete receipt becomes `RECEIVED` with UTC `received_at`.
 
-There is no generic inventory PUT/PATCH endpoint, manual SALE workflow, or automatic purchasing. Sales ingestion belongs to P15; forecast/reorder recommendations belong to later work.
+There is no generic inventory PUT/PATCH endpoint or automatic purchasing. P15 adds `POST /api/sales/record`: it verifies an active product and sufficient locked stock, increments/creates the normalized daily-sales row, decreases `on_hand`, and writes an immutable `SALE` transaction in one commit. A failed sale leaves all three states unchanged. Historical CSV backfill is intentionally different: it changes only `sales_daily`, never current inventory. If a supplied operational price replaces a daily price, it is the latest observed price for that daily aggregate; an omitted price preserves it.
 
 ## Definition of Done
 

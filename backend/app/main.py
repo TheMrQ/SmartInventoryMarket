@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 
 from backend.app.api.business import router as business_router
 from backend.app.api.health import router as health_router
+from backend.app.api.sales_forecasts import router as sales_forecasts_router
 from backend.app.services.errors import DomainError
 
 app = FastAPI(
@@ -26,3 +27,4 @@ def project_status() -> dict[str, str]:
 
 app.include_router(health_router)
 app.include_router(business_router)
+app.include_router(sales_forecasts_router)

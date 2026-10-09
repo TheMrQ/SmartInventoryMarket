@@ -27,7 +27,8 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P12 — Final forecast và so sánh nhập hàng** | 🟢 **DONE** | Mở TEST đúng một lần theo protocol, đánh giá model cuối và chạy mô phỏng hai chính sách nhập hàng. |
 | **P13 — MySQL + FastAPI core** | 🟢 **DONE** | Đã tạo database MySQL, 14 bảng quan hệ, migration Alembic và kiểm tra FastAPI kết nối được database. Chưa làm CRUD nghiệp vụ. |
 | **P14 — Product / Supplier / Inventory modules** | 🟢 **DONE** | Đã có API cho category, product, supplier, supplier-product, xem tồn kho, điều chỉnh kho có audit, purchase order, chuyển trạng thái và nhận hàng. Product mới có tồn kho bằng 0; chỉ adjustment và receipt mới đổi on-hand. |
-| **P15 — Sales + Forecast API** | 🟡 **IN_PROGRESS** | Bước tiếp theo sẽ nhận lịch sử sales, lưu database, gọi model XGBoost đã chốt và trả forecast 7/14/28 ngày. |
+| **P15 — Sales + Forecast API** | 🟢 **DONE** | Đã có import CSV lịch sử bán hàng, ghi nhận bán hàng thực tế trừ tồn kho có audit, và API dự báo 7/14/28 ngày bằng XGBoost đã chốt. Chỉ SKU M5 tương thích mới được dự báo. |
+| **P16 — Inventory Decision Engine** | 🟡 **IN_PROGRESS** | Bước tiếp theo dùng forecast đã lưu cùng tồn kho, hàng sắp về và lead time để đề xuất đặt hàng có người duyệt. |
 | **P16 — Inventory Decision Engine** | ⚪ **TODO** | Sẽ biến forecast thành stockout risk, overstock risk, reorder point và số lượng đề xuất nhập. |
 | **P17 — React UI** | ⚪ **TODO** | Sẽ làm giao diện web chính thức. |
 | **P18 — Kiểm thử và hoàn thiện** | ⚪ **TODO** | Sẽ test toàn hệ thống, kiểm tra nghiệp vụ và chuẩn bị evidence cuối. |
@@ -67,6 +68,13 @@ Dùng forecast XGBoost giảm thiếu hàng và stockout, nhưng cần giữ t�
 - Purchase order ở `ORDERED` hoặc `IN_TRANSIT` mới được tính là hàng đang về. Draft, approved, cancelled hoặc đã nhận xong không được tính.
 - Khi nhận hàng, hệ thống tăng tồn kho, tăng số lượng đã nhận và ghi giao dịch `RECEIPT` trong cùng một transaction. Nhận một phần vẫn là `IN_TRANSIT`; nhận đủ mới thành `RECEIVED`.
 - Đã chạy smoke test trên MySQL thật và xóa toàn bộ dữ liệu test có nhãn P14 sau khi kiểm tra.
+
+## Kết quả P15 dễ hiểu
+
+- Import CSV lịch sử chỉ bổ sung/sửa dữ liệu `sales_daily`; không được trừ tồn kho hiện tại vì dữ liệu cũ không phải thao tác bán hàng vừa xảy ra.
+- Ghi nhận một lần bán hàng thực tế khóa tồn kho, từ chối bán vượt tồn, giảm `on_hand`, cập nhật tổng bán trong ngày và tạo dòng audit `SALE` trong một giao dịch.
+- Model XGBoost hiện tại chỉ học từ M5 CA_1/FOODS. Vì vậy API chỉ nhận SKU M5 có trong danh sách đã đóng băng; SKU siêu thị mới phải huấn luyện lại bằng dữ liệu POS thật.
+- Đã kiểm tra SHA-256 của model cục bộ, chạy forecast 7 và 28 ngày thật trên MySQL, và không dùng sales thực tế tương lai d_1914–d_1941 làm đầu vào.
 
 ## Luồng tổng thể
 

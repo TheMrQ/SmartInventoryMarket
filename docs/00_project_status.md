@@ -85,25 +85,25 @@ What happens next: implement sales ingestion and the forecasting API around the 
 | P12 Minimum-stock vs forecast-based reorder experiment | 🟢 **DONE** |
 | P13 MySQL + FastAPI core | 🟢 **DONE** |
 | P14 Inventory/product/supplier modules | 🟢 **DONE** |
-| P15 Sales ingestion + forecasting API | ⚪ **TODO** |
-| P16 Inventory decision engine | ⚪ **TODO** |
+| P15 Sales ingestion + forecasting API | 🟢 **DONE** |
+| P16 Inventory decision engine | 🟡 **IN_PROGRESS** |
 | P17 React dashboard + integration | ⚪ **TODO** |
 | P18 Testing + final experiments | ⚪ **TODO** |
 | P19 Thesis report + defense package | ⚪ **TODO** |
 
 ## Current Task
 
-P14 is complete. FastAPI now exposes layered category, product, supplier, supplier-product, inventory-read, immutable stock-adjustment/history, purchase-order, state-transition, and goods-receipt endpoints. Product creation atomically creates zero inventory; only adjustments/receipts change on-hand state; incoming stock is derived only from `ORDERED`/`IN_TRANSIT` lines. The local MySQL API smoke workflow passed and removed all marker data. No schema migration, ML retraining, TEST access, forecasting API, recommendation engine, or frontend work was performed.
+P15 is complete. FastAPI now has separate historical CSV backfill and operational-sale paths, plus M5-compatible frozen-XGBoost forecast generation/read APIs. Historical imports upsert `sales_daily` only; operational sales lock and decrement inventory while writing immutable `SALE` transactions. The real MySQL smoke path seeded five intentional CA_1/FOODS demo products, verified 7- and 28-day forecasts with the SHA-validated frozen artifact, verified unchanged inventory, and removed smoke forecast runs. No retraining, model/feature selection change, TEST-demand input, reorder recommendation, or frontend work was performed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-014` — Product, supplier, inventory, stock-transaction, and purchase-order business modules implemented and verified
+`CHECKPOINT-015` — Historical/operational sales ingestion and M5-compatible frozen XGBoost forecasting API implemented and verified
 
 ## Next Exact Step
 
-`NEXT-015` — Implement sales ingestion and the forecasting API using the frozen XGBOOST_V1 + FEATURE_SET_V1 model.
+`NEXT-016` — Implement the inventory decision engine combining persisted forecasts, current/incoming inventory, supplier lead time, safety stock, risk, and human-reviewed reorder recommendations.
 
-Do not re-open model selection, change feature/model/protocol values, or tune against TEST. P15 must preserve P14 inventory/audit invariants and keep model selection frozen.
+Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 
 ## Known Blockers
 

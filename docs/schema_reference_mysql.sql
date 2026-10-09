@@ -438,6 +438,8 @@ CREATE TABLE sales_daily (
     product_id BIGINT NOT NULL,
     sale_date DATE NOT NULL,
     quantity_sold INT NOT NULL,
+      -- Retail daily selling price for frozen forecasting features; not supplier unit cost.
+      sell_price DECIMAL(12,2) NULL,
     source VARCHAR(100) NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -449,6 +451,9 @@ CREATE TABLE sales_daily (
 
     CONSTRAINT ck_sales_daily_quantity_sold_nonnegative
         CHECK (quantity_sold >= 0),
+
+      CONSTRAINT ck_sales_daily_sell_price_nonnegative
+          CHECK (sell_price IS NULL OR sell_price >= 0),
 
     CONSTRAINT fk_sales_daily_product_id_products
         FOREIGN KEY (product_id)

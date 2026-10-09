@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-09 — CHECKPOINT-015: sales ingestion and frozen M5 forecasting API complete
+
+- Added nullable constrained retail `sales_daily.sell_price` through Alembic revision `8ac7d44590e3`; verified MySQL upgrade, downgrade, re-upgrade, head, and no-drift checks.
+- Added layered Sales APIs for inventory-neutral historical CSV UPSERT and atomic operational sale recording with locked inventory, daily aggregation, and immutable `SALE` transactions.
+- Added frozen M5-compatible XGBOOST_V1 forecast APIs, SHA-256 artifact validation/cache, exact FEATURE_SET_V1 builder/recursive reuse, atomic run/value persistence, 7/14/28 aggregates, and explicit unknown-SKU/retraining boundary.
+- Added idempotent five-SKU CA_1/FOODS demo import plus a live MySQL/model smoke script; smoke run records are cleaned while the intentional demo catalog remains. No model retraining, feature/model selection change, or future TEST-demand input occurred.
+
 ## 2026-10-09 — CHECKPOINT-014: operational inventory and purchase-order API complete
 
 - Added layered FastAPI `/api` modules, Pydantic contracts, services, and repositories for categories, products, suppliers, supplier-product mappings, inventory reads, immutable adjustment/history, purchase orders, controlled transitions, and receipts.

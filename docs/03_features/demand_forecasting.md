@@ -131,6 +131,16 @@ Runtime is 109.747 s FULL_V1, 76.427 s NO_PRICE, 88.416 s NO_CALENDAR_EVENT, and
 - **Feature set:** `FEATURE_SET_V1` / `FULL_V1`.
 - **Features:** 25.
 - **Forecast:** global one-step regression with recursive 28-day forecasting.
+
+## P15 Frozen-Model API Boundary
+
+P15 exposes one frozen `XGBOOST_V1` / `FEATURE_SET_V1` artifact through `POST /api/forecasts` and reads persisted runs through `/api/forecast-runs` and `/api/forecasts/latest`. Supported request horizons are 7, 14, and 28 days; all use the same recursive model, with totals aggregated from its daily output rather than separate models.
+
+The current deployed thesis forecasting artifact is **M5-specific**. The application architecture is reusable for real supermarkets, but the forecasting model must be retrained on the target supermarket's own product and sales context before real deployment. A request is accepted only for an active application product whose SKU is a known frozen M5 CA_1/FOODS `item_id`; the department encoding comes from that frozen identity, not from an arbitrary application category. Unknown SKUs receive a clear retraining-required response.
+
+Runtime features use the existing `ml/features/builder.py` and `ml/models/recursive.py` helpers, the tracked 25-column ordering and categorical encodings in `data/manifests/m5_ca1_foods_features_v1.json`, and the frozen configuration files. The ignored JSON artifact is SHA-256 checked before loading and cached after a successful load. No automatic retraining occurs on absence or mismatch.
+
+The faithful demo origin is history through M5 `d_1913` / 2016-04-24 and known-ahead calendar metadata for `d_1914`–`d_1941` / 2016-04-25–2016-05-22. API history must contain 28 contiguous days through that origin. Each recursive step appends the prior prediction and an unknown (`NaN`) future price; it never reads or appends future actual demand. This is an implementation/deployment smoke boundary, not a new TEST experiment or a claim of 2026 calendar validity.
 - **Validation metrics:** MAE **1.402449**, RMSE **2.568234**, WAPE **66.647316%**.
 - **Frozen configuration:** `configs/models/xgboost_v1.yaml`; the version-controlled selection pointer is `configs/models/selected_forecasting_model.yaml`.
 

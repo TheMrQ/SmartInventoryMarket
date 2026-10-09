@@ -178,6 +178,79 @@ class StockTransactionRead(ApiModel):
     created_at: datetime
 
 
+class SalesDailyRead(ApiModel):
+    id: int
+    product_id: int
+    sale_date: date
+    quantity_sold: int
+    sell_price: Decimal | None
+    source: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class SalesImportResult(ApiModel):
+    rows_received: int
+    rows_inserted: int
+    rows_updated: int
+    rows_rejected: int
+
+
+class OperationalSaleCreate(ApiModel):
+    product_id: int = Field(gt=0)
+    quantity: int = Field(gt=0)
+    sale_date: date
+    sell_price: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
+    source: str | None = Field(default="MANUAL", max_length=100)
+    created_by_user_id: int | None = Field(default=None, gt=0)
+
+
+class ForecastCreate(ApiModel):
+    product_ids: list[int] = Field(min_length=1, max_length=100)
+    horizon_days: int
+
+    @field_validator("product_ids")
+    @classmethod
+    def unique_product_ids(cls, values: list[int]) -> list[int]:
+        if any(value <= 0 for value in values) or len(values) != len(set(values)):
+            raise ValueError("product_ids must be unique positive identifiers")
+        return values
+
+    @field_validator("horizon_days")
+    @classmethod
+    def supported_horizon(cls, value: int) -> int:
+        if value not in {7, 14, 28}:
+            raise ValueError("horizon_days must be one of 7, 14, or 28")
+        return value
+
+
+class ForecastValueRead(ApiModel):
+    id: int
+    product_id: int
+    forecast_date: date
+    horizon_day: int
+    predicted_demand: Decimal
+
+
+class ForecastTotals(ApiModel):
+    days_7: Decimal | None = None
+    days_14: Decimal | None = None
+    days_28: Decimal | None = None
+
+
+class ForecastRunRead(ApiModel):
+    id: int
+    model_name: str
+    feature_set: str
+    model_version: str | None
+    history_end_date: date
+    forecast_start_date: date
+    horizon_days: int
+    generated_at: datetime
+    values: list[ForecastValueRead] = []
+    totals_by_product: dict[int, ForecastTotals] = {}
+
+
 class PurchaseOrderItemCreate(ApiModel):
     product_id: int = Field(gt=0)
     ordered_quantity: int = Field(gt=0)

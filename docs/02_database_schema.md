@@ -51,7 +51,7 @@ There is deliberately no `stores` or warehouse table: this thesis MVP is single-
 | `suppliers` | Vendor master data. | Unique `code`, contact fields, `is_active`; links to supplier-product options and purchase orders. |
 | `supplier_products` | Supplier/product many-to-many data. | Unique `(supplier_id, product_id)`, optional decimal `unit_cost`, required positive `lead_time_days`, preferred flag. |
 | `inventory` | Current single-store on-hand state. | `product_id` is both PK and FK; nonnegative integer `on_hand`, `updated_at`. It intentionally does not persist a freely editable `on_order` value. |
-| `sales_daily` | Normalized application sales history / future CSV-POS import target. | Unique `(product_id, sale_date)`, nonnegative `quantity_sold`, optional `source`; one product/date/quantity per row, never M5 day columns. |
+| `sales_daily` | Normalized application sales history / future CSV-POS import target. | Unique `(product_id, sale_date)`, nonnegative `quantity_sold`, nullable nonnegative retail `sell_price`, optional `source`; one product/date/quantity per row, never M5 day columns. |
 | `purchase_orders` | Supplier purchase-order header. | Unique indexed `po_number`, supplier and optional creator/approver FKs, controlled lifecycle `status`, order/arrival/receipt dates, notes. |
 | `purchase_order_items` | Purchase-order lines. | Unique `(purchase_order_id, product_id)`, positive ordered quantity, received quantity between zero and ordered quantity, optional decimal `unit_cost`. |
 | `stock_transactions` | Immutable future audit trail for stock movements. | Product, controlled type, positive quantity, UTC occurrence time, optional PO-item/sales/user provenance, reason. P13 creates persistence only; later services must forbid editing history. |
@@ -95,3 +95,7 @@ On 2026-10-01, local MySQL 8.0.46 applied migration `f86d36b27719`; Alembic `cur
 P14 uses the frozen schema unchanged; Alembic remains at `f86d36b27719`. Product creation creates the one required `inventory` row with `on_hand = 0` in the same transaction. `inventory.on_hand` is not exposed as a generic writable resource: manual adjustments and purchase-order receipts atomically update it and create immutable `stock_transactions` records.
 
 For the P14 inventory read model, incoming quantity is derived at query time as `ordered_quantity - received_quantity` only from purchase orders in `ORDERED` or `IN_TRANSIT`. `DRAFT`, `APPROVED`, `RECEIVED`, and `CANCELLED` orders do not count. Full receipt moves an order from `IN_TRANSIT` to `RECEIVED`, records receipt transactions, and therefore reduces its derived incoming quantity to zero.
+
+## P15 Sales Price Migration and Forecast Persistence
+
+Alembic revision `8ac7d44590e3` adds nullable `sales_daily.sell_price DECIMAL(12,2)` and `sell_price IS NULL OR sell_price >= 0`. It is a retail selling price for the frozen feature set, never a supplier `unit_cost`. Historical imports may leave it null because FEATURE_SET_V1 explicitly models missing price history. Forecast APIs persist a run and all daily values atomically; they do not alter inventory, purchase orders, stock transactions, or recommendations.

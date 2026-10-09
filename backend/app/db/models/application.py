@@ -181,12 +181,14 @@ class SalesDaily(TimestampMixin, Base):
     __table_args__ = (
         UniqueConstraint("product_id", "sale_date", name="product_sale_date"),
         CheckConstraint("quantity_sold >= 0", name="quantity_sold_nonnegative"),
+        CheckConstraint("sell_price IS NULL OR sell_price >= 0", name="sell_price_nonnegative"),
     )
 
     id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     sale_date: Mapped[date] = mapped_column(Date, nullable=False)
     quantity_sold: Mapped[int] = mapped_column(Integer, nullable=False)
+    sell_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
     source: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     product: Mapped[Product] = relationship(back_populates="sales")

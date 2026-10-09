@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-10-09 — P15 multipart CSV route required an undeclared runtime dependency — RESOLVED
+
+**Symptom:** FastAPI refused to register `/api/sales/import` because multipart form parsing support was not installed in the local environment.
+
+**Cause:** `python-multipart`, required by FastAPI `UploadFile`, was absent from the original web runtime requirements.
+
+**Resolution:** Added `python-multipart` to `requirements.txt`, installed it only in the project virtual environment for verification, and added isolated upload tests.
+
+**Prevention:** Any FastAPI endpoint using multipart/form-data must declare its parser dependency in runtime requirements and be import-smoke-tested before full tests.
+
 ## 2026-10-09 — P14 MySQL smoke cleanup rejected a nested target-table delete — RESOLVED
 
 **Symptom:** The first successful live P14 API smoke flow reached complete receipt, but cleanup failed with MySQL error 1093 while deleting `purchase_order_items` through a subquery on the same table.
