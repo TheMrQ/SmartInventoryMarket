@@ -1,5 +1,19 @@
 # Tiến độ dự án Smart Inventory Market — Bản dễ đọc
 
+## Kết quả P16 dễ hiểu
+
+```text
+Forecast đã lưu + Tồn kho + PO sắp về + Lead time nhà cung cấp + Safety stock
+                                      ↓
+                                  Mức rủi ro
+                                      ↓
+                           Số lượng đề xuất đặt
+                                      ↓
+                        Người quản lý duyệt/sửa/từ chối
+```
+
+Engine ưu tiên nhà cung cấp preferred; nếu chỉ có một nhà cung cấp active thì dùng nhà đó. Nhiều nhà cung cấp active nhưng không có preferred sẽ báo lỗi thay vì tự chọn. Đề xuất không làm đổi tồn kho, không tự tạo hay gửi PO. Model forecast hiện tại vẫn chỉ phù hợp SKU M5, còn engine quyết định có thể tái sử dụng khi hệ thống có forecast hợp lệ cho siêu thị thật.
+
 > File này giúp sinh viên và giảng viên xem nhanh dự án đã làm đến đâu. Tài liệu kỹ thuật chi tiết vẫn nằm trong các file khác của `docs/`.
 
 ## Đề tài
@@ -28,8 +42,7 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P13 — MySQL + FastAPI core** | 🟢 **DONE** | Đã tạo database MySQL, 14 bảng quan hệ, migration Alembic và kiểm tra FastAPI kết nối được database. Chưa làm CRUD nghiệp vụ. |
 | **P14 — Product / Supplier / Inventory modules** | 🟢 **DONE** | Đã có API cho category, product, supplier, supplier-product, xem tồn kho, điều chỉnh kho có audit, purchase order, chuyển trạng thái và nhận hàng. Product mới có tồn kho bằng 0; chỉ adjustment và receipt mới đổi on-hand. |
 | **P15 — Sales + Forecast API** | 🟢 **DONE** | Đã có import CSV lịch sử bán hàng, ghi nhận bán hàng thực tế trừ tồn kho có audit, và API dự báo 7/14/28 ngày bằng XGBoost đã chốt. Chỉ SKU M5 tương thích mới được dự báo. |
-| **P16 — Inventory Decision Engine** | 🟡 **IN_PROGRESS** | Bước tiếp theo dùng forecast đã lưu cùng tồn kho, hàng sắp về và lead time để đề xuất đặt hàng có người duyệt. |
-| **P16 — Inventory Decision Engine** | ⚪ **TODO** | Sẽ biến forecast thành stockout risk, overstock risk, reorder point và số lượng đề xuất nhập. |
+| **P16 — Inventory Decision Engine** | 🟢 **DONE** | Đã có engine tính rủi ro và số lượng đề xuất từ forecast, tồn kho, PO sắp về, lead time, safety stock; mọi đề xuất đều cần người duyệt. |
 | **P17 — React UI** | ⚪ **TODO** | Sẽ làm giao diện web chính thức. |
 | **P18 — Kiểm thử và hoàn thiện** | ⚪ **TODO** | Sẽ test toàn hệ thống, kiểm tra nghiệp vụ và chuẩn bị evidence cuối. |
 | **P19 — Báo cáo và bảo vệ** | ⚪ **TODO** | Sẽ tổng hợp methodology, biểu đồ, ERD, screenshot và demo để viết luận văn/bảo vệ. |

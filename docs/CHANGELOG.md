@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-09 — CHECKPOINT-016: inventory decision engine and human review workflow complete
+
+- Added layered inventory-decision and reorder-recommendation APIs/services/repositories using persisted forecast demand, current/incoming inventory, deterministic supplier selection, 28-day population-std safety stock, explainable risks, and frozen protocol rounding.
+- Added actionable `NEW` snapshot persistence with one-day expiry/supersession and explicit ACCEPT/MODIFY/REJECT workflow. No recommendation action changes inventory, creates a purchase order, or contacts a supplier; PO conversion is intentionally deferred.
+- Added isolated decision tests and a marker-cleaning live MySQL smoke script. No database migration, model retraining, feature/model change, TEST-demand input, or frontend implementation was performed.
+
 ## 2026-10-09 — CHECKPOINT-015: sales ingestion and frozen M5 forecasting API complete
 
 - Added nullable constrained retail `sales_daily.sell_price` through Alembic revision `8ac7d44590e3`; verified MySQL upgrade, downgrade, re-upgrade, head, and no-drift checks.

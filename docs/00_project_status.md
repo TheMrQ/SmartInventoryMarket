@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P15 Sales Ingestion + Forecasting API
+Overall status: 🟡 **IN_PROGRESS** — P17 React dashboard and integration next
 
 ## Quick Human Summary
 
@@ -86,22 +86,22 @@ What happens next: implement sales ingestion and the forecasting API around the 
 | P13 MySQL + FastAPI core | 🟢 **DONE** |
 | P14 Inventory/product/supplier modules | 🟢 **DONE** |
 | P15 Sales ingestion + forecasting API | 🟢 **DONE** |
-| P16 Inventory decision engine | 🟡 **IN_PROGRESS** |
+| P16 Inventory decision engine | 🟢 **DONE** |
 | P17 React dashboard + integration | ⚪ **TODO** |
 | P18 Testing + final experiments | ⚪ **TODO** |
 | P19 Thesis report + defense package | ⚪ **TODO** |
 
 ## Current Task
 
-P15 is complete. FastAPI now has separate historical CSV backfill and operational-sale paths, plus M5-compatible frozen-XGBoost forecast generation/read APIs. Historical imports upsert `sales_daily` only; operational sales lock and decrement inventory while writing immutable `SALE` transactions. The real MySQL smoke path seeded five intentional CA_1/FOODS demo products, verified 7- and 28-day forecasts with the SHA-validated frozen artifact, verified unchanged inventory, and removed smoke forecast runs. No retraining, model/feature selection change, TEST-demand input, reorder recommendation, or frontend work was performed.
+P16 is complete. FastAPI now derives explainable inventory decisions from persisted forecasts, live inventory position, eligible supplier lead time, 28 observed daily sales, and the frozen safety-stock rule. Actionable decisions persist a `NEW` recommendation; zero-quantity decisions remain read-only analysis. Human review has explicit ACCEPT/MODIFY/REJECT actions and never changes inventory or creates a purchase order. No ML retraining, TEST-demand input, automatic purchasing, or frontend work was performed.
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-015` — Historical/operational sales ingestion and M5-compatible frozen XGBoost forecasting API implemented and verified
+`CHECKPOINT-016` — Forecast-driven inventory decision engine and human-reviewed reorder recommendation workflow implemented and verified
 
 ## Next Exact Step
 
-`NEXT-016` — Implement the inventory decision engine combining persisted forecasts, current/incoming inventory, supplier lead time, safety stock, risk, and human-reviewed reorder recommendations.
+`NEXT-017` — Build and integrate the React dashboard and operational UI with the completed FastAPI backend.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 

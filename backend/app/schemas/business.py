@@ -2,11 +2,11 @@
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from backend.app.db.models import PurchaseOrderStatus, StockTransactionType
+from backend.app.db.models import PurchaseOrderStatus, RecommendationStatus, StockTransactionType
 
 
 NonBlank = Annotated[str, Field(min_length=1)]
@@ -249,6 +249,62 @@ class ForecastRunRead(ApiModel):
     generated_at: datetime
     values: list[ForecastValueRead] = []
     totals_by_product: dict[int, ForecastTotals] = {}
+
+
+class InventoryDecisionRead(ApiModel):
+    product_id: int
+    sku: str
+    product_name: str
+    on_hand: int
+    incoming_quantity: int
+    inventory_position: int
+    forecast_run_id: int
+    lead_time_days: int
+    expected_lead_time_demand: Decimal
+    safety_stock: int
+    reorder_point: int
+    target_stock: int
+    risk_status: Literal["STOCKOUT_RISK", "REORDER_NEEDED", "HEALTHY", "OVERSTOCK_RISK"]
+    recommended_quantity: int
+    supplier_id: int
+    supplier_name: str
+
+
+class RecommendationGenerate(ApiModel):
+    product_id: int = Field(gt=0)
+
+
+class RecommendationGenerateResult(ApiModel):
+    decision: InventoryDecisionRead
+    recommendation: "ReorderRecommendationRead | None" = None
+
+
+class ReorderRecommendationRead(ApiModel):
+    id: int
+    product_id: int
+    forecast_run_id: int | None
+    status: "RecommendationStatus"
+    current_on_hand: int
+    incoming_quantity: int
+    lead_time_days: int
+    safety_stock: int
+    reorder_point: int
+    recommended_quantity: int
+    approved_quantity: int | None
+    created_at: datetime
+    expires_at: datetime | None
+    reviewed_at: datetime | None
+    reviewed_by_user_id: int | None
+    notes: str | None
+    supplier_id: int | None = None
+    supplier_name: str | None = None
+
+
+class RecommendationReview(ApiModel):
+    action: Literal["ACCEPT", "MODIFY", "REJECT"]
+    approved_quantity: int | None = Field(default=None, ge=0)
+    reviewed_by_user_id: int | None = Field(default=None, gt=0)
+    notes: str | None = Field(default=None, max_length=2000)
 
 
 class PurchaseOrderItemCreate(ApiModel):

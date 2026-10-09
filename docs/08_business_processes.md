@@ -135,3 +135,17 @@ Creating, approving, ordering, or sending a PO in transit never changes on-hand 
 Historical CSV import validates `sku,sale_date,quantity_sold` (with optional `sell_price,source`), rejects malformed/unknown/duplicate-in-file records as an all-or-nothing file, and UPSERTs existing product/date history deterministically. It never changes `inventory.on_hand` because a backfill is not a new physical sale.
 
 Operational sale recording is a separate workflow: active product → lock inventory → reject insufficient stock → increment/create the daily aggregate → update a supplied latest daily price → decrease on-hand → append immutable `SALE` transaction → single commit. Forecast generation reads history only, persists a forecast run and values atomically, and never changes inventory or purchasing state. P16, not P15, will turn stored forecasts into manager-reviewed recommendations.
+
+## P16 Decision and Human Review Workflow
+
+```text
+Persisted forecast + on hand + incoming PO + supplier lead time + 28-day variability
+                                  ↓
+              explainable risk and recommended quantity
+                                  ↓
+                  NEW recommendation (only if quantity > 0)
+                                  ↓
+                 ACCEPT / MODIFY / REJECT by a human
+```
+
+Decision analysis is read-only. Generating an actionable snapshot expires earlier still-NEW snapshots for the same product in the same transaction; it neither changes stock nor creates a PO. Accepted and modified recommendations are records of human intent only. P16 intentionally has no automatic supplier communication or implicit purchase-order conversion.
