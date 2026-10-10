@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 â€” CHECKPOINT-017 final UX refinement: workspace dialogs and scan-friendly panel headers
+
+- Centered desktop dialogs in the application workspace rather than across the fixed sidebar; contained dialog scrolling with rounded clipping and restrained scrollbar styling.
+- Reworked the reusable tooltip lifecycle to open by hover/focus and close on mouse leave, blur, Escape, or unmount, preventing sticky table and decision-detail help overlays.
+- Added a consistent blue full-width header treatment to major operational panels, forecast visualization, and model details without altering routes, API contracts, model behavior, or inventory calculations.
+
 ## 2026-10-10 â€” CHECKPOINT-017 decision UX: persisted forecast context and unified restocking guidance
 
 - Added a reusable historical-sales plus expected-demand chart with linear daily lines, reused by Forecasts and selected Inventory Insights decisions; it uses only persisted forecast values and the 28 observed days through the stored origin.

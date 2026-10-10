@@ -99,6 +99,10 @@ P17 is complete, including the focused visual and UX refinements. The React/Vite
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
 
+### P17 Final Presentation Refinement
+
+Major operational panels now have restrained blue full-width header bands. Tooltip visibility is event-managed so it closes on mouse leave, blur, Escape, and modal unmount. Dialogs are centered inside the main workspace on desktop rather than across the fixed sidebar; their clipped, rounded scroll containers use integrated scrollbars. These are frontend-only usability changes and preserve existing routes, contracts, decisions, forecasts, model behavior, and demo data.
+
 ## Last Stable Checkpoint
 
 `CHECKPOINT-017` — Human-friendly polished React dashboard, real local thesis-demo workflow, and historical-to-forecast visualization integrated with FastAPI
