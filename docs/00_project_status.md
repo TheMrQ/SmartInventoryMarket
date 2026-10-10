@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 collapsed-sidebar alignment awaits requested full-sidebar screenshot verification; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 actual collapsed-icon alignment awaits requested full-sidebar screenshot verification; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -139,6 +139,12 @@ The active-route ribbon is a measured, non-interactive sibling overlay in the si
 
 The generic inactive route-hover treatment could override the active route's blue background and leave the collapsed ribbon blue beside a slate row. A more specific sidebar rule now keeps active links at primary blue `#2563EB` through hover, focus, and keyboard focus-visible states in both expanded and collapsed modes. Active interaction adds only a 6% brightness increase and soft blue shadow over the existing 160–200ms transitions; it never translates the row or icon. Inactive links retain their dark-slate hover treatment. This styling-only repair does not alter route changes, the 11px measured ribbon, tooltip portal, overflow handling, profile, or layout. Frontend lint/build pass; this task requires no new manual screenshot.
 
+### P18 Actual Collapsed-Icon Alignment
+
+User screenshot evidence showed that the prior alignment pass had not fully corrected the Management and Intelligence groups. The residual cause was not icon `justify-content`: each grid group/tooltip wrapper could still resolve its width inside a differently padded navigation track, so centering occurred relative to that local width rather than the sidebar rail. The desktop collapsed navigation now removes outer inline nav padding, gives every `.nav-group` a full-width, border-box grid track with centered items, and assigns every direct tooltip wrapper the identical symmetric `calc(100% - 24px)` rail. Its link is full width and centers its icon without translation. Thus every route uses the same sidebar-width-derived center, while preserving the 12px symmetric inset, active row/ribbon geometry, portal tooltips, vertical scrolling, and mobile/expanded layout.
+
+Frontend lint and production build pass. No browser surface is available to measure `getBoundingClientRect()` values or click routes in this environment; do not treat the CSS proof as pixel measurement. A new full collapsed-sidebar screenshot is required for user verification.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -175,4 +181,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-COLLAPSED-SIDEBAR-FINAL-ALIGNMENT` needs a user screenshot of the full collapsed sidebar, including logo, all eight icons, centered avatar, and an active ribbon, for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-FIX-ACTUAL-COLLAPSED-ICON-ALIGNMENT` needs a user screenshot of the full collapsed sidebar, including logo, all eight icons, centered avatar, and an active ribbon, for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.

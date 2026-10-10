@@ -235,6 +235,10 @@
 
 /* App.css historically hid every span in collapsed nav. Restore only the link wrapper. */
 @media (min-width: 901px) {
+  .collapsed .sidebar {
+    --collapsed-nav-inset: 12px;
+  }
+
   .collapsed .brand {
     width: 100%;
     padding-inline: 0;
@@ -249,15 +253,26 @@
   }
 
   .collapsed .sidebar nav {
-    padding-inline: 12px;
+    padding-inline: 0;
+    box-sizing: border-box;
   }
 
-  .collapsed .sidebar .tooltip {
+  .collapsed .sidebar nav > .nav-group {
+    width: 100%;
+    box-sizing: border-box;
+    justify-items: center;
+  }
+
+  .collapsed .sidebar nav > .nav-group > .tooltip {
     display: block !important;
+    width: calc(100% - (var(--collapsed-nav-inset) * 2));
+    min-width: 0;
+    box-sizing: border-box;
   }
 
-  .collapsed .sidebar .tooltip > a {
+  .collapsed .sidebar nav > .nav-group > .tooltip > a {
     display: flex !important;
+    width: 100%;
     justify-content: center;
     gap: 0;
   }

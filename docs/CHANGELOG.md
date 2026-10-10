@@ -2,6 +2,11 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 actual collapsed-icon alignment repair
+
+- Rebuilt the desktop collapsed navigation rail after screenshot evidence showed Management/Intelligence icons were still locally centered but globally offset. Groups now occupy a full-width border-box grid track, while every direct tooltip wrapper uses the same symmetric `calc(100% - 24px)` icon rail and a full-width centered link.
+- Preserved the 11px active ribbon, blue active hover/focus behavior, portal tooltips, vertical scrolling, avatar-only footer, expanded sidebar, and mobile drawer. Frontend lint/build pass; browser measurements/routes could not run because no browser surface is available, so a new user screenshot remains required.
+
 ## 2026-10-10 — P18 sidebar active-hover fix
 
 - Added an explicit active navigation interaction rule so selected routes retain primary blue `#2563EB`, white text, and no positional transform on hover, focus, or keyboard focus-visible states in expanded and collapsed sidebars.

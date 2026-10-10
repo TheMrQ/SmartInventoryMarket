@@ -93,6 +93,10 @@ The collapsed active ribbon is rendered as a non-interactive sidebar overlay. Th
 
 The generic dark-slate route hover is now explicitly limited to inactive links. A higher-specificity active rule preserves the `#2563EB` active surface on pointer hover, focus, and keyboard focus-visible interaction in expanded and collapsed navigation. Active feedback is limited to a 6% brightness change and soft blue shadow, with no transform, so the centered icon and measured ribbon remain visually coherent. Inactive routes retain the existing slate hover behavior.
 
+## P18 Actual Collapsed-Icon Alignment
+
+The desktop collapsed navigation now establishes its icon rail from the sidebar width rather than from each group's local content width. It uses no horizontal outer padding on the nav itself; every `nav-group` is a full-width border-box grid with centered items, and every direct tooltip wrapper receives the same `calc(100% - 24px)` width. The full-width route link centers its icon in that common rail. This corrects the screenshot-reported Management/Intelligence right shift without translations or per-icon offsets. The 12px inset still connects the active row to the measured 11px sidebar-level ribbon, and the expanded sidebar/mobile drawer remain unchanged.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.

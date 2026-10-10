@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 first collapsed alignment pass left group-local centering — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** User screenshot evidence showed the logo/avatar and first route close to the desired axis, while Management and Intelligence icons still sat visibly right of that axis.
+
+**Cause:** The prior rule centered icons inside tooltip wrappers whose widths continued to resolve within individual padded grid-group contexts. `justify-content: center` therefore centered against a local parent, not the full sidebar rail.
+
+**Resolution:** The desktop collapsed nav now has no outer inline padding; each group is a full-width border-box grid with centered items; each direct tooltip wrapper has the same symmetric `calc(100% - 24px)` width; and each route link fills that wrapper. This derives every icon's center from one sidebar-width-based track without manual translation.
+
+**Verification:** Frontend lint and production build pass. Browser inventory is empty, so `getBoundingClientRect()` center measurements and collapsed-route click checks could not run. User must inspect the requested full collapsed-sidebar screenshot before accepting pixel alignment.
+
+**Prevention:** Do not regard `justify-content: center` as sufficient until every ancestor width and padding context is shared. For grouped navigation, make the group and wrapper rail explicit.
+
 ## 2026-10-10 — P18 active sidebar route was restyled as inactive on hover — RESOLVED
 
 **Symptom:** Hovering the current route changed its blue row to dark slate while the collapsed active ribbon remained blue.
