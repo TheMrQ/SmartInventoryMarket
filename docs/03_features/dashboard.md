@@ -44,3 +44,7 @@ The shared tooltip component now has explicit hover, focus, blur, and Escape lif
 ## P17 Visual Design Polish
 
 The visual system now favors white/light cards with 16px rounded corners, restrained borders, soft elevation, and editorial section headers over large saturated surfaces. `@fontsource-variable/inter` provides the `Inter Variable` UI font. The sidebar organizes routes into Overview, Management, and Intelligence and uses a floating chevron control for collapse. Blue is intentionally limited to primary controls, active navigation, focused elements, forecast/chart emphasis, and selected states; healthy, warning, and risk colors remain semantic.
+
+## P17 Sidebar Layout Fix
+
+Every route row fills the usable sidebar width and preserves the active-row background across that width. Group rows use 5px internal and 19px between-group spacing, so the eight destinations fit a typical 768px desktop viewport. The collapse state now targets `.brand-name` and `.nav-label` rather than every `nav span`; this preserves each `Tooltip` wrapper and Lucide icon as a usable link. The chevron-only control has an aria label but is deliberately not wrapped in a visual tooltip. At mobile widths, the off-canvas drawer restores group and route labels and keeps the desktop collapse control hidden.

@@ -107,6 +107,10 @@ Major operational panels now have a structured, typography-led header hierarchy.
 
 The final P17 presentation pass replaces strong blue header bands with light, structured cards, restrained borders, subtle shadows, and typography-led section headers. It adds Inter Variable, a grouped premium sidebar, and a floating chevron-only collapse handle. Blue remains a controlled accent for actions, active navigation, focused controls, charts, and key emphasis; no behavior, API contract, forecast, inventory calculation, or dataset treatment changed.
 
+### P17 Sidebar Layout Fix
+
+The grouped sidebar now uses full-width, 42px navigation controls with compact group spacing, full-row active treatment, and 16px right-hand corners. Collapsing hides only explicit text labels: all eight Lucide navigation icons remain mounted, centered, keyboard/click reachable, and route tooltips remain available. The floating chevron keeps its accessible aria label but no longer has a visible tooltip balloon. Mobile retains the off-canvas drawer with all labels visible. This frontend-only repair changes no route, API, business rule, forecast, inventory calculation, model, or data boundary.
+
 ## Last Stable Checkpoint
 
 `CHECKPOINT-017` — Human-friendly polished React dashboard, real local thesis-demo workflow, and historical-to-forecast visualization integrated with FastAPI

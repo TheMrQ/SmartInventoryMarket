@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P17 sidebar layout fix: reliable collapsed navigation
+
+- Repaired collapsed sidebar navigation by replacing the broad nested-span hiding behavior with explicit brand and route-label classes; all eight navigation icons remain visible, centered, and usable when collapsed.
+- Tightened group/row rhythm, made route and active-row treatment full width, retained the floating accessible chevron without a visual tooltip, preserved rounded sidebar corners, and retained the mobile off-canvas drawer.
+- Kept the existing routes, API behavior, forecasting/inventory calculations, model boundary, data policy, palette, and card system unchanged.
+
 ## 2026-10-10 â€” CHECKPOINT-017 visual design polish: lighter SaaS card system and grouped navigation
 
 - Rebalanced the React workspace around Inter Variable typography, light structured cards, soft borders/shadows, refined tables/forms/badges, calmer chart surfaces, and controlled blue accents.

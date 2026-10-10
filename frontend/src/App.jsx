@@ -7,6 +7,7 @@ import { InventoryPage, ProductsPage, SuppliersPage } from './pages/CatalogPages
 import { ForecastsPage, PurchaseOrdersPage, SalesPage } from './pages/OperationalPages'
 import DecisionsPage from './pages/DecisionsPage'
 import './App.css'
+import './sidebar.css'
 
 export default function App() {
   const [collapsed, setCollapsed] = useState(false)
