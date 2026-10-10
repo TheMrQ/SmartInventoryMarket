@@ -39,7 +39,9 @@ def test_registration_hashes_password_and_rejects_duplicates(client: TestClient)
 
 
 def test_login_session_me_logout_and_unauthorized_access(client: TestClient) -> None:
-    register(client); client.post("/api/auth/logout", headers={"X-CSRF-Token": client.cookies.get("sim_csrf")})
+    register(client)
+    assert client.post("/api/categories", json={"code": "NOPE", "name": "No access"}, headers={"X-CSRF-Token": client.cookies.get("sim_csrf")}).status_code == 403
+    client.post("/api/auth/logout", headers={"X-CSRF-Token": client.cookies.get("sim_csrf")})
     assert client.post("/api/auth/login", json={"email": "manager@example.com", "password": "wrong-password"}).status_code == 401
     login = client.post("/api/auth/login", json={"email": "manager@example.com", "password": "long-test-password"})
     assert login.status_code == 200
