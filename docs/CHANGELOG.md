@@ -2,6 +2,11 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 Dashboard optical-icon alignment
+
+- Confirmed from the shared navigation source that Dashboard uses the same tooltip wrapper, route link, and centered 19px frame as every other icon; no per-route CSS movement was introduced.
+- Replaced only the optically uneven `LayoutDashboard` artwork with Lucide `LayoutGrid`, whose equal 2-by-2 cells remain balanced in the existing collapsed rail. The active ribbon, avatar/profile, hover states, routes, and overflow protections are unchanged. Frontend lint/build pass; no browser was available for DOM rectangle measurement or visual acceptance.
+
 ## 2026-10-10 — P18 modal overlay and icon alignment fix
 
 - Portalled shared application modals to `document.body` and added a full-viewport `rgb(15 23 42 / 40%)` plus `blur(3px)` backdrop above the complete shell. The dialog remains centered in the expanded/collapsed workspace through sidebar-aware padding, while mobile centers it on the full screen.

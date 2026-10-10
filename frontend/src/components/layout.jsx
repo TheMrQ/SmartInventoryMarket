@@ -1,4 +1,4 @@
-import { BarChart3, Box, ChevronLeft, ClipboardList, LayoutDashboard, LogOut, Menu, Package, ShoppingCart, Store, TrendingUp, Truck, UserRound, X } from 'lucide-react'
+import { BarChart3, Box, ChevronLeft, ClipboardList, LayoutGrid, LogOut, Menu, Package, ShoppingCart, Store, TrendingUp, Truck, UserRound, X } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -7,7 +7,7 @@ import { Tooltip } from './ui'
 import { WorkspaceContext } from './workspace-context'
 
 const navGroups = [
-  ['Overview', [['/', 'Dashboard', LayoutDashboard]]],
+  ['Overview', [['/', 'Dashboard', LayoutGrid]]],
   ['Management', [['/products', 'Products', Package], ['/inventory', 'Inventory', Box], ['/suppliers', 'Suppliers', Truck], ['/purchase-orders', 'Purchase Orders', ShoppingCart]]],
   ['Intelligence', [['/sales', 'Sales', Store], ['/forecasts', 'Forecasts', TrendingUp], ['/decisions', 'Inventory Insights', ClipboardList]]],
 ]

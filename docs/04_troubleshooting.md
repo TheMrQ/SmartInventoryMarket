@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 Dashboard glyph still appeared optically left in the common icon frame — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** User visual evidence still showed the collapsed Dashboard glyph left of Products, Inventory, Suppliers, and the remaining route icons after their parent layout was standardized.
+
+**Cause:** Static source inspection shows no Dashboard-specific layout: the common route map gives all entries the same tooltip wrapper, link geometry, and centered 19px icon frame. The former `LayoutDashboard` artwork uses unequal diagonal tiles, which can create a small-icon optical imbalance even when its SVG box is centered. Browser inventory is empty, so no rendered DOM rectangle comparison is available.
+
+**Resolution:** Replaced only the Dashboard artwork with Lucide `LayoutGrid`, a four-equal-cell glyph that is horizontally balanced in the existing frame. No transform, per-route offset, wrapper width, active-ribbon geometry, or other icon position changed.
+
+**Verification:** Frontend lint and production build pass. Manually compare Dashboard in active and inactive collapsed states with Products and Inventory; do not treat this source-level analysis as pixel-perfect browser measurement.
+
+**Prevention:** First establish a shared frame/route structure, then choose a symmetric glyph for a persistent small-scale optical imbalance. Do not compensate by moving unrelated navigation icons.
+
 ## 2026-10-10 — P18 modal backdrop excluded the fixed sidebar and Dashboard icon lacked a common frame — RESOLVED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** Opening an application modal dimmed only the main workspace; the sidebar, logo, profile/avatar, active ribbon, and floating collapse control stayed sharp. In collapsed mode, the `LayoutDashboard` glyph could also appear visually left of the remaining navigation icons.
