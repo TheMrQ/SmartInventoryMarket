@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 premium workspace refinement
+
+- Removed the sidebar's actual horizontal-overflow contributors: route rows no longer translate beyond their full-width navigation container, and collapsed-route tooltip labels are fixed portals outside the scrollable navigation tree. Vertical sidebar scrolling and intentional wide-table scrolling remain available.
+- Replaced the rectangular footer profile with a real-user avatar-led capsule: a 50px white/blue `UserRound` avatar overlaps a navy name/role/logout tail. The desktop collapsed state transitions to a centered white avatar only; the mobile drawer restores the readable tail and real logout behavior.
+- Consolidated workspace blue/surface/shadow/easing tokens and refined existing button, input, panel, table, modal, focus, and reduced-motion behavior without changing authentication, backend contracts, inventory logic, forecasting, models, or data. Frontend lint/build pass; requested sidebar screenshots remain the manual visual acceptance evidence.
+
 ## 2026-10-10 — P18 sliding-card authentication redesign
 
 - Replaced the circular 3D coin and ring CSS with a responsive, horizontally split white-form/blue-gradient authentication card on the existing dark navy canvas. Login and Register mirror the panel composition without changing routes or backend authentication.

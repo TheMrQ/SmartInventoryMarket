@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 sidebar horizontal scrollbar during navigation hover — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** A horizontal scrollbar could appear above the fixed sidebar profile, especially while hovering full-width navigation rows.
+
+**Cause:** Later sidebar styling translated full-width route rows by 2px on hover. Collapsed navigation also kept tooltip content in the scrollable navigation hierarchy, so a visible tooltip could contribute to its layout width.
+
+**Resolution:** Removed physical route translation in favor of color/background/inset-shadow feedback, bounded navigation's horizontal layout while preserving vertical scroll, and made collapsed-only navigation tooltip content a fixed portal outside the navigation tree. The profile is not used as an overflow workaround; it is a separate fixed footer capsule.
+
+**Verification:** Frontend lint and production build pass. Browser automation is unavailable, so inspect expanded and collapsed sidebars manually: hover every route, confirm no horizontal scrollbar, confirm a collapsed tooltip appears beside its icon, and confirm the white avatar-only collapsed footer.
+
+**Prevention:** Diagnose scroll-width contributors before applying overflow masking. Keep decorative overlays outside scrollable layout containers and avoid translating elements that deliberately fill a constrained width.
+
 ## 2026-10-10 — P18 circular authentication rendering issues superseded by sliding-card redesign — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** The circular 3D authentication concept continued to be visually fragile, including earlier gradient-plane compositing defects.

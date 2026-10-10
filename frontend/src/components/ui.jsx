@@ -1,4 +1,5 @@
-import { useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { LoaderCircle, PackageOpen, X } from 'lucide-react'
 
 export function Badge({ children, tone = 'neutral' }) { return <span className={`badge badge-${tone}`}>{children}</span> }
@@ -13,13 +14,29 @@ export function Modal({ title, onClose, children, className = '' }) {
   }, [onClose])
   return <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><section className={`modal ${className}`} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}><header><h2>{title}</h2><button className="icon-button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></header>{children}</section></div>
 }
-export function Tooltip({ label, children }) {
+export function Tooltip({ label, children, portal = false, disabled = false }) {
   const [open, setOpen] = useState(false)
+  const [position, setPosition] = useState(null)
   const id = useId()
+  const triggerRef = useRef(null)
+  const updatePosition = useCallback(() => {
+    if (!portal || !triggerRef.current) return
+    const box = triggerRef.current.getBoundingClientRect()
+    setPosition({ left: box.right + 10, top: box.top + box.height / 2 })
+  }, [portal])
   useEffect(() => {
     const closeOnEscape = (event) => { if (event.key === 'Escape') setOpen(false) }
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [])
-  return <span className="tooltip" data-open={open || undefined} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false) }} aria-describedby={open ? id : undefined}>{children}<span id={id} className="tooltip-content" role="tooltip">{label}</span></span>
+  useEffect(() => {
+    if (!open || !portal) return undefined
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    return () => { window.removeEventListener('resize', updatePosition); window.removeEventListener('scroll', updatePosition, true) }
+  }, [open, portal, updatePosition])
+  const content = <span id={id} className={`tooltip-content ${portal ? 'tooltip-content-portal' : ''}`} role="tooltip" style={portal && position ? { left: position.left, top: position.top } : undefined}>{label}</span>
+  const show = !disabled && open
+  return <span ref={triggerRef} className="tooltip" data-open={show || undefined} onMouseEnter={() => { if (!disabled) setOpen(true) }} onMouseLeave={() => setOpen(false)} onFocus={() => { if (!disabled) setOpen(true) }} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false) }} aria-describedby={show ? id : undefined}>{children}{portal ? show && position && createPortal(content, document.body) : content}</span>
 }

@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 auth redesign awaits user screenshot verification; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 workspace refinement awaits requested sidebar screenshot verification; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -113,6 +113,14 @@ Both actual forms remain mounted, with inactive controls disabled and hidden fro
 
 Lint/build pass, but visual acceptance remains **IN_PROGRESS** because no browser automation surface is available. The user must inspect Login, the full-gradient midpoint, and Register before accepting the redesign.
 
+### P18 Premium Workspace Refinement
+
+The operational workspace now shares the authentication surface's restrained blue, shadow, radius, focus, and motion language without changing operational behavior. The sidebar's horizontal scroll defect was traced to full-width route rows being translated on hover and to collapsed labels being rendered inside the scrollable navigation tree. Hover no longer moves route rows; the navigation has a bounded horizontal layout; and collapsed-only labels are fixed-position portal overlays outside that tree. Tooltips remain useful without increasing sidebar `scrollWidth`.
+
+The authenticated profile is now an avatar-led capsule: a prominent 50px white `UserRound` circle overlaps a lighter-navy tail with the real authenticated name, normalized role, and operational logout button. It is not a fake account control. During the 200ms desktop collapse transition, only the centered white avatar remains; the name, role, tail, and logout control retract. The mobile drawer restores the readable capsule and real logout control. Shared component polish adds controlled button press/lift feedback, thin blue input focus rings, calmer table-row hover, and refined panel/modal shadows while preserving table scrolling and all existing routes, API calls, forecast behavior, inventory rules, and data boundaries.
+
+Frontend lint and production build pass. Browser automation is unavailable in this environment, so the requested screenshots of the expanded capsule and collapsed white-avatar-only sidebar remain the manual acceptance evidence.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -149,4 +157,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-AUTH-REDESIGN` needs user screenshots of Login, the full-gradient midpoint, and Register for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-PREMIUM-WORKSPACE-REFINEMENT` needs user screenshots of the expanded sidebar/profile capsule and the collapsed white-avatar-only sidebar for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.

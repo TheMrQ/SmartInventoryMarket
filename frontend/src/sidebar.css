@@ -1,19 +1,262 @@
-/* P17 sidebar layout repair: scope collapsed text hiding to labels, never wrappers. */
-.app-shell{transition:grid-template-columns .2s ease}
-.sidebar{border-radius:0 16px 16px 0;overflow:visible}
-.sidebar nav{width:100%;box-sizing:border-box;padding:58px 12px 14px;gap:19px;align-content:start;flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#334155 transparent}
-.nav-group{width:100%;gap:5px}
-.nav-group-label{margin:0 0 2px}
-.sidebar nav>.nav-group>.tooltip{display:block;width:100%}
-.sidebar nav a{width:100%;box-sizing:border-box;min-height:42px;padding:10px 12px;justify-content:flex-start}
-.sidebar nav a.active{width:100%}
-.nav-icon{flex:0 0 auto}
-.collapsed .brand-name,.collapsed .nav-label{display:none!important}
-.collapsed .sidebar nav .tooltip{display:block;width:100%}
-.collapsed .nav-group-label{display:none}
-.collapsed .sidebar nav{gap:18px;padding-left:12px;padding-right:12px}
-.collapsed .sidebar nav a{width:100%;min-height:42px;justify-content:center;padding:10px;gap:0}
-.collapsed .sidebar nav a .nav-icon{display:block;flex:0 0 auto}
-.sidebar-profile{display:flex;align-items:center;gap:10px;margin:0 12px 14px;padding:10px;overflow:hidden;border:1px solid #334155;background:#17233a;border-radius:12px;color:#e2e8f0;flex:0 0 auto}.profile-avatar{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#243b60;color:#dbeafe;flex:0 0 auto}.profile-copy{display:grid;min-width:0;gap:2px}.profile-copy strong{font-size:12px;font-weight:700;white-space:nowrap}.profile-copy span{color:#94a3b8;font-size:11px;white-space:nowrap}.profile-logout{margin-left:auto;display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:#94a3b8;cursor:pointer}.profile-logout:hover{background:#24324b;color:#fff}.collapsed .profile-logout{display:none}
-.collapse{position:absolute;top:92px;right:-18px;width:36px;height:36px;margin:0;padding:0;display:grid;place-items:center;border:1px solid #d8e0ea;border-radius:50%;background:#fff;color:#2563eb;box-shadow:0 7px 18px #0f172a24;z-index:12;transition:background .2s ease,color .2s ease,transform .2s ease}.collapse:hover{background:#eff6ff;color:#1d4ed8}.collapsed .collapse{width:36px;height:36px;margin:0}.collapsed .sidebar-profile{justify-content:center;margin-left:12px;margin-right:12px;padding:10px}.collapsed .profile-copy{display:none}.collapse:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
-@media(max-width:900px){.sidebar{border-radius:0 16px 16px 0}.sidebar nav{padding:12px 12px 14px}.sidebar-profile{margin-bottom:14px}.collapsed .sidebar .brand-name,.collapsed .sidebar .nav-label{display:inline!important}.collapsed .sidebar .nav-group-label{display:block}.collapsed .sidebar nav a{justify-content:flex-start;padding:10px 12px;gap:13px}.collapsed .sidebar nav{gap:19px}.collapsed .sidebar-profile{justify-content:flex-start}.collapsed .profile-copy{display:grid}.collapse{display:none}}
+/* Sidebar layout: keep navigation width bounded; collapsed labels are portalled. */
+.app-shell {
+  transition: grid-template-columns var(--duration-base, 200ms) var(--ease-standard, ease);
+}
+
+.sidebar {
+  border-radius: 0 var(--radius-lg, 16px) var(--radius-lg, 16px) 0;
+  overflow: visible;
+}
+
+.sidebar nav {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 58px 12px 14px;
+  gap: 18px;
+  align-content: start;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: clip;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+.nav-group,
+.sidebar nav > .nav-group > .tooltip {
+  width: 100%;
+  min-width: 0;
+}
+
+.nav-group {
+  display: grid;
+  gap: 5px;
+}
+
+.nav-group-label {
+  margin: 0 0 2px;
+}
+
+.sidebar nav a {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 42px;
+  padding: 10px 12px;
+  justify-content: flex-start;
+  transform: none;
+  transition: background-color var(--duration-fast, 160ms) ease, color var(--duration-fast, 160ms) ease,
+    box-shadow var(--duration-fast, 160ms) ease;
+}
+
+.app-shell .sidebar nav a:hover {
+  transform: none;
+  color: #f8fafc;
+  background: #24324b;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%);
+}
+
+.sidebar nav a:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: -2px;
+}
+
+.collapse {
+  position: absolute;
+  top: 92px;
+  right: -18px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #d8e0ea;
+  border-radius: 50%;
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 7px 18px rgb(15 23 42 / 14%);
+  cursor: pointer;
+  z-index: 12;
+  transition: background-color var(--duration-fast, 160ms) ease, color var(--duration-fast, 160ms) ease,
+    transform var(--duration-fast, 160ms) ease;
+}
+
+.collapse:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.collapsed .collapse {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+}
+
+.collapse:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.sidebar-profile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 52px;
+  margin: 0 12px 16px;
+  color: #eaf1ff;
+  flex: 0 0 auto;
+  overflow: visible;
+  transition: width var(--duration-base, 200ms) var(--ease-standard, ease),
+    margin var(--duration-base, 200ms) var(--ease-standard, ease);
+}
+
+.profile-avatar {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  flex: 0 0 50px;
+  border: 1px solid #dbeafe;
+  border-radius: 50%;
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 22%);
+}
+
+.profile-tail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 44px;
+  flex: 1 1 auto;
+  margin-left: -15px;
+  padding: 7px 9px 7px 25px;
+  border-radius: 0 15px 15px 0;
+  background: #1e304d;
+  box-shadow: 0 7px 18px rgb(15 23 42 / 20%);
+  transition: flex-basis var(--duration-base, 200ms) var(--ease-standard, ease),
+    padding var(--duration-base, 200ms) var(--ease-standard, ease), opacity var(--duration-fast, 160ms) ease;
+}
+
+.profile-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.profile-name,
+.profile-role {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-name {
+  color: #f8fbff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.profile-role {
+  color: #9fb4d3;
+  font-size: 0.67rem;
+}
+
+.profile-logout {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #afc2de;
+  transition: background-color var(--duration-fast, 160ms) ease, color var(--duration-fast, 160ms) ease,
+    border-color var(--duration-fast, 160ms) ease;
+}
+
+.profile-logout:hover {
+  border-color: rgb(191 219 254 / 18%);
+  background: rgb(59 130 246 / 17%);
+  color: #fff;
+}
+
+.profile-logout:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.collapsed .sidebar-profile {
+  width: 50px;
+  margin-right: auto;
+  margin-left: auto;
+  justify-content: center;
+}
+
+.collapsed .profile-tail {
+  min-width: 0;
+  flex: 0 0 0;
+  margin-left: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sidebar .tooltip-content {
+  display: none !important;
+}
+
+.tooltip-content-portal {
+  position: fixed;
+  z-index: 100;
+  display: block !important;
+  max-width: 220px;
+  padding: 7px 10px;
+  border: 1px solid rgb(148 163 184 / 25%);
+  border-radius: 8px;
+  transform: translateY(-50%);
+  background: #17233a;
+  color: #f8fafc;
+  box-shadow: 0 10px 24px rgb(15 23 42 / 25%);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .collapse { display: none; }
+
+  .sidebar nav {
+    padding-top: 12px;
+  }
+
+  .sidebar-profile,
+  .collapsed .sidebar-profile {
+    width: auto;
+    margin-right: 12px;
+    margin-left: 12px;
+    justify-content: flex-start;
+  }
+
+  .collapsed .profile-tail {
+    min-width: 0;
+    flex: 1 1 auto;
+    margin-left: -15px;
+    padding: 7px 9px 7px 25px;
+    opacity: 1;
+    overflow: visible;
+    pointer-events: auto;
+  }
+}
