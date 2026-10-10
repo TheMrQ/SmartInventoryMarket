@@ -4,9 +4,12 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { Tooltip } from './ui'
 
-const links = [
-  ['/', 'Dashboard', Activity], ['/products', 'Products', Package], ['/inventory', 'Inventory', Box], ['/suppliers', 'Suppliers', Truck], ['/purchase-orders', 'Purchase Orders', ShoppingCart], ['/sales', 'Sales', Store], ['/forecasts', 'Forecasts', TrendingUp], ['/decisions', 'Inventory Insights', ClipboardList],
+const navGroups = [
+  ['Overview', [['/', 'Dashboard', Activity]]],
+  ['Management', [['/products', 'Products', Package], ['/inventory', 'Inventory', Box], ['/suppliers', 'Suppliers', Truck], ['/purchase-orders', 'Purchase Orders', ShoppingCart]]],
+  ['Intelligence', [['/sales', 'Sales', Store], ['/forecasts', 'Forecasts', TrendingUp], ['/decisions', 'Inventory Insights', ClipboardList]]],
 ]
+const links = navGroups.flatMap(([, items]) => items)
 
 export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const location = useLocation()
@@ -16,8 +19,8 @@ export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobile
     {mobileOpen && <button className="scrim" aria-label="Close navigation" onClick={() => setMobileOpen(false)} />}
     <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="brand"><div className="brand-mark"><BarChart3 size={20} /></div><span>Smart<span>Inventory</span></span><button className="mobile-close icon-button" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={18}/></button></div>
-      <nav>{links.map(([path, name, Icon]) => <Tooltip key={path} label={name}><NavLink to={path} end={path === '/'} onClick={() => setMobileOpen(false)}><Icon size={19}/><span>{name}</span></NavLink></Tooltip>)}</nav>
-      <Tooltip label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><button className="collapse" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><ChevronLeft size={18}/><span>Collapse sidebar</span></button></Tooltip>
+      <nav>{navGroups.map(([group, items]) => <section className="nav-group" key={group}><p>{group}</p>{items.map(([path, name, Icon]) => <Tooltip key={path} label={name}><NavLink to={path} end={path === '/'} onClick={() => setMobileOpen(false)}><Icon size={19}/><span>{name}</span></NavLink></Tooltip>)}</section>)}</nav>
+      <Tooltip label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><button className="collapse" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><ChevronLeft size={17}/></button></Tooltip>
     </aside>
     <main><header className="topbar"><button className="icon-button menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20}/></button><div className="topbar-brand"><p className="eyebrow">Smart Inventory Market</p><h1>{label}</h1></div><div className={`connection ${health.isSuccess ? 'online' : 'offline'}`}><i />{health.isSuccess ? 'Database connected' : 'Checking connection'}<span>M5 CA_1 · Thesis Demo</span></div></header><div className="page-content">{children}</div></main>
   </div>

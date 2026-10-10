@@ -101,7 +101,11 @@ Forecasts now resolves the latest persisted forecast per selected product, resto
 
 ### P17 Final Presentation Refinement
 
-Major operational panels now have restrained blue full-width header bands. Tooltip visibility is event-managed so it closes on mouse leave, blur, Escape, and modal unmount. Dialogs are centered inside the main workspace on desktop rather than across the fixed sidebar; their clipped, rounded scroll containers use integrated scrollbars. These are frontend-only usability changes and preserve existing routes, contracts, decisions, forecasts, model behavior, and demo data.
+Major operational panels now have a structured, typography-led header hierarchy. Tooltip visibility is event-managed so it closes on mouse leave, blur, Escape, and modal unmount. Dialogs are centered inside the main workspace on desktop rather than across the fixed sidebar; their clipped, rounded scroll containers use integrated scrollbars. These are frontend-only usability changes and preserve existing routes, contracts, decisions, forecasts, model behavior, and demo data.
+
+### P17 Visual Design Polish
+
+The final P17 presentation pass replaces strong blue header bands with light, structured cards, restrained borders, subtle shadows, and typography-led section headers. It adds Inter Variable, a grouped premium sidebar, and a floating chevron-only collapse handle. Blue remains a controlled accent for actions, active navigation, focused controls, charts, and key emphasis; no behavior, API contract, forecast, inventory calculation, or dataset treatment changed.
 
 ## Last Stable Checkpoint
 

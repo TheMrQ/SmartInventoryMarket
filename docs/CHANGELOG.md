@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 â€” CHECKPOINT-017 visual design polish: lighter SaaS card system and grouped navigation
+
+- Rebalanced the React workspace around Inter Variable typography, light structured cards, soft borders/shadows, refined tables/forms/badges, calmer chart surfaces, and controlled blue accents.
+- Reorganized sidebar navigation into Overview, Management, and Intelligence; replaced the full collapse button with a floating chevron handle integrated into the sidebar edge.
+- Removed strong blue panel-header surfaces from the prior pass while retaining tooltip, workspace-modal, decision-support, and forecast functionality unchanged.
+
 ## 2026-10-10 â€” CHECKPOINT-017 final UX refinement: workspace dialogs and scan-friendly panel headers
 
 - Centered desktop dialogs in the application workspace rather than across the fixed sidebar; contained dialog scrolling with rounded clipping and restrained scrollbar styling.

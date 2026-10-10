@@ -39,4 +39,8 @@ Inventory Insights is the operational surface. Selecting a decision opens a prod
 
 ## P17 Final Visual Refinement
 
-The shared tooltip component now has explicit hover, focus, blur, and Escape lifecycle handling, avoiding sticky help overlays in tables and the decision dialog. On desktop, modal overlays begin at the main workspace boundary and center dialogs within that workspace, leaving the fixed navigation visually separate. Rounded dialog scroll containers clip their content and use restrained integrated scrollbar styling. Major dashboard, table, forecast, and model-detail panels use a reusable CSS card-header treatment: a full-width blue header band with white text and matching top radii.
+The shared tooltip component now has explicit hover, focus, blur, and Escape lifecycle handling, avoiding sticky help overlays in tables and the decision dialog. On desktop, modal overlays begin at the main workspace boundary and center dialogs within that workspace, leaving the fixed navigation visually separate. Rounded dialog scroll containers clip their content and use restrained integrated scrollbar styling. Major dashboard, table, forecast, and model-detail panels use a reusable structural card-header treatment.
+
+## P17 Visual Design Polish
+
+The visual system now favors white/light cards with 16px rounded corners, restrained borders, soft elevation, and editorial section headers over large saturated surfaces. `@fontsource-variable/inter` provides the `Inter Variable` UI font. The sidebar organizes routes into Overview, Management, and Intelligence and uses a floating chevron control for collapse. Blue is intentionally limited to primary controls, active navigation, focused elements, forecast/chart emphasis, and selected states; healthy, warning, and risk colors remain semantic.
