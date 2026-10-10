@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 local authentication migration was pending — RESOLVED
+
+**Symptom:** Repository code included Alembic revision `a91c2e6f4b20` for `auth_sessions`, while local MySQL still reported revision `8ac7d44590e3`; `alembic check` therefore reported that the target database was not up to date.
+
+**Cause:** The prior authentication implementation was committed before the additive migration was applied to the local thesis database.
+
+**Resolution:** Ran `alembic upgrade head` without dropping, resetting, or deleting existing data. `alembic current`, `alembic heads`, and `alembic check` now all report `a91c2e6f4b20` with no drift. The marker-cleaning `scripts/db/verify_auth_live.py` then verified actual local-MySQL registration, password hashing, server session persistence, cookies, `/api/auth/me`, and logout/revocation.
+
+**Prevention:** After any committed Alembic revision, run current/heads/check against the configured local database before reporting the feature complete. Use the live verifier for cookie-session claims; isolated SQLite tests alone are insufficient.
+
 ## 2026-10-09 — P15 multipart CSV route required an undeclared runtime dependency — RESOLVED
 
 **Symptom:** FastAPI refused to register `/api/sales/import` because multipart form parsing support was not installed in the local environment.

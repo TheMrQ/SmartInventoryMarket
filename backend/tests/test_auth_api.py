@@ -27,7 +27,7 @@ def client() -> Generator[TestClient, None, None]:
 
 
 def register(client: TestClient, email: str = "manager@example.com"):
-    return client.post("/api/auth/register", json={"full_name": "Test User", "email": email, "password": "long-test-password"})
+    return client.post("/api/auth/register", json={"full_name": "Test User", "email": email, "password": "Long-test-password"})
 
 
 def test_registration_hashes_password_and_rejects_duplicates(client: TestClient) -> None:
@@ -38,14 +38,22 @@ def test_registration_hashes_password_and_rejects_duplicates(client: TestClient)
     assert register(client).status_code == 409
 
 
+@pytest.mark.parametrize("password", ["shortA1", "long-test-password"])
+def test_registration_enforces_the_displayed_password_policy(client: TestClient, password: str) -> None:
+    response = client.post("/api/auth/register", json={"full_name": "Test User", "email": f"{password}@example.com", "password": password})
+    assert response.status_code == 422
+    assert "uppercase" in response.text or "at least 8" in response.text
+
+
 def test_login_session_me_logout_and_unauthorized_access(client: TestClient) -> None:
     register(client)
     assert client.post("/api/categories", json={"code": "NOPE", "name": "No access"}, headers={"X-CSRF-Token": client.cookies.get("sim_csrf")}).status_code == 403
     client.post("/api/auth/logout", headers={"X-CSRF-Token": client.cookies.get("sim_csrf")})
     assert client.post("/api/auth/login", json={"email": "manager@example.com", "password": "wrong-password"}).status_code == 401
-    login = client.post("/api/auth/login", json={"email": "manager@example.com", "password": "long-test-password"})
+    login = client.post("/api/auth/login", json={"email": "manager@example.com", "password": "Long-test-password"})
     assert login.status_code == 200
     assert client.get("/api/auth/me").json()["email"] == "manager@example.com"
     assert client.get("/api/products").status_code == 200
     assert client.post("/api/auth/logout", headers={"X-CSRF-Token": client.cookies.get("sim_csrf")}).status_code == 204
+    assert client.cookies.get("sim_session") is None
     assert client.get("/api/products").status_code == 401

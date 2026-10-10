@@ -26,8 +26,9 @@ def _set_cookies(response: Response, token: str, csrf: str) -> None:
 
 
 def _clear_cookies(response: Response) -> None:
-    response.delete_cookie("sim_session", path="/")
-    response.delete_cookie("sim_csrf", path="/")
+    settings = get_settings()
+    response.delete_cookie("sim_session", path="/", secure=settings.cookie_secure, samesite="lax")
+    response.delete_cookie("sim_csrf", path="/", secure=settings.cookie_secure, samesite="lax")
 
 
 def _rate_limited(key: str) -> bool:
@@ -107,4 +108,5 @@ def logout(response: Response, session: SessionDep, user: Annotated[User, Depend
             auth_session.revoked_at = utc_now()
             session.commit()
     _clear_cookies(response)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return response

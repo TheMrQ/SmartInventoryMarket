@@ -7,13 +7,21 @@ export class ApiError extends Error {
   }
 }
 
+function friendlyDetail(detail) {
+  if (Array.isArray(detail)) {
+    const messages = detail.map((issue) => issue?.msg).filter(Boolean)
+    return messages[0]?.replace(/^Value error, /, '') || 'Please check the highlighted details and try again.'
+  }
+  return typeof detail === 'string' ? detail : 'The request could not be completed.'
+}
+
 export async function request(path, options = {}) {
   const headers = options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }
   const csrf = document.cookie.split('; ').find((value) => value.startsWith('sim_csrf='))?.split('=')[1]
   const response = await fetch(`${baseUrl}${path}`, { ...options, credentials: 'include', headers: { ...headers, ...(csrf && { 'X-CSRF-Token': decodeURIComponent(csrf) }), ...options.headers } })
   const contentType = response.headers.get('content-type') || ''
   const body = contentType.includes('application/json') ? await response.json() : null
-  if (!response.ok) throw new ApiError(body?.detail || 'The request could not be completed.', response.status)
+  if (!response.ok) throw new ApiError(friendlyDetail(body?.detail), response.status)
   return body
 }
 

@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 verification and final evidence next
+Overall status: 🟡 **IN_PROGRESS** — P18 authentication hotfix is complete; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -93,7 +93,11 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 
 ## Current Task
 
-P17 is complete, including the focused visual and UX refinements. The React/Vite operational UI uses the blue Smart Inventory Market identity, one page title per desktop screen, friendly business terminology, M5-safe presentation labels, rounded section hierarchy, consistent blue focus states, and responsive operational views. The Forecasts screen now combines the 28 observed sales days before the persisted origin with future frozen-model demand values; it never displays held-out TEST actuals. The optional local `scripts/db/setup_ui_demo.py` creates labeled demo suppliers, service-audited inventory adjustments, an unreceived PO, a real frozen XGBOOST_V1 forecast, and real decision/recommendation state for the existing five M5 demo SKUs. React Query refreshes affected views after successful mutations; the UI never invents model/risk data or claims recommendation review changes inventory. No model retraining, TEST-demand input, automatic purchase, or authentication work was added.
+`P18-AUTH-UX-HOTFIX` is **DONE**. The additive `a91c2e6f4b20` authentication-session migration is applied to local MySQL and Alembic current/heads/check agree at that revision. A marker-cleaning live local-MySQL test verified a public inventory-staff registration (201), non-plaintext scrypt hash, persisted active session, cookies, `/api/auth/me`, logout revocation, and cookie expiry.
+
+Registration now requires at least 8 characters and one ASCII uppercase letter, consistently checked in the backend contract, a shared helper, the frontend indicators, and automated tests. The login/register UI is one stable component: it preserves `/login` and `/register`, waits for a genuine 780 ms 3D coin flip before URL navigation, follows direct/back/forward navigation, shifts focus to the visible face, and prevents focus/submission on the hidden form. Its light canvas, dark navy coin, attached animated gradient ring, compact navy brand container, soft focus treatment, responsive form geometry, reduced-motion fallback, and restrained interaction feedback are limited to authentication screens. No model, inventory, forecast, purchase-order, or demo-data behavior changed.
+
+`scripts/db/verify_auth_live.py` creates and cleans only a unique temporary account for live proof. `scripts/db/provision_manager.py --email ... --full-name ...` prompts locally for a password, validates the same registration policy, and creates or updates a manager only in development/local/test environments; it stores no credential in code or the repository.
 
 ### P17 Decision UX
 

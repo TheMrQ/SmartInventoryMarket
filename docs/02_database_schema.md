@@ -4,13 +4,13 @@ Status: **FROZEN AND IMPLEMENTED — CHECKPOINT-013**
 
 The single-store MVP uses MySQL 8.x. SQLAlchemy models in `backend/app/db/models/application.py` and Alembic revision `f86d36b27719` are the sole schema source of truth. MySQL Workbench visualizes and administers that schema; it is not the database engine and must not become a second hand-maintained schema.
 
-For a plain MySQL DDL view of all 14 application tables, see [`schema_reference_mysql.sql`](schema_reference_mysql.sql). It is a readability/reference file only; SQLAlchemy models + Alembic remain the schema source of truth.
+For a plain MySQL DDL view of the application tables, see [`schema_reference_mysql.sql`](schema_reference_mysql.sql). It is a readability/reference file only; SQLAlchemy models + Alembic remain the schema source of truth.
 
 ## Runtime and Migration Foundation
 
 - **Database:** local MySQL Server database `smart_inventory_market`, configured for `utf8mb4` / `utf8mb4_0900_ai_ci`.
 - **Access path:** FastAPI → SQLAlchemy 2.x → PyMySQL → MySQL Server.
-- **Migration:** Alembic revision `f86d36b27719` (`create initial application schema`). `alembic.ini` contains no database URL; `alembic/env.py` reads `DATABASE_URL` through application settings.
+- **Migration:** initial Alembic revision `f86d36b27719`, followed by `8ac7d44590e3` (retail sales price) and `a91c2e6f4b20` (server-managed authentication sessions). `alembic.ini` contains no database URL; `alembic/env.py` reads `DATABASE_URL` through application settings.
 - **Configuration:** a local ignored `.env` provides `DATABASE_URL` in `mysql+pymysql://...` form. The tracked `.env.example` contains placeholders only.
 - **Time convention:** application-generated `created_at`, `updated_at`, `occurred_at`, `generated_at`, and review/receipt timestamps are UTC values. MySQL `DATETIME` does not retain a timezone offset, so the application writes UTC consistently.
 - **Deletion policy:** foreign keys use MySQL's restrictive default. Historical operational records are not cascade-deleted. Users, products, and suppliers use `is_active` rather than routine deletion.
@@ -19,6 +19,7 @@ For a plain MySQL DDL view of all 14 application tables, see [`schema_reference_
 
 ```mermaid
 erDiagram
+    USERS ||--o{ AUTH_SESSIONS : establishes
     USERS ||--o{ PURCHASE_ORDERS : creates_or_approves
     USERS ||--o{ STOCK_TRANSACTIONS : records
     USERS ||--o{ REORDER_RECOMMENDATIONS : reviews
@@ -46,6 +47,7 @@ There is deliberately no `stores` or warehouse table: this thesis MVP is single-
 | Table | Purpose | Important columns and relationships |
 | --- | --- | --- |
 | `users` | Future manager/admin/inventory-staff identities. | Unique indexed `email`, `password_hash` only (never plaintext), `full_name`, controlled `role`, `is_active`; references from orders, transactions, and reviews. |
+| `auth_sessions` | Revocable, opaque browser-session records. | User FK, unique SHA-256 token hash (never the raw cookie token), expiry, optional revocation time, and UTC creation time. |
 | `categories` | Product grouping. | Unique `code`, `name`, optional `description`; one category has many products. |
 | `products` | Sellable inventory products. | Unique indexed `sku`, `name`, `category_id`, `unit`, `is_active`; one inventory row at most and links to sales, suppliers, orders, forecasts, transactions, recommendations. |
 | `suppliers` | Vendor master data. | Unique `code`, contact fields, `is_active`; links to supplier-product options and purchase orders. |
@@ -99,3 +101,7 @@ For the P14 inventory read model, incoming quantity is derived at query time as 
 ## P15 Sales Price Migration and Forecast Persistence
 
 Alembic revision `8ac7d44590e3` adds nullable `sales_daily.sell_price DECIMAL(12,2)` and `sell_price IS NULL OR sell_price >= 0`. It is a retail selling price for the frozen feature set, never a supplier `unit_cost`. Historical imports may leave it null because FEATURE_SET_V1 explicitly models missing price history. Forecast APIs persist a run and all daily values atomically; they do not alter inventory, purchase orders, stock transactions, or recommendations.
+
+## P17/P18 Authentication Sessions
+
+Alembic revision `a91c2e6f4b20` adds `auth_sessions` without changing or dropping existing operational tables. Registration and login write a scrypt-hashed password to `users` and only a SHA-256 hash of an opaque session token to `auth_sessions`; the raw token exists only in the HttpOnly browser cookie. Logout marks the matching session revoked and expires both the session and CSRF cookies. On 2026-10-10, local MySQL was safely upgraded to this head revision and `alembic current`, `heads`, and `check` all verified it with no schema drift.

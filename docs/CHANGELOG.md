@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 authentication UX hotfix and live session verification
+
+- Safely applied the existing additive `a91c2e6f4b20` `auth_sessions` migration to local MySQL; Alembic current/heads/check now agree at head without data reset or demo-data deletion. Added a marker-cleaning live verifier proving registration, scrypt storage, session persistence, cookies, `/me`, logout, and revocation against MySQL.
+- Changed registration policy to at least 8 characters with one ASCII uppercase letter across the backend contract/helper, frontend indicators, and tests; confirmation stays browser-only and FastAPI 422 lists now become readable inline errors.
+- Rebuilt only the auth surface around one persistent `/login`/`/register` component and a 780 ms 3D coin flip, browser-history synchronization, safe focus/inactive controls, responsive overflow-free fallback, light canvas/dark coin/brand treatment, attached reduced-motion gradient ring, and subtle interaction/focus states. Added a password-prompted development-only manager provisioner with no stored credentials.
+
 ## 2026-10-10 — P17 animated UX and real cookie-session authentication
 
 - Added responsive circular Login/Register routes with an accessible 3D CSS flip, animated blue/cyan/indigo gradient ring, motion-reduction fallback, protected-route restoration, authenticated sidebar profile, and real logout.

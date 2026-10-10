@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Smart Inventory Market
 -- MySQL 8.x schema reference
--- CHECKPOINT-013 / Alembic revision: f86d36b27719
+-- CHECKPOINT-013 foundation plus later revisions through a91c2e6f4b20
 -- ============================================================================
 --
 -- PURPOSE
@@ -13,7 +13,7 @@
 -- ---------------
 -- The real schema source of truth is:
 --   1) backend/app/db/models/application.py
---   2) alembic/versions/f86d36b27719_create_initial_application_schema.py
+--   2) Alembic revisions through a91c2e6f4b20_add_auth_sessions.py
 --
 -- Do NOT manually edit the production/development schema with this file when
 -- a schema change is needed. Change the SQLAlchemy models and create a new
@@ -144,6 +144,34 @@ CREATE TABLE users (
 
 CREATE UNIQUE INDEX ix_users_email
     ON users (email);
+
+
+-- ============================================================================
+-- auth_sessions
+-- Opaque, revocable browser-session records; raw cookie tokens are not stored.
+-- ============================================================================
+
+CREATE TABLE auth_sessions (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    token_hash VARCHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    revoked_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+
+    CONSTRAINT pk_auth_sessions PRIMARY KEY (id),
+    CONSTRAINT fk_auth_sessions_user_id_users
+        FOREIGN KEY (user_id) REFERENCES users (id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE UNIQUE INDEX ix_auth_sessions_token_hash
+    ON auth_sessions (token_hash);
+CREATE INDEX ix_auth_sessions_user_id
+    ON auth_sessions (user_id);
+CREATE INDEX ix_auth_sessions_expires_at
+    ON auth_sessions (expires_at);
 
 
 -- ============================================================================

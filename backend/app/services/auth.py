@@ -10,6 +10,15 @@ from datetime import timedelta
 from backend.app.db.models import utc_now
 
 
+def password_policy_error(password: str) -> str | None:
+    """Return the public registration-policy failure, without logging a password."""
+    if len(password) < 8:
+        return "must contain at least 8 characters"
+    if not any("A" <= character <= "Z" for character in password):
+        return "must include at least one uppercase letter"
+    return None
+
+
 def hash_password(password: str) -> str:
     salt = os.urandom(16)
     digest = hashlib.scrypt(password.encode(), salt=salt, n=2**14, r=8, p=1, dklen=32)
