@@ -50,3 +50,7 @@ Supplier selection is deterministic: exactly one active preferred mapping wins; 
 `GET /api/inventory-decisions` is side-effect free. `POST /api/reorder-recommendations/generate` saves a one-day `NEW` snapshot only if quantity is positive and expires earlier `NEW` snapshots atomically. Explicit ACCEPT/MODIFY/REJECT review actions are terminal. P16 deliberately defers recommendation-to-PO conversion: no P16 operation changes inventory, creates a purchase order, or contacts a supplier.
 
 The forecast model remains M5-specific. The decision engine is reusable business logic, but this deployment can decide only for products with compatible persisted forecasts until a target-supermarket model exists.
+
+## P17 Decision UX Boundary
+
+The frontend presents the existing P16 decision values together; it does not recompute or alter them. Safety stock is explained as an extra inventory buffer against forecast error and demand variation, already included in target stock, never as a separate purchase. The manager-facing explanation is: inventory position = available + incoming; reorder point = lead-time forecast + safety stock; recommended order = target stock - inventory position, minimum zero. The coverage visualization uses actual API target, position, and recommended-order values only.

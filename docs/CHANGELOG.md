@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 â€” CHECKPOINT-017 decision UX: persisted forecast context and unified restocking guidance
+
+- Added a reusable historical-sales plus expected-demand chart with linear daily lines, reused by Forecasts and selected Inventory Insights decisions; it uses only persisted forecast values and the 28 observed days through the stored origin.
+- Changed Forecasts to resolve the latest persisted run per product through the existing API, retain product/horizon in URL state, and generate or refresh only on an explicit action.
+- Added an Inventory Insights detail panel that presents stock position, lead-time demand, safety-stock buffer, reorder/target stock, strongest recommended-order value, real stock-coverage gap, and optional calculation explanation. No backend rules, schema, model, inference-on-navigation, TEST data access, or automatic purchasing behavior changed.
+
 ## 2026-10-10 — CHECKPOINT-017 UX refinement: human-friendly operational presentation
 
 - Removed duplicate desktop page titles, improved sidebar collapse/tooltip behavior, standardized rounded panels and blue focus treatment, and replaced presentation-facing enum strings with centralized friendly labels.

@@ -95,6 +95,10 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 
 P17 is complete, including the focused visual and UX refinements. The React/Vite operational UI uses the blue Smart Inventory Market identity, one page title per desktop screen, friendly business terminology, M5-safe presentation labels, rounded section hierarchy, consistent blue focus states, and responsive operational views. The Forecasts screen now combines the 28 observed sales days before the persisted origin with future frozen-model demand values; it never displays held-out TEST actuals. The optional local `scripts/db/setup_ui_demo.py` creates labeled demo suppliers, service-audited inventory adjustments, an unreceived PO, a real frozen XGBOOST_V1 forecast, and real decision/recommendation state for the existing five M5 demo SKUs. React Query refreshes affected views after successful mutations; the UI never invents model/risk data or claims recommendation review changes inventory. No model retraining, TEST-demand input, automatic purchase, or authentication work was added.
 
+### P17 Decision UX
+
+Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
+
 ## Last Stable Checkpoint
 
 `CHECKPOINT-017` — Human-friendly polished React dashboard, real local thesis-demo workflow, and historical-to-forecast visualization integrated with FastAPI

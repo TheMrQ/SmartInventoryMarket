@@ -63,6 +63,12 @@ This registry records reproducible report assets and planned manual evidence. It
 | Forecast interface | TODO | Manual screenshot | Show forecast interaction | Implementation | Future frontend task | Capture the running application. |
 | Reorder recommendation interface | TODO | Manual screenshot | Show decision-engine output | Implementation | Future frontend task | Capture the running application. |
 
+## P17 Decision UX Evidence
+
+| Asset / Evidence | Status | Generated or Manual Screenshot | Purpose | Possible Thesis Section | Source Script / Command | Notes |
+| --- | --- | --- | --- | --- | --- |
+| P17 persisted forecast and decision UX | DONE | Generated / version-controlled | Demonstrate per-product persisted forecast restoration and an explainable restocking decision surface | Implementation / appendix | `cd frontend; npm run lint; npm run build` | Shared chart shows 28 observed pre-origin days plus persisted expected demand; Inventory Insights uses the existing engine response without recalculation. |
+
 ## Manual Screenshot Policy
 
 Generated charts and tables should be saved directly as files. Manual screenshots are reserved primarily for evidence that is naturally visual and cannot be reproduced better as an exported artifact, such as MySQL Workbench ERD/interface, FastAPI Swagger/API demonstration, the running web application UI/dashboard, forecast interaction, reorder recommendation screen, and selected experiment-execution evidence when useful for an appendix.
