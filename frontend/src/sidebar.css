@@ -8,6 +8,10 @@
   overflow: visible;
 }
 
+.sidebar-active-ribbon {
+  display: none;
+}
+
 .sidebar nav {
   width: 100%;
   box-sizing: border-box;
@@ -215,12 +219,49 @@
 
 /* App.css historically hid every span in collapsed nav. Restore only the link wrapper. */
 @media (min-width: 901px) {
+  .collapsed .brand {
+    width: 100%;
+    padding-inline: 0;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .collapsed .brand-mark,
+  .collapsed .nav-icon {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .collapsed .sidebar nav {
+    padding-inline: 12px;
+  }
+
   .collapsed .sidebar .tooltip {
     display: block !important;
   }
 
   .collapsed .sidebar .tooltip > a {
     display: flex !important;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .collapsed .sidebar-active-ribbon {
+    position: absolute;
+    right: -11px;
+    z-index: 1;
+    display: block;
+    width: 23px;
+    border-radius: 0 11px 11px 0;
+    background: #2563eb;
+    box-shadow: 7px 5px 14px rgb(37 99 235 / 22%);
+    pointer-events: none;
+    transition: top var(--duration-base, 200ms) var(--ease-standard, ease), height var(--duration-base, 200ms) var(--ease-standard, ease), opacity var(--duration-fast, 160ms) ease;
+  }
+
+  .collapsed .sidebar nav {
+    position: relative;
+    z-index: 2;
   }
 }
 

@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 targeted UI repair awaits requested sidebar/chart screenshot verification; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 collapsed-sidebar alignment awaits requested full-sidebar screenshot verification; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -129,6 +129,12 @@ The Inventory Insight modal now gives its compact demand chart a scoped 20px int
 
 Frontend lint and production build pass. Browser automation is unavailable, so visually inspect the collapsed eight-icon sidebar and the 7-/28-day Inventory Insight chart before final acceptance.
 
+### P18 Collapsed-Sidebar Final Alignment
+
+The approved expanded and mobile sidebar remain unchanged. In desktop collapsed mode, the brand now centers its mark using the sidebar's actual width with zero residual expanded padding/gap. The navigation retains symmetric inline padding and centers each full-width route link/icon in that same rail; the existing avatar-only footer centers its fixed circle using automatic side margins. The logo, all eight route icons, and avatar therefore derive their horizontal axis from the current collapsed sidebar width rather than a hardcoded coordinate.
+
+The active-route ribbon is a measured, non-interactive sibling overlay in the sidebar rather than content inside the horizontally clipped navigation scroller. `Shell` measures the active link's vertical position on route, resize, and navigation scroll changes; CSS places a 23px blue continuation from the active row's normal right edge to 11px outside the sidebar. The active icon remains in the normal centered route row, vertical scrolling stays available, and portal tooltips/sidebar overflow protections remain intact. Browser automation is unavailable, so a full collapsed-sidebar screenshot is still required to visually confirm the common axis and ribbon.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -165,4 +171,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-TARGETED-UI-REPAIR` needs user screenshots of the collapsed sidebar with all eight route icons and the padded Inventory Insight chart for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-COLLAPSED-SIDEBAR-FINAL-ALIGNMENT` needs a user screenshot of the full collapsed sidebar, including logo, all eight icons, centered avatar, and an active ribbon, for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.

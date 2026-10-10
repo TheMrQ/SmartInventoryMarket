@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 collapsed sidebar used independent alignment contexts — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** The collapsed logo mark, route icons, and footer avatar could appear to have slightly different horizontal centers, even after route icons were restored.
+
+**Cause:** The brand retained expanded-state inline padding/gap, navigation centered inside a padded scroller, and the avatar used a separate footer width/margin rule. The active row also could not safely protrude from the horizontally clipped nav scroller.
+
+**Resolution:** Desktop collapsed rules now center the brand mark from the sidebar width with no residual gap/padding, retain symmetric navigation padding for a shared centered rail, and keep the existing auto-margin avatar center. A measured sidebar-level ribbon overlay follows the active row vertically and extends 11px outward without living in the scrolling nav container.
+
+**Verification:** Frontend lint and production build pass. No browser surface is available; manually inspect the complete collapsed sidebar and confirm logo/icon/avatar centers match within the requested visual tolerance, the active ribbon protrudes without shifting the icon, and no horizontal scrollbar appears.
+
+**Prevention:** Center collapsed components from the same parent dimension rather than compensating with fixed offsets. Put decorative overflow outside the scrollable navigation element.
+
 ## 2026-10-10 — P18 collapsed navigation wrappers were hidden by a broad span selector — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** Collapsing the desktop sidebar left the brand mark and profile avatar visible but removed every route icon and link.

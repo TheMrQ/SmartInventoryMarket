@@ -83,6 +83,12 @@ Collapsed navigation explicitly keeps each `.tooltip` wrapper and its route link
 
 Within the Inventory Insight dialog only, the compact demand chart panel now uses a 20px inset and a local header layout with no negative margins. The heading/subtitle, divider, responsive chart, axes, and legend remain inside the rounded panel. The main Forecasts chart is intentionally unchanged. Register omits the disabled social-option component; Login remains the sole location for the disabled Google/Facebook/GitHub coming-soon controls. No authentication API/session/role behavior changed.
 
+## P18 Collapsed-Sidebar Final Alignment
+
+At desktop widths, collapsed brand, navigation, and profile layout now share one parent-derived center axis: the brand has no residual expanded padding/gap and centers its mark, the symmetric navigation rail centers each route/icon, and the 50px avatar remains centered by automatic side margins. This preserves the distinct logo/avatar sizes while aligning their centers across the actual sidebar width. Labels/group labels remain hidden, while all eight links, active state, and portalled tooltips remain usable.
+
+The collapsed active ribbon is rendered as a non-interactive sidebar overlay. The shell measures the active route row after route, resize, and nav-scroll changes, then places a 23px primary-blue continuation from the row's ordinary right edge to 11px beyond the sidebar. Because it is a sibling of the clipped navigation scroller, it does not expand or reintroduce horizontal sidebar scrolling; the active icon itself remains centered in its ordinary 42px row. The ribbon is desktop-collapsed-only and respects existing reduced-motion timing.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.

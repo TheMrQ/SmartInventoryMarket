@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 collapsed-sidebar final alignment
+
+- Centered the desktop-collapsed logo mark, all eight navigation icons, and white avatar from the actual sidebar width by removing residual brand padding/gap and keeping the navigation rail symmetric; the approved expanded/mobile layouts remain unchanged.
+- Added a measured, non-interactive primary-blue active-ribbon overlay that follows the active route row and extends 11px beyond the sidebar without entering the clipped navigation scroller or moving the centered icon.
+- Preserved collapsed tooltips, vertical navigation scroll, avatar-only profile, chevron behavior, and reduced-motion timing. Frontend lint/build pass; a full collapsed-sidebar screenshot remains required for manual visual acceptance.
+
 ## 2026-10-10 — P18 targeted UI repair
 
 - Restored all collapsed desktop sidebar route icons by overriding the legacy broad `.collapsed nav span` behavior for the `Tooltip` wrappers and links; labels still hide explicitly, while active routes, portal tooltips, avatar-only profile, and chevron remain unchanged.
