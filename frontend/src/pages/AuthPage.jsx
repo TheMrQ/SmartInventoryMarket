@@ -41,7 +41,6 @@ function RegisterForm({ disabled, firstRef, show, onToggle, password, onPassword
     <PasswordField disabled={disabled} name="confirm_password" label="Confirm password" confirm show={show} />
     {error && <p className="auth-error" role="alert">{error}</p>}
     <button className="auth-submit" disabled={disabled || pending}>{pending ? 'Creating account…' : 'Create account'}</button>
-    <SocialOptions />
   </form>
 }
 

@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 workspace refinement awaits requested sidebar screenshot verification; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 targeted UI repair awaits requested sidebar/chart screenshot verification; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -121,6 +121,14 @@ The authenticated profile is now an avatar-led capsule: a prominent 50px white `
 
 Frontend lint and production build pass. Browser automation is unavailable in this environment, so the requested screenshots of the expanded capsule and collapsed white-avatar-only sidebar remain the manual acceptance evidence.
 
+### P18 Targeted UI Repair
+
+The approved workspace and authentication designs remain intact. The desktop collapsed-sidebar regression came from the inherited broad selector `.collapsed nav span`, which hid the `Tooltip` span wrapper around each `NavLink`, rather than only its text. The sidebar repair restores each wrapper/link in desktop collapsed state while the existing explicit label and group-label rules continue to hide text. All eight route icons, active state, collapsed portal tooltips, white-avatar-only footer, and floating collapse control are preserved.
+
+The Inventory Insight modal now gives its compact demand chart a scoped 20px internal inset. Its heading no longer inherits negative page-panel margins; it has a modest divider and comfortable heading-to-chart spacing without affecting the main Forecasts chart, forecast data, or horizon behavior. Register no longer renders the disabled social-login placeholder block; Login retains the shared disabled Google/Facebook/GitHub controls and coming-soon label. The centered register form therefore rebalances naturally without changing its sliding-card transition or authentication logic.
+
+Frontend lint and production build pass. Browser automation is unavailable, so visually inspect the collapsed eight-icon sidebar and the 7-/28-day Inventory Insight chart before final acceptance.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -157,4 +165,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-PREMIUM-WORKSPACE-REFINEMENT` needs user screenshots of the expanded sidebar/profile capsule and the collapsed white-avatar-only sidebar for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-TARGETED-UI-REPAIR` needs user screenshots of the collapsed sidebar with all eight route icons and the padded Inventory Insight chart for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.

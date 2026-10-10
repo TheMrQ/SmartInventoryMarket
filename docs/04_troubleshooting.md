@@ -1,5 +1,29 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 collapsed navigation wrappers were hidden by a broad span selector — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** Collapsing the desktop sidebar left the brand mark and profile avatar visible but removed every route icon and link.
+
+**Cause:** `.collapsed nav span { display: none; }` matched not only route-label spans, but also the current `Tooltip` span wrapper around each `NavLink`.
+
+**Resolution:** Added a desktop collapsed-sidebar rule that restores each `.tooltip` wrapper and its direct route link while retaining the existing explicit text-label hiding. The route icons, active treatment, keyboard/click behavior, and portalled tooltips are no longer affected by the broad legacy declaration.
+
+**Verification:** Frontend lint and production build pass. No browser surface is available; manually verify all eight icons and route changes after collapsing.
+
+**Prevention:** Collapse selectors must target semantic text classes such as `.nav-label` and `.nav-group-label`, never generic inline elements that may be component wrappers.
+
+## 2026-10-10 — P18 Inventory Insight chart header inherited page-panel negative margins — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** The compact demand outlook heading in the Inventory Insight modal sat too close to the panel edges.
+
+**Cause:** The nested `.decision-chart .demand-forecast > header` inherited negative margins intended for top-level page panels.
+
+**Resolution:** Scoped a 20px inset and zero-negative-margin header treatment to the decision modal chart only, retaining its rounded white panel, responsive chart, divider, and legend.
+
+**Verification:** Frontend lint and production build pass. Manually review both 7- and 28-day saved forecasts in the insight dialog when a browser is available.
+
+**Prevention:** Nested modal panels must opt out of page-level negative header-margin patterns with a local layout rule.
+
 ## 2026-10-10 — P18 sidebar horizontal scrollbar during navigation hover — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** A horizontal scrollbar could appear above the fixed sidebar profile, especially while hovering full-width navigation rows.

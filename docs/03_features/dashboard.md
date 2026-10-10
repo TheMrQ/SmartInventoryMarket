@@ -77,6 +77,12 @@ The footer uses actual session data rather than a demo persona: a 50px white, th
 
 `premium.css` centralizes blue, surface, shadow, easing, and radius tokens for the existing workspace. Buttons gain restrained lift/press/shadow feedback, inputs gain calm hover/focus treatment, rows gain blue-gray hover feedback, and modals/cards retain light surfaces with refined shadows. This is visual-only: no route, data loading, API contract, auth behavior, forecast generation, inventory calculation, or model boundary changes.
 
+## P18 Targeted UI Repair
+
+Collapsed navigation explicitly keeps each `.tooltip` wrapper and its route link visible, correcting the earlier broad `.collapsed nav span` rule that hid those wrapper spans together with their icons. Only explicit `.nav-label` and group-label text remains hidden on desktop collapse; all eight route icons, active styling, keyboard/click links, fixed portal tooltips, avatar-only footer, and chevron behavior are retained. Mobile restores labels in the drawer as before.
+
+Within the Inventory Insight dialog only, the compact demand chart panel now uses a 20px inset and a local header layout with no negative margins. The heading/subtitle, divider, responsive chart, axes, and legend remain inside the rounded panel. The main Forecasts chart is intentionally unchanged. Register omits the disabled social-option component; Login remains the sole location for the disabled Google/Facebook/GitHub coming-soon controls. No authentication API/session/role behavior changed.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.

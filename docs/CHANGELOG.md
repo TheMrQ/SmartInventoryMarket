@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 targeted UI repair
+
+- Restored all collapsed desktop sidebar route icons by overriding the legacy broad `.collapsed nav span` behavior for the `Tooltip` wrappers and links; labels still hide explicitly, while active routes, portal tooltips, avatar-only profile, and chevron remain unchanged.
+- Scoped the Inventory Insight modal demand-chart panel to a 20px internal inset with a non-negative local header/divider layout, leaving the main Forecasts chart and all data/forecast logic unchanged.
+- Removed the disabled social-login block from Register only; Login retains the disabled Google/Facebook/GitHub coming-soon controls. Frontend lint/build pass; requested collapsed-sidebar and insight-chart screenshots remain manual acceptance evidence.
+
 ## 2026-10-10 — P18 premium workspace refinement
 
 - Removed the sidebar's actual horizontal-overflow contributors: route rows no longer translate beyond their full-width navigation container, and collapsed-route tooltip labels are fixed portals outside the scrollable navigation tree. Vertical sidebar scrolling and intentional wide-table scrolling remain available.

@@ -213,6 +213,17 @@
   pointer-events: none;
 }
 
+/* App.css historically hid every span in collapsed nav. Restore only the link wrapper. */
+@media (min-width: 901px) {
+  .collapsed .sidebar .tooltip {
+    display: block !important;
+  }
+
+  .collapsed .sidebar .tooltip > a {
+    display: flex !important;
+  }
+}
+
 .sidebar .tooltip-content {
   display: none !important;
 }
