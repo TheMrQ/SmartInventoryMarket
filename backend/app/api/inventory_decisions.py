@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db_session
+from backend.app.api.auth import operational_user
 from backend.app.db.models import RecommendationStatus
 from backend.app.schemas.business import (
     InventoryDecisionRead,
@@ -17,7 +18,7 @@ from backend.app.schemas.business import (
 from backend.app.services.inventory_decisions import InventoryDecisionService
 
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", dependencies=[Depends(operational_user)])
 SessionDep = Annotated[Session, Depends(get_db_session)]
 PageSize = Annotated[int, Query(ge=1, le=100)]
 PageOffset = Annotated[int, Query(ge=0)]

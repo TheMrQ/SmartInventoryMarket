@@ -97,6 +97,20 @@ class User(TimestampMixin, Base):
     reviewed_recommendations: Mapped[list["ReorderRecommendation"]] = relationship(
         back_populates="reviewed_by_user"
     )
+    sessions: Mapped[list["AuthSession"]] = relationship(back_populates="user")
+
+
+class AuthSession(Base):
+    __tablename__ = "auth_sessions"
+    __table_args__ = (Index("ix_auth_sessions_token_hash", "token_hash", unique=True),)
+
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(), nullable=False, index=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(), default=utc_now, nullable=False)
+    user: Mapped[User] = relationship(back_populates="sessions")
 
 
 class Category(TimestampMixin, Base):

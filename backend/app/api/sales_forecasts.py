@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db_session
+from backend.app.api.auth import operational_user
 from backend.app.schemas.business import (
     ForecastCreate,
     ForecastRunRead,
@@ -18,7 +19,7 @@ from backend.app.services.forecasting import ForecastService
 from backend.app.services.sales import SalesService
 
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", dependencies=[Depends(operational_user)])
 SessionDep = Annotated[Session, Depends(get_db_session)]
 PageSize = Annotated[int, Query(ge=1, le=100)]
 PageOffset = Annotated[int, Query(ge=0)]

@@ -1,4 +1,4 @@
-import { Activity, BarChart3, Box, ChevronLeft, ClipboardList, Menu, Package, ShoppingCart, Store, TrendingUp, Truck, UserRound, X } from 'lucide-react'
+import { Activity, BarChart3, Box, ChevronLeft, ClipboardList, LogOut, Menu, Package, ShoppingCart, Store, TrendingUp, Truck, UserRound, X } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -11,7 +11,7 @@ const navGroups = [
 ]
 const links = navGroups.flatMap(([, items]) => items)
 
-export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
+export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobileOpen, user, onLogout }) {
   const location = useLocation()
   const health = useQuery({ queryKey: ['health'], queryFn: api.health, retry: 1, refetchInterval: 30000 })
   const label = links.find(([path]) => path === location.pathname)?.[1] || 'Smart Inventory Market'
@@ -20,9 +20,9 @@ export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobile
     <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="brand"><div className="brand-mark"><BarChart3 size={20} /></div><span className="brand-name">Smart<span>Inventory</span></span><button className="mobile-close icon-button" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={18}/></button></div>
       <nav>{navGroups.map(([group, items]) => <section className="nav-group" key={group}><p className="nav-group-label">{group}</p>{items.map(([path, name, Icon]) => <Tooltip key={path} label={name}><NavLink to={path} end={path === '/'} onClick={() => setMobileOpen(false)}><Icon className="nav-icon" size={19}/><span className="nav-label">{name}</span></NavLink></Tooltip>)}</section>)}</nav>
-      <section className="sidebar-profile" aria-label="Demo workspace profile"><div className="profile-avatar" aria-hidden="true"><UserRound size={19}/></div><div className="profile-copy"><strong>Demo Manager</strong><span>Demo workspace</span></div></section>
+      <section className="sidebar-profile" aria-label="Authenticated user"><div className="profile-avatar" aria-hidden="true"><UserRound size={19}/></div><div className="profile-copy"><strong>{user.full_name}</strong><span>{user.role.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())}</span></div><button className="profile-logout" onClick={onLogout} aria-label="Log out"><LogOut size={16}/></button></section>
       <button className="collapse" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><ChevronLeft size={17}/></button>
     </aside>
-    <main><header className="topbar"><button className="icon-button menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20}/></button><div className="topbar-brand"><p className="eyebrow">Smart Inventory Market</p><h1>{label}</h1></div><div className={`connection ${health.isSuccess ? 'online' : 'offline'}`}><i />{health.isSuccess ? 'Database connected' : 'Checking connection'}<span>M5 CA_1 · Thesis Demo</span></div></header><div className="page-content">{children}</div></main>
+    <main><header className="topbar"><button className="icon-button menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20}/></button><div className="topbar-brand"><p className="eyebrow">Smart Inventory Market</p><h1>{label}</h1></div><div className={`connection ${health.isSuccess ? 'online' : 'offline'}`}><i />{health.isSuccess ? 'Database connected' : 'Checking connection'}<span>M5 CA_1 · Thesis Demo</span></div></header><div className="page-content"><div className="page-transition" key={location.pathname}>{children}</div></div></main>
   </div>
 }

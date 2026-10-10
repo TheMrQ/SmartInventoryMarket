@@ -1,6 +1,7 @@
 """P14 API tests using an isolated SQLite database, never local MySQL."""
 
 from collections.abc import Generator
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -10,6 +11,7 @@ from sqlalchemy.pool import StaticPool
 
 from backend.app.db.base import Base
 from backend.app.db.database import get_db_session
+from backend.app.api.auth import operational_user
 import backend.app.db.models  # noqa: F401 - register all metadata
 from backend.app.main import app
 
@@ -32,6 +34,7 @@ def client() -> Generator[TestClient, None, None]:
             session.close()
 
     app.dependency_overrides[get_db_session] = override_session
+    app.dependency_overrides[operational_user] = lambda: SimpleNamespace(role="MANAGER")
     with TestClient(app) as api_client:
         yield api_client
     app.dependency_overrides.clear()

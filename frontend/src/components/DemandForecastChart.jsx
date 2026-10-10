@@ -35,12 +35,12 @@ export function DemandForecastChart({ forecast, productId, horizon = 28, product
       <div><p className="eyebrow">Demand outlook</p><h2>Sales history &amp; demand forecast</h2><p>{productName} · known sales through {formatShortDate(forecast.history_end_date)}</p></div>
     </header>
     <ResponsiveContainer width="100%" height={compact ? 260 : 340}>
-      <LineChart data={chart}>
+      <LineChart data={chart} margin={{ top: 8, right: 12, bottom: 28, left: 0 }}>
         <CartesianGrid vertical={false}/>
         <XAxis dataKey="date" tickFormatter={formatShortDate} tick={{ fontSize: 11 }}/>
         <YAxis allowDecimals={false}/>
         <RechartsTooltip labelFormatter={formatShortDate} formatter={(value, name) => [formatForecast(value), name === 'historical' ? 'Historical sales' : 'Expected demand']}/>
-        <Legend formatter={(value) => value === 'historical' ? 'Historical sales' : 'Expected demand'}/>
+        <Legend wrapperStyle={{ paddingTop: 12 }} formatter={(value) => value === 'historical' ? 'Historical sales' : 'Expected demand'}/>
         <ReferenceLine x={forecast.forecast_start_date} stroke="#64748b" strokeDasharray="4 4" label={{ value: 'Forecast starts', position: 'insideTopRight', fill: '#64748b', fontSize: 11 }}/>
         <Line type="linear" dataKey="historical" stroke="#64748b" strokeWidth={2} dot={false}/>
         <Line type="linear" dataKey="forecast" stroke="#2563eb" strokeWidth={2.5} dot={false}/>

@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db_session
+from backend.app.api.auth import operational_user
 from backend.app.db.models import PurchaseOrderStatus, StockTransactionType
 from backend.app.schemas.business import (
     AdjustmentCreate,
@@ -35,7 +36,7 @@ from backend.app.services.business import BusinessService
 from backend.app.services.errors import NotFoundError
 
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", dependencies=[Depends(operational_user)])
 SessionDep = Annotated[Session, Depends(get_db_session)]
 PageSize = Annotated[int, Query(ge=1, le=100)]
 PageOffset = Annotated[int, Query(ge=0)]

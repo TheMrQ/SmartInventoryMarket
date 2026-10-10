@@ -38,6 +38,7 @@ def test_settings_require_pymysql_url_without_logging_it() -> None:
 def test_metadata_contains_the_frozen_single_store_schema() -> None:
     expected_tables = {
         "users",
+        "auth_sessions",
         "categories",
         "products",
         "suppliers",

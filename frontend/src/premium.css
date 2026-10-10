@@ -9,3 +9,4 @@ input,select,textarea{border-color:#d8e0ea;border-radius:var(--radius-sm);transi
 input:focus,select:focus,textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px #dbeafe}
 .table-wrap{border-color:var(--border-subtle)}th{padding-top:13px;padding-bottom:13px;color:#64748b}td{border-color:#edf1f6}.badge{border-radius:999px}.modal{border-radius:18px}.callout{border-radius:var(--radius-md)}
 @media(max-width:900px){.stack{gap:var(--space-5)}.button{min-height:38px}}
+.page-transition{animation:page-enter 220ms cubic-bezier(.2,.75,.2,1)}@keyframes page-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.demand-forecast .recharts-legend-wrapper{max-width:100%;white-space:normal!important}

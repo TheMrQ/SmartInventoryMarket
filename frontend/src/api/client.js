@@ -9,7 +9,8 @@ export class ApiError extends Error {
 
 export async function request(path, options = {}) {
   const headers = options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }
-  const response = await fetch(`${baseUrl}${path}`, { ...options, headers: { ...headers, ...options.headers } })
+  const csrf = document.cookie.split('; ').find((value) => value.startsWith('sim_csrf='))?.split('=')[1]
+  const response = await fetch(`${baseUrl}${path}`, { ...options, credentials: 'include', headers: { ...headers, ...(csrf && { 'X-CSRF-Token': decodeURIComponent(csrf) }), ...options.headers } })
   const contentType = response.headers.get('content-type') || ''
   const body = contentType.includes('application/json') ? await response.json() : null
   if (!response.ok) throw new ApiError(body?.detail || 'The request could not be completed.', response.status)
@@ -17,6 +18,10 @@ export async function request(path, options = {}) {
 }
 
 export const api = {
+  me: () => request('/api/auth/me'),
+  login: (data) => request('/api/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  register: (data) => request('/api/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  logout: () => request('/api/auth/logout', { method: 'POST' }),
   health: () => request('/health/db'),
   products: (params = {}) => request(`/api/products?${new URLSearchParams(params)}`),
   categories: () => request('/api/categories?limit=100'),

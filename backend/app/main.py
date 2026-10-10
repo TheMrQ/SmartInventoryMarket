@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from backend.app.api.business import router as business_router
+from backend.app.api.auth import router as auth_router
 from backend.app.api.health import router as health_router
 from backend.app.api.inventory_decisions import router as inventory_decision_router
 from backend.app.api.sales_forecasts import router as sales_forecasts_router
@@ -27,6 +28,7 @@ def project_status() -> dict[str, str]:
 
 
 app.include_router(health_router)
+app.include_router(auth_router)
 app.include_router(business_router)
 app.include_router(sales_forecasts_router)
 app.include_router(inventory_decision_router)

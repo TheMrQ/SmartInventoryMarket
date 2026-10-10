@@ -1,6 +1,7 @@
 """P15 isolated tests: no MySQL, raw M5 files, or saved model artifact required."""
 
 from collections.abc import Generator
+from types import SimpleNamespace
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -14,6 +15,7 @@ from sqlalchemy.pool import StaticPool
 
 from backend.app.db.base import Base
 from backend.app.db.database import get_db_session
+from backend.app.api.auth import operational_user
 import backend.app.db.models  # noqa: F401
 from backend.app.db.models import Category, ForecastRun, Inventory, Product, SalesDaily, StockTransaction
 from backend.app.main import app
@@ -35,6 +37,7 @@ def client() -> Generator[TestClient, None, None]:
         finally:
             session.close()
     app.dependency_overrides[get_db_session] = override
+    app.dependency_overrides[operational_user] = lambda: SimpleNamespace(role="MANAGER")
     with TestClient(app) as api_client:
         yield api_client
     app.dependency_overrides.clear()

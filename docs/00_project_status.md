@@ -115,6 +115,10 @@ The grouped sidebar now uses full-width, 42px navigation controls with compact g
 
 The floating collapse control now has a stable 92px upper-edge anchor and dedicated navigation clearance rather than following sidebar height, eliminating the former route-row overlap. A non-interactive, clearly labeled Demo Manager / Demo workspace footer is pinned below independently scrollable navigation; its avatar remains visible when collapsed and the full truthful demo label returns in the mobile drawer. Shared frontend tokens consolidate spacing, radii, surfaces, text hierarchy, borders, shadows, and transition timing across existing cards, controls, tables, badges, and modals. No authentication claim, backend behavior, API, schema, model, data value, or decision rule changed.
 
+### P17 Animated UX and Authentication
+
+The application now has real cookie-session authentication: public registration grants only `INVENTORY_STAFF`; protected write operations require `MANAGER` or `ADMIN`; password hashes use scrypt; opaque HttpOnly session cookies are backed by revocable, expiring database records; and CSRF verification protects authenticated state changes. Login/Register are dedicated routes with an accessible responsive circular flip interface and no operational shell. The sidebar now reflects the authenticated name/role and performs real logout. Existing operational routes are server-protected, not merely hidden in the browser.
+
 ## Last Stable Checkpoint
 
 `CHECKPOINT-017` — Human-friendly polished React dashboard, real local thesis-demo workflow, and historical-to-forecast visualization integrated with FastAPI

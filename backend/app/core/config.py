@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     database_url: str
     secret_key: str = "development-only-placeholder"
+    session_hours: int = 8
+    cookie_secure: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

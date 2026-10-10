@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P17 animated UX and real cookie-session authentication
+
+- Added responsive circular Login/Register routes with an accessible 3D CSS flip, animated blue/cyan/indigo gradient ring, motion-reduction fallback, protected-route restoration, authenticated sidebar profile, and real logout.
+- Added scrypt password hashing, opaque revocable/expiring HttpOnly session cookies, CSRF checks for authenticated state changes, basic sign-in throttling, safe auth responses, public least-privilege `INVENTORY_STAFF` registration, and server-side role checks for operational writes.
+- Added `auth_sessions` through a new Alembic migration and focused registration/login/session/logout/protected-access tests; preserved existing operational APIs, forecasting, inventory rules, and model boundaries.
+
 ## 2026-10-10 — P17 premium UX pass: stable shell and shared presentation tokens
 
 - Moved the floating sidebar collapse control to a fixed upper anchor with dedicated navigation clearance, preventing overlap with Purchase Orders and other route rows while retaining its accessible chevron-only behavior.

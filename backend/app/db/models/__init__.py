@@ -2,6 +2,7 @@
 
 from backend.app.db.models.application import (
     Category,
+    AuthSession,
     ForecastRun,
     ForecastValue,
     Inventory,
@@ -24,6 +25,7 @@ from backend.app.db.models.application import (
 
 __all__ = [
     "Category",
+    "AuthSession",
     "ForecastRun",
     "ForecastValue",
     "Inventory",
