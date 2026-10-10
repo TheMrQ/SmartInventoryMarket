@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 sidebar final micro-polish
+
+- Replaced the Dashboard heartbeat icon with Lucide `LayoutDashboard` at the existing navigation size and left the other seven route icons unchanged.
+- Merged the desktop-collapsed active row and measured 11px ribbon into one continuous primary-blue selection surface by squaring the row's inner-right edge; collapsed active hover/focus stays blue without a mismatched row-local effect, while expanded active styling and inactive slate hover remain unchanged.
+- Added a desktop-collapsed-only 2px four-stop blue/cyan/indigo gradient ring around the unchanged 50px white `UserRound` avatar, preserving its centered axis and the expanded/mobile profile designs. Frontend lint/build pass; browser inventory is empty, so the requested collapsed-sidebar screenshot remains manual acceptance evidence.
+
 ## 2026-10-10 — P18 actual collapsed-icon alignment repair
 
 - Rebuilt the desktop collapsed navigation rail after screenshot evidence showed Management/Intelligence icons were still locally centered but globally offset. Groups now occupy a full-width border-box grid track, while every direct tooltip wrapper uses the same symmetric `calc(100% - 24px)` icon rail and a full-width centered link.

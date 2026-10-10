@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 collapsed active route rendered as two overlapping blue blocks — RESOLVED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** In collapsed mode, an active Dashboard row could look like a rounded blue pill inside the sidebar plus a visibly separate rounded blue protrusion on its right.
+
+**Cause:** The active `NavLink` kept both right-side rounded corners while the independently measured, 11px sidebar-level ribbon overlay began exactly at its right edge. The two same-colored surfaces therefore met with incompatible corner geometry. A row-local active hover brightness could also differ from the overlay's blue.
+
+**Resolution:** Desktop-collapsed active rows now have only left-side rounded corners; their square inner-right edge meets the overlay to form one continuous `#2563EB` ribbon. Collapsed active hover/focus removes row-local brightness/shadow while preserving primary blue; the overlay provides the restrained single shadow. The navigation rail, icon centers, ribbon measurement, expanded styling, and inactive slate hover behavior are unchanged. The collapsed 50px avatar also has an isolated 2px gradient perimeter with a white inset, so no profile layout geometry changes.
+
+**Verification:** Frontend lint and production build pass. No browser surface is available for the required screenshot or visual route checks. Manually confirm `LayoutDashboard`, the seamless active ribbon, the 11px protrusion, and the centered gradient-ring avatar.
+
+**Prevention:** When a decorative active-state extension is a sibling overlay, make the adjoining active element's inner edge square and keep hover effects visually consistent across the entire combined surface.
+
 ## 2026-10-10 — P18 first collapsed alignment pass left group-local centering — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** User screenshot evidence showed the logo/avatar and first route close to the desired axis, while Management and Intelligence icons still sat visibly right of that axis.

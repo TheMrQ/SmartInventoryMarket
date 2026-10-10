@@ -239,6 +239,21 @@
     --collapsed-nav-inset: 12px;
   }
 
+  /* The active row and the 11px ribbon form one continuous collapsed-state shape. */
+  .collapsed .sidebar nav a.active,
+  .collapsed .sidebar nav a.active:hover,
+  .collapsed .sidebar nav a.active:focus,
+  .collapsed .sidebar nav a.active:focus-visible {
+    border-radius: 10px 0 0 10px;
+  }
+
+  .collapsed .sidebar nav a.active:hover,
+  .collapsed .sidebar nav a.active:focus,
+  .collapsed .sidebar nav a.active:focus-visible {
+    filter: none;
+    box-shadow: none;
+  }
+
   .collapsed .brand {
     width: 100%;
     padding-inline: 0;
@@ -288,6 +303,29 @@
     box-shadow: 7px 5px 14px rgb(37 99 235 / 22%);
     pointer-events: none;
     transition: top var(--duration-base, 200ms) var(--ease-standard, ease), height var(--duration-base, 200ms) var(--ease-standard, ease), opacity var(--duration-fast, 160ms) ease;
+  }
+
+  .collapsed .profile-avatar {
+    box-sizing: border-box;
+    overflow: hidden;
+    isolation: isolate;
+    border: 0;
+    background: linear-gradient(135deg, #2563eb 0%, #60a5fa 34%, #67e8f9 66%, #6366f1 100%);
+    box-shadow: 0 7px 18px rgb(37 99 235 / 20%);
+  }
+
+  .collapsed .profile-avatar::before {
+    position: absolute;
+    z-index: 0;
+    inset: 2px;
+    border-radius: inherit;
+    background: #fff;
+    content: '';
+  }
+
+  .collapsed .profile-avatar svg {
+    position: relative;
+    z-index: 1;
   }
 
   .collapsed .sidebar nav {

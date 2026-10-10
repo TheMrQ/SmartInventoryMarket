@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 actual collapsed-icon alignment awaits requested full-sidebar screenshot verification; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 sidebar final micro-polish is implementation-verified and awaits the requested collapsed-sidebar screenshot; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -93,6 +93,8 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 
 ## Current Task
 
+`P18-SIDEBAR-FINAL-MICRO-POLISH` is implementation-verified. The Dashboard route now uses Lucide `LayoutDashboard`; in desktop collapsed mode the primary-blue active row has square inner-right corners and joins its measured 11px sidebar-level continuation as one surface, while expanded active styling is unchanged. The centered 50px collapsed avatar retains its footprint and receives a 2px blue/cyan/indigo gradient ring around a white interior. All eight routes, the portal tooltips, the mobile drawer, and the expanded profile capsule are unchanged. Frontend lint/build pass. Browser inventory is empty, so the required manual screenshot showing the icon, seamless ribbon, and gradient-ring avatar remains outstanding.
+
 `P18-AUTH-UX-HOTFIX` is **DONE**. The additive `a91c2e6f4b20` authentication-session migration is applied to local MySQL and Alembic current/heads/check agree at that revision. A marker-cleaning live local-MySQL test verified a public inventory-staff registration (201), non-plaintext scrypt hash, persisted active session, cookies, `/api/auth/me`, logout revocation, and cookie expiry.
 
 Registration now requires at least 8 characters and one ASCII uppercase letter, consistently checked in the backend contract, a shared helper, the frontend indicators, and automated tests. The login/register UI is one stable component: it preserves `/login` and `/register`, waits for a genuine 780 ms 3D coin flip before URL navigation, follows direct/back/forward navigation, shifts focus to the visible face, and prevents focus/submission on the hidden form. Its light canvas, dark navy coin, attached animated gradient ring, compact navy brand container, soft focus treatment, responsive form geometry, reduced-motion fallback, and restrained interaction feedback are limited to authentication screens. No model, inventory, forecast, purchase-order, or demo-data behavior changed.
@@ -145,6 +147,12 @@ User screenshot evidence showed that the prior alignment pass had not fully corr
 
 Frontend lint and production build pass. No browser surface is available to measure `getBoundingClientRect()` values or click routes in this environment; do not treat the CSS proof as pixel measurement. A new full collapsed-sidebar screenshot is required for user verification.
 
+### P18 Sidebar Final Micro-Polish
+
+The Dashboard route now uses `LayoutDashboard` at the existing 19px Lucide size. In desktop collapsed mode, the primary-blue active row shares a square inner-right edge with the existing 11px sidebar-level ribbon overlay, producing one continuous rounded blue selection surface without moving the icon center. Collapsed active hover/focus stays primary blue and removes row-local brightening/shadow so it cannot visually diverge from the continuation; expanded active feedback is unchanged and inactive links retain their dark-slate hover state.
+
+The collapsed 50px avatar has a non-layout-shifting, clipped 2px `#2563EB`/`#60A5FA`/`#67E8F9`/`#6366F1` gradient ring implemented with a white inset surface and a layered blue `UserRound` icon. It appears only in desktop collapsed mode; the expanded connected profile capsule and mobile drawer profile are unchanged. Frontend lint/build pass; browser inventory is empty, so the required collapsed-sidebar screenshot is still manual acceptance evidence.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -181,4 +189,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-FIX-ACTUAL-COLLAPSED-ICON-ALIGNMENT` needs a user screenshot of the full collapsed sidebar, including logo, all eight icons, centered avatar, and an active ribbon, for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-SIDEBAR-FINAL-MICRO-POLISH` needs a user screenshot of the full collapsed sidebar, including the `LayoutDashboard` icon, seamless 11px active ribbon, all eight icons, and centered gradient-ring avatar, for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
