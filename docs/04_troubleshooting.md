@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 gradient ring obscured the Register face — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** After the working 3D flip reached Register, a large opaque blue gradient disc covered most of the form.
+
+**Cause:** The original `.auth-ring` was a full conic-gradient plane with a 3D translation. On the reverse side of the parent rotation, compositing could place that opaque plane in front of the register card.
+
+**Resolution:** Replaced the single plane with separate front/back decorative ring faces. Each has `backface-visibility: hidden`, the appropriate 3D transform, and a radial mask that leaves its center transparent, so only the moving perimeter can render. Restored the requested dark authentication canvas and increased form-clearance geometry.
+
+**Verification:** Frontend lint/build and local preview HTTP health succeeded. Chromium/Edge/in-app browser automation was unavailable in this environment, so user screenshots of Login and flipped Register are still required before visual acceptance.
+
+**Prevention:** A successful build cannot prove CSS 3D compositing. Test both faces after a full flip in a real Chromium browser whenever the environment provides one.
+
 ## 2026-10-10 — P18 local authentication migration was pending — RESOLVED
 
 **Symptom:** Repository code included Alembic revision `a91c2e6f4b20` for `auth_sessions`, while local MySQL still reported revision `8ac7d44590e3`; `alembic check` therefore reported that the target database was not up to date.

@@ -74,7 +74,8 @@ export default function AuthPage() {
     <div className="auth-atmosphere one" /><div className="auth-atmosphere two" />
     <header className="auth-brand"><div className="brand-mark"><BarChart3 size={20} /></div><strong>Smart <span>Inventory</span></strong></header>
     <section className={`auth-coin ${face === 'register' ? 'is-flipped' : ''} ${flipping ? 'is-flipping' : ''}`} aria-live="polite">
-      <div className="auth-ring" aria-hidden="true" />
+      <div className="auth-ring auth-ring-front" aria-hidden="true" />
+      <div className="auth-ring auth-ring-back" aria-hidden="true" />
       <div className="auth-card auth-login" aria-hidden={face !== 'login'}>
         <header><p className="eyebrow">Smart Inventory Market</p><h1>Welcome back</h1><p>Make confident stock decisions with demand forecasting.</p></header>
         <form onSubmit={(event) => { event.preventDefault(); setFormError(''); login.mutate(Object.fromEntries(new FormData(event.currentTarget))) }}>

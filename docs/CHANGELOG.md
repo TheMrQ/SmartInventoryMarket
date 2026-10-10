@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 auth coin render hotfix
+
+- Replaced the opaque single conic-gradient 3D plane with two backface-hidden, radially masked front/back perimeter rings, preventing it from covering the Register face while preserving the 780 ms coin flip and moving blue/cyan/indigo edge.
+- Restored the requested dark-navy authentication canvas, integrated the SmartInventory brand pill with that palette, and adjusted desktop circular form width/padding/gaps while retaining the existing small/short-screen rounded-card fallback.
+- Frontend lint/build and local preview health passed. Browser automation was unavailable; final Login/Register screenshots remain required for visual acceptance.
+
 ## 2026-10-10 — P18 authentication UX hotfix and live session verification
 
 - Safely applied the existing additive `a91c2e6f4b20` `auth_sessions` migration to local MySQL; Alembic current/heads/check now agree at head without data reset or demo-data deletion. Added a marker-cleaning live verifier proving registration, scrypt storage, session persistence, cookies, `/me`, logout, and revocation against MySQL.

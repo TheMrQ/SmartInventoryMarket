@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 authentication hotfix is complete; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 coin-render fix awaits user screenshot verification; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -99,6 +99,12 @@ Registration now requires at least 8 characters and one ASCII uppercase letter, 
 
 `scripts/db/verify_auth_live.py` creates and cleans only a unique temporary account for live proof. `scripts/db/provision_manager.py --email ... --full-name ...` prompts locally for a password, validates the same registration policy, and creates or updates a manager only in development/local/test environments; it stores no credential in code or the repository.
 
+### P18 Auth Coin Render Hotfix
+
+The original single conic-gradient ring was an opaque 3D plane. When the coin rotated, that plane could be composited in front of the register face and obscure the form. The implementation now uses two `backface-visibility: hidden` ring faces, each masked with a transparent center and attached to its respective side of the coin. The outer authentication canvas is restored to dark navy `#0F172A`, with restrained navy/blue illumination and an integrated slate-navy brand pill. Form content width, card padding, and gaps were tightened so the register form has increased clearance inside the desktop circle; the existing short/mobile rounded-card fallback remains.
+
+Frontend lint/build and an HTTP preview-health check pass. Browser automation is unavailable in this environment, so visual flip verification remains **IN_PROGRESS**: capture the Login front face and the Register back face after a flip before treating this rendering repair as fully accepted.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -135,4 +141,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-None.
+`P18-AUTH-COIN-RENDER-HOTFIX` needs the requested user screenshots (Login front face and Register back face after a completed flip) for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
