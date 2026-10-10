@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — CHECKPOINT-017 UX refinement: human-friendly operational presentation
+
+- Removed duplicate desktop page titles, improved sidebar collapse/tooltip behavior, standardized rounded panels and blue focus treatment, and replaced presentation-facing enum strings with centralized friendly labels.
+- Added safe M5 demo display labels that retain the real SKU, humanized dashboard, inventory, insight/recommendation, sales, supplier, and purchase-order wording, and kept every backend/API contract unchanged.
+- Reworked Forecasts into a real 28-day observed-sales plus persisted-future-forecast visualization, with a forecast-start marker, human-readable two-decimal summaries, and secondary technical model details. No TEST actual demand is loaded or displayed.
+
 ## 2026-10-09 — CHECKPOINT-017 polish: blue theme and real thesis-demo state
 
 - Refined the existing React UI with the blue Smart Inventory Market palette, stronger dashboard contrast, semantic risk colors, consistent icons, restrained responsive transitions, blue forecast chart treatment, and reduced-motion support.

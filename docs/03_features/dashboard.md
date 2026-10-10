@@ -24,3 +24,9 @@ The Dashboard derives real KPIs, risk distribution, inventory attention, recomme
 The visual system now uses the blue Smart Inventory Market palette: `#2563EB` primary actions, blue slate navigation, blue focus states, and blue forecast-chart treatment. Green is reserved for successful/healthy semantic states. KPI cards now have differentiated icon containers, supporting context, subtle elevation, and responsive hover/focus-safe transitions. Tables, controls, drawers, modals, badges, and empty states use the same restrained feedback language, with `prefers-reduced-motion` support.
 
 The optional local-only `scripts/db/setup_ui_demo.py` prepares genuine presentation state through the existing services. It uses the frozen XGBoost artifact and the real inventory decision engine; the operational quantities exist solely to demonstrate the workflow and are not presented as observed Walmart inventory.
+
+## P17 UX Refinement
+
+The desktop shell now keeps the current page title in page content only; the top bar communicates global database/demo state and supplies the mobile orientation title. `frontend/src/utils/presentation.js` maps technical status enums to stable human labels and transforms only the display of anonymized M5 demo SKUs (for example `FOODS_1_001` becomes `Food Item 1-001` while the original SKU remains visible and unchanged).
+
+Forecasts combines the real 28-day observed sales history ending at the persisted forecast origin with real future forecast values from the selected run. The chart clearly distinguishes historical sales, forecast demand, and the forecast-start boundary. No future TEST demand is fetched or visualized. Friendly summary formatting rounds only displayed values to two decimals; stored API values retain their original precision.
