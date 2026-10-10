@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 circular authentication rendering issues superseded by sliding-card redesign — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** The circular 3D authentication concept continued to be visually fragile, including earlier gradient-plane compositing defects.
+
+**Cause:** A coin geometry required stacked front/back forms and decorative 3D planes, making the desired presentation unnecessarily sensitive to browser compositing.
+
+**Resolution:** Replaced the circular UI with a stable two-pane rectangular card. A CSS gradient overlay grows to the full card and contracts to the opposing half; `transitionend` advances an explicit `idle → expanding → retracting → idle` sequence. Forms remain mounted but inactive controls are disabled and hidden. The backend, auth endpoints, sessions, policy, and routes are untouched.
+
+**Verification:** Frontend lint and production build pass. Browser automation remains unavailable, so user inspection of Login, full-gradient transition, and Register is required before visual acceptance.
+
+**Prevention:** Prefer simple 2D overlay composition for split-card transformations. Treat lint/build as code checks only, and perform a real viewport/interaction review for animation work.
+
 ## 2026-10-10 — P18 gradient ring obscured the Register face — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** After the working 3D flip reached Register, a large opaque blue gradient disc covered most of the form.

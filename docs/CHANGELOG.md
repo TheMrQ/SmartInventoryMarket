@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 sliding-card authentication redesign
+
+- Replaced the circular 3D coin and ring CSS with a responsive, horizontally split white-form/blue-gradient authentication card on the existing dark navy canvas. Login and Register mirror the panel composition without changing routes or backend authentication.
+- Added a `transitionend`-driven `expanding`/`retracting` gradient-overlay state machine: it visibly covers the whole card before contracting to the new welcome side, retains mounted forms, prevents inactive interaction, and supports direct URLs, back/forward, focus transfer, and reduced motion.
+- Added disabled, accessible Google/Facebook/GitHub “coming soon” placeholders from `react-icons`; preserved real password policy, confirmation validation, API calls, sessions, errors, and role behavior. Lint/build pass; manual visual acceptance remains pending because browser automation is unavailable.
+
 ## 2026-10-10 — P18 auth coin render hotfix
 
 - Replaced the opaque single conic-gradient 3D plane with two backface-hidden, radially masked front/back perimeter rings, preventing it from covering the Register face while preserving the 780 ms coin flip and moving blue/cyan/indigo edge.

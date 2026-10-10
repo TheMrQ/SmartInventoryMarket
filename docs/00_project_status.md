@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 coin-render fix awaits user screenshot verification; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 auth redesign awaits user screenshot verification; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -105,6 +105,14 @@ The original single conic-gradient ring was an opaque 3D plane. When the coin ro
 
 Frontend lint/build and an HTTP preview-health check pass. Browser automation is unavailable in this environment, so visual flip verification remains **IN_PROGRESS**: capture the Login front face and the Register back face after a flip before treating this rendering repair as fully accepted.
 
+### P18 Auth Sliding-Card Redesign
+
+The circular/3D coin concept has been deliberately replaced, not repaired further. The stable `/login` and `/register` component now renders a rounded 960-by-590px-class white card on the existing dark navy canvas. Login presents the gradient welcome panel on the left and the form on the right; Register reverses that composition. A transition-state overlay expands from its active half to cover the full card, swaps the visible/interactive form only at the midpoint, then contracts to the destination half. Its `transitionend` event, rather than overlapping delays, advances the state machine; reduced-motion and compact layouts swap directly.
+
+Both actual forms remain mounted, with inactive controls disabled and hidden from interaction. The established password policy, confirmation check, backend API calls, session restoration, redirect behavior, inline errors, and route/history synchronization are preserved. Google, Facebook, and GitHub are disabled visual placeholders with accessible “coming soon” labels only. Responsive CSS uses the horizontal layout on desktop and a single-column card on small or short screens.
+
+Lint/build pass, but visual acceptance remains **IN_PROGRESS** because no browser automation surface is available. The user must inspect Login, the full-gradient midpoint, and Register before accepting the redesign.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -141,4 +149,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-AUTH-COIN-RENDER-HOTFIX` needs the requested user screenshots (Login front face and Register back face after a completed flip) for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-AUTH-REDESIGN` needs user screenshots of Login, the full-gradient midpoint, and Register for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
