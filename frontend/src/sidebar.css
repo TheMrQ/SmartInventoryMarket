@@ -61,6 +61,22 @@
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%);
 }
 
+.app-shell .sidebar nav a.active,
+.app-shell .sidebar nav a.active:hover,
+.app-shell .sidebar nav a.active:focus,
+.app-shell .sidebar nav a.active:focus-visible {
+  transform: none;
+  background: #2563eb;
+  color: #fff;
+}
+
+.app-shell .sidebar nav a.active:hover,
+.app-shell .sidebar nav a.active:focus,
+.app-shell .sidebar nav a.active:focus-visible {
+  filter: brightness(1.06);
+  box-shadow: 0 8px 18px rgb(37 99 235 / 28%);
+}
+
 .sidebar nav a:focus-visible {
   outline: 2px solid #93c5fd;
   outline-offset: -2px;

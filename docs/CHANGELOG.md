@@ -2,6 +2,11 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 sidebar active-hover fix
+
+- Added an explicit active navigation interaction rule so selected routes retain primary blue `#2563EB`, white text, and no positional transform on hover, focus, or keyboard focus-visible states in expanded and collapsed sidebars.
+- Active feedback is now a restrained brightness/shadow enhancement only; inactive routes preserve the approved dark-slate hover behavior, and the 11px collapsed ribbon remains coherent. Frontend lint/build pass.
+
 ## 2026-10-10 — P18 collapsed-sidebar final alignment
 
 - Centered the desktop-collapsed logo mark, all eight navigation icons, and white avatar from the actual sidebar width by removing residual brand padding/gap and keeping the navigation rail symmetric; the approved expanded/mobile layouts remain unchanged.

@@ -89,6 +89,10 @@ At desktop widths, collapsed brand, navigation, and profile layout now share one
 
 The collapsed active ribbon is rendered as a non-interactive sidebar overlay. The shell measures the active route row after route, resize, and nav-scroll changes, then places a 23px primary-blue continuation from the row's ordinary right edge to 11px beyond the sidebar. Because it is a sibling of the clipped navigation scroller, it does not expand or reintroduce horizontal sidebar scrolling; the active icon itself remains centered in its ordinary 42px row. The ribbon is desktop-collapsed-only and respects existing reduced-motion timing.
 
+## P18 Sidebar Active-Hover Fix
+
+The generic dark-slate route hover is now explicitly limited to inactive links. A higher-specificity active rule preserves the `#2563EB` active surface on pointer hover, focus, and keyboard focus-visible interaction in expanded and collapsed navigation. Active feedback is limited to a 6% brightness change and soft blue shadow, with no transform, so the centered icon and measured ribbon remain visually coherent. Inactive routes retain the existing slate hover behavior.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.

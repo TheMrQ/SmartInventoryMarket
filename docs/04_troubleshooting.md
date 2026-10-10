@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 active sidebar route was restyled as inactive on hover — RESOLVED
+
+**Symptom:** Hovering the current route changed its blue row to dark slate while the collapsed active ribbon remained blue.
+
+**Cause:** The generic `.app-shell .sidebar nav a:hover` background rule applied after the base active treatment and had equal or greater effective cascade weight for the hover state.
+
+**Resolution:** Added an explicit, more specific active base/hover/focus/focus-visible rule that holds `#2563EB`, white text, and zero transform. Its interaction feedback is only `brightness(1.06)` plus a soft blue shadow; inactive hover styling remains unchanged.
+
+**Verification:** Frontend lint and production build pass. This scoped visual regression does not require a new manual screenshot.
+
+**Prevention:** When generic interaction rules coexist with selected-state rules, define explicit selected-hover and selected-focus states rather than relying on source order.
+
 ## 2026-10-10 — P18 collapsed sidebar used independent alignment contexts — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** The collapsed logo mark, route icons, and footer avatar could appear to have slightly different horizontal centers, even after route icons were restored.
