@@ -48,3 +48,9 @@ The visual system now favors white/light cards with 16px rounded corners, restra
 ## P17 Sidebar Layout Fix
 
 Every route row fills the usable sidebar width and preserves the active-row background across that width. Group rows use 5px internal and 19px between-group spacing, so the eight destinations fit a typical 768px desktop viewport. The collapse state now targets `.brand-name` and `.nav-label` rather than every `nav span`; this preserves each `Tooltip` wrapper and Lucide icon as a usable link. The chevron-only control has an aria label but is deliberately not wrapped in a visual tooltip. At mobile widths, the off-canvas drawer restores group and route labels and keeps the desktop collapse control hidden.
+
+## P17 Premium UX Pass
+
+The desktop collapse control is now anchored below the 80px brand row at 92px from the sidebar top, while navigation reserves 58px before the first group. This makes the half-protruding 36px circular control independent of route count and prevents it from covering navigation. The sidebar uses a flex layout: its navigation region can scroll at constrained heights, and a compact, non-clickable Demo Manager / Demo workspace persona remains pinned at the bottom. The profile deliberately has no email, online status, account action, or logout control because authentication is not implemented.
+
+`frontend/src/premium.css` provides shared spacing, radius, surface, text, border, shadow, and transition tokens plus restrained common treatment for cards, controls, fields, tables, badges, callouts, and modals. It preserves light structural card headers, semantic colors, unit/forecast presentation, existing responsive table behavior, and current user workflows.

@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P17 premium UX pass: stable shell and shared presentation tokens
+
+- Moved the floating sidebar collapse control to a fixed upper anchor with dedicated navigation clearance, preventing overlap with Purchase Orders and other route rows while retaining its accessible chevron-only behavior.
+- Added an honest, non-interactive Demo Manager / Demo workspace sidebar persona with a Lucide avatar, pinned profile footer, collapsed avatar-only state, independently scrolling navigation, and mobile-drawer label restoration.
+- Added a compact shared frontend token layer for spacing, radii, surfaces, text hierarchy, borders, shadows, transitions, and existing common components without changing routes, API behavior, business rules, data, or model boundaries.
+
 ## 2026-10-10 — P17 sidebar layout fix: reliable collapsed navigation
 
 - Repaired collapsed sidebar navigation by replacing the broad nested-span hiding behavior with explicit brand and route-label classes; all eight navigation icons remain visible, centered, and usable when collapsed.

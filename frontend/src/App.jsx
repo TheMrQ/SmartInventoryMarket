@@ -8,6 +8,7 @@ import { ForecastsPage, PurchaseOrdersPage, SalesPage } from './pages/Operationa
 import DecisionsPage from './pages/DecisionsPage'
 import './App.css'
 import './sidebar.css'
+import './premium.css'
 
 export default function App() {
   const [collapsed, setCollapsed] = useState(false)
