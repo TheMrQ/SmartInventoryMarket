@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-10 — P18 modal overlay and icon alignment fix
+
+- Portalled shared application modals to `document.body` and added a full-viewport `rgb(15 23 42 / 40%)` plus `blur(3px)` backdrop above the complete shell. The dialog remains centered in the expanded/collapsed workspace through sidebar-aware padding, while mobile centers it on the full screen.
+- Made the workspace inert behind an open dialog, retaining Escape, close-button, outside-click, scrolling, form, rounded-dialog, and tooltip behavior while preventing background navigation.
+- Wrapped all eight navigation SVGs in identical centered 19px frames, preserving the approved collapsed rail, `LayoutDashboard`, seamless active ribbon, profile, and responsive drawer. Frontend lint/build pass; browser inventory is empty, so the requested modal-open collapsed-sidebar screenshot remains manual acceptance evidence.
+
 ## 2026-10-10 — P18 sidebar final micro-polish
 
 - Replaced the Dashboard heartbeat icon with Lucide `LayoutDashboard` at the existing navigation size and left the other seven route icons unchanged.

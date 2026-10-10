@@ -103,6 +103,12 @@ The Dashboard navigation entry now uses Lucide `LayoutDashboard` at the establis
 
 Only desktop-collapsed `.profile-avatar` gains a clipped two-pixel four-stop blue/cyan/indigo gradient perimeter. Its white `::before` inset preserves a white interior and the existing blue `UserRound` stays above it. The outer avatar remains 50px and auto-centered, so its center axis and footer geometry do not shift. Expanded profile capsule and mobile drawer styles remain unchanged.
 
+## P18 Modal Overlay and Icon Alignment Fix
+
+The shared `Modal` now renders through a React portal into `document.body`, so the backdrop is no longer constrained by the application workspace or its sidebar rules. The full fixed viewport receives one `rgb(15 23 42 / 40%)` backdrop with `blur(3px)` at `z-index: 1000`, above the shell, sidebar/ribbon/collapse control, topbar, and the `z-index: 100` tooltip portals. The dialog stays in a padded grid region: expanded desktop reserves 256px plus 24px padding on the left, collapsed desktop reserves 78px plus 24px, and mobile retains full-screen centering. Thus the visual dimming is global while only the dialog alignment follows the usable workspace.
+
+The shell becomes inert while a modal is mounted, preventing background route clicks/focus without changing dialog Escape, close button, outside click, scroll containment, form handling, or rounded surface. Each Lucide route icon is now inside the same 19px grid frame with block SVG rendering. This keeps `LayoutDashboard` and the other seven icons on one geometric axis in both active and inactive collapsed states, without changing the centered nav rail, blue ribbon, hover treatments, profile, or responsive drawer.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.

@@ -87,7 +87,18 @@ tbody tr:hover { background: #f8fbff; }
 
 .badge { border-radius: 999px; }
 .modal { border: 1px solid rgb(226 232 240 / 90%); border-radius: 18px; box-shadow: 0 24px 60px rgb(15 23 42 / 22%); }
-.modal-backdrop { backdrop-filter: blur(3px); }
+.modal-backdrop {
+  inset: 0;
+  z-index: 1000;
+  padding: 24px;
+  background: rgb(15 23 42 / 40%);
+  backdrop-filter: blur(3px);
+}
+
+@media (min-width: 901px) {
+  .modal-backdrop { padding-left: 280px; }
+  .modal-backdrop.modal-backdrop-collapsed { padding-left: 102px; }
+}
 .callout { border-radius: var(--radius-md); }
 
 /* The insight modal is a nested panel, so it must not inherit the page-panel negative header margins. */

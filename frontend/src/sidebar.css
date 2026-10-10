@@ -54,6 +54,20 @@
     box-shadow var(--duration-fast, 160ms) ease;
 }
 
+.nav-icon-frame {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  place-items: center;
+  line-height: 0;
+}
+
+.nav-icon {
+  display: block;
+  flex: 0 0 19px;
+}
+
 .app-shell .sidebar nav a:hover {
   transform: none;
   color: #f8fafc;
@@ -265,6 +279,10 @@
   .collapsed .nav-icon {
     margin: 0;
     flex: 0 0 auto;
+  }
+
+  .collapsed .sidebar nav a .nav-icon-frame {
+    display: grid;
   }
 
   .collapsed .sidebar nav {

@@ -4,7 +4,7 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 sidebar final micro-polish is implementation-verified and awaits the requested collapsed-sidebar screenshot; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P18 modal-overlay and icon-frame repair is implementation-verified and awaits the requested collapsed-sidebar modal screenshot; broader final evidence remains
 
 ## Quick Human Summary
 
@@ -93,6 +93,8 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 
 ## Current Task
 
+`P18-MODAL-OVERLAY-AND-ICON-ALIGNMENT-FIX` is implementation-verified. Application modals now portal to `document.body`, putting one full-viewport `rgba(15, 23, 42, 0.40)`/`blur(3px)` backdrop above the sidebar, active ribbon, profile, collapse control, topbar, and tooltip portals. The backdrop reserves the expanded 256px or collapsed 78px workspace rail only when centering the crisp dialog; on mobile it remains full-screen centered. While open, the workspace is inert, preserving dialog Escape, close-button, outside-click, scrolling, and form behavior while preventing background interaction. Every navigation icon, including `LayoutDashboard`, now occupies a centered fixed 19px frame. Lint/build pass. Browser inventory is empty, so the required collapsed-sidebar modal screenshot and live interaction verification remain outstanding.
+
 `P18-SIDEBAR-FINAL-MICRO-POLISH` is implementation-verified. The Dashboard route now uses Lucide `LayoutDashboard`; in desktop collapsed mode the primary-blue active row has square inner-right corners and joins its measured 11px sidebar-level continuation as one surface, while expanded active styling is unchanged. The centered 50px collapsed avatar retains its footprint and receives a 2px blue/cyan/indigo gradient ring around a white interior. All eight routes, the portal tooltips, the mobile drawer, and the expanded profile capsule are unchanged. Frontend lint/build pass. Browser inventory is empty, so the required manual screenshot showing the icon, seamless ribbon, and gradient-ring avatar remains outstanding.
 
 `P18-AUTH-UX-HOTFIX` is **DONE**. The additive `a91c2e6f4b20` authentication-session migration is applied to local MySQL and Alembic current/heads/check agree at that revision. A marker-cleaning live local-MySQL test verified a public inventory-staff registration (201), non-plaintext scrypt hash, persisted active session, cookies, `/api/auth/me`, logout revocation, and cookie expiry.
@@ -153,6 +155,12 @@ The Dashboard route now uses `LayoutDashboard` at the existing 19px Lucide size.
 
 The collapsed 50px avatar has a non-layout-shifting, clipped 2px `#2563EB`/`#60A5FA`/`#67E8F9`/`#6366F1` gradient ring implemented with a white inset surface and a layered blue `UserRound` icon. It appears only in desktop collapsed mode; the expanded connected profile capsule and mobile drawer profile are unchanged. Frontend lint/build pass; browser inventory is empty, so the required collapsed-sidebar screenshot is still manual acceptance evidence.
 
+### P18 Modal Overlay and Icon Alignment Fix
+
+Each application modal now portals outside the workspace to `document.body`, avoiding the fixed-sidebar stacking context. Its backdrop covers the full viewport at `z-index: 1000`, uses `rgb(15 23 42 / 40%)` with `blur(3px)`, and therefore visually covers expanded/collapsed navigation, the active ribbon, profile, logo, collapse control, topbar, and lower-z-index tooltip portals. The dialog remains crisp and its backdrop grid reserves 280px on expanded desktop or 102px when collapsed (sidebar width plus 24px padding), which centers the dialog in the true workspace rather than the full viewport; mobile uses an even full-screen inset.
+
+The portal leaves Escape, close-button, outside-click, form, rounded scrolling, and dialog semantics intact. An open dialog marks `.app-shell` inert, preventing background navigation/focus interaction. All eight route SVGs now render inside identical centered 19px frames; this removes inline SVG box/baseline variation while preserving the established navigation rail and `LayoutDashboard` active/inactive ribbon geometry. Lint/build pass. No browser surface is available for the requested screenshot or manual route/modal interaction checks.
+
 ### P17 Decision UX
 
 Forecasts now resolves the latest persisted forecast per selected product, restores its product and horizon from URL search parameters, and displays the actual 28 observed sales days before the persisted origin with future expected demand; navigation never triggers inference. Inventory Insights now has a selected-product decision panel that combines current/incoming stock, inventory position, lead-time demand, safety-stock buffer, reorder/target stock, recommended order, an actual coverage comparison, calculation explanation, and the same reusable demand chart. This is presentation only: no backend formula, database schema, frozen model, TEST boundary, or automatic-purchasing behavior changed.
@@ -189,4 +197,4 @@ Do not re-open model selection, change feature/model/protocol values, or tune ag
 
 ## Known Blockers
 
-`P18-SIDEBAR-FINAL-MICRO-POLISH` needs a user screenshot of the full collapsed sidebar, including the `LayoutDashboard` icon, seamless 11px active ribbon, all eight icons, and centered gradient-ring avatar, for final visual acceptance. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+`P18-MODAL-OVERLAY-AND-ICON-ALIGNMENT-FIX` needs a user screenshot with an application modal open and the sidebar collapsed, showing the dimmed sidebar, active ribbon, gradient-ring avatar, and aligned `LayoutDashboard` icon. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.

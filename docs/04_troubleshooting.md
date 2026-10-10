@@ -1,5 +1,17 @@
 # Troubleshooting and Recovery
 
+## 2026-10-10 — P18 modal backdrop excluded the fixed sidebar and Dashboard icon lacked a common frame — RESOLVED, MANUAL VISUAL CHECK PENDING
+
+**Symptom:** Opening an application modal dimmed only the main workspace; the sidebar, logo, profile/avatar, active ribbon, and floating collapse control stayed sharp. In collapsed mode, the `LayoutDashboard` glyph could also appear visually left of the remaining navigation icons.
+
+**Cause:** A late `.app-shell .modal-backdrop` rule explicitly started the backdrop at `left: 256px` (or `78px` when collapsed), while the modal remained inside the workspace subtree. Navigation SVGs were direct inline flex children, so no explicit common frame constrained their rendered box/baseline behavior.
+
+**Resolution:** `Modal` now portals to `document.body` and receives collapsed state through context. Its full-screen backdrop sits above the application shell, while its grid padding reserves the current sidebar width only to position the dialog over the workspace. The shell is inert while the dialog is open, and tooltip portals remain lower in the stack. Each navigation SVG is wrapped in the same fixed 19px centered grid frame, preserving the established sidebar rail and active ribbon.
+
+**Verification:** Frontend lint and production build pass. Browser inventory is empty, so live modal opening/closing, screenshot capture, route clicking, and DOM center measurements could not run. Manually inspect an expanded and collapsed modal, then capture the requested collapsed-sidebar screenshot.
+
+**Prevention:** Treat backdrop coverage and dialog alignment as independent concerns. Use a portal for cross-shell modal layering, and make all icon hit/visual boxes explicit before applying icon-specific corrections.
+
 ## 2026-10-10 — P18 collapsed active route rendered as two overlapping blue blocks — RESOLVED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** In collapsed mode, an active Dashboard row could look like a rounded blue pill inside the sidebar plus a visibly separate rounded blue protrusion on its right.
