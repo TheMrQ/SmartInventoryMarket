@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle, ArrowDownToLine, ArrowRight, Boxes, ClipboardCheck, PackageCheck } from 'lucide-react'
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { Badge, Empty, Loading } from '../components/ui'
@@ -60,7 +60,7 @@ export default function DashboardPage() {
         <p>{pulseText}</p>
       </div>
       <div className="pulse-evidence" aria-label="Current decision evidence">
-        <div><span>Products at risk</span><strong>{actionNeeded.length.toLocaleString()}</strong><small>Stockout or reorder signals</small></div>
+        <div className={actionNeeded.length ? 'is-action-needed' : ''}><span>Products at risk</span><strong>{actionNeeded.length.toLocaleString()}</strong><small>Stockout or reorder signals</small></div>
         <div><span>Awaiting review</span><strong>{pendingReviews.length.toLocaleString()}</strong><small>Human approval remains required</small></div>
       </div>
       <div className="pulse-actions">
@@ -70,11 +70,11 @@ export default function DashboardPage() {
     </section>
 
     <section className="inventory-snapshot" aria-label="Inventory snapshot">
-      {snapshotItems.map(({ key, label, detail, icon: Icon }) => <article key={key} className="snapshot-item"><i><Icon size={18}/></i><div><span>{label}</span><strong>{key === 'products' || key === 'new' ? values[key].toLocaleString() : formatUnits(values[key])}</strong><small>{detail}</small></div></article>)}
+      {snapshotItems.map(({ key, label, detail, icon: Icon }) => <article key={key} className="snapshot-item"><i><Icon size={18}/></i><div><span>{label}</span><strong className="metric-number">{key === 'products' || key === 'new' ? values[key].toLocaleString() : formatUnits(values[key])}</strong><small>{detail}</small></div></article>)}
     </section>
 
     <section className="dashboard-primary-grid">
-      <article className="panel dashboard-risk-panel"><header><div><p className="eyebrow">Forecast-informed stock state</p><h2>Inventory health</h2><span>Signals combine current position, incoming supply, and saved demand evidence.</span></div></header>{dec.length ? <ResponsiveContainer width="100%" height={276}><BarChart data={risks} margin={{ top: 8, right: 6, left: -18, bottom: 0 }}><XAxis dataKey="name" tick={{ fontSize: 11 }} tickLine={false} axisLine={false}/><YAxis allowDecimals={false} tickLine={false} axisLine={false}/><Tooltip cursor={{ fill: '#eff6ff' }}/><Bar dataKey="count" radius={[6, 6, 0, 0]}>{risks.map((entry) => <Cell key={entry.name} fill={entry.color}/>)}</Bar></BarChart></ResponsiveContainer> : <Empty title="Inventory insights aren't available yet">Add a supplier and generate a forecast to calculate stock risk.</Empty>}</article>
+      <article className="panel dashboard-risk-panel"><header><div><p className="eyebrow">Forecast-informed stock state</p><h2>Inventory health</h2><span>Signals combine current position, incoming supply, and saved demand evidence.</span></div></header>{dec.length ? <ResponsiveContainer width="100%" height={276}><BarChart data={risks} margin={{ top: 8, right: 10, left: -14, bottom: 0 }}><CartesianGrid vertical={false} stroke="#e8edf5" strokeDasharray="3 5"/><XAxis dataKey="name" tick={{ fill: '#687991', fontSize: 11 }} tickLine={false} axisLine={false}/><YAxis allowDecimals={false} tick={{ fill: '#687991', fontSize: 11 }} tickLine={false} axisLine={false}/><Tooltip cursor={{ fill: '#f1f6ff' }} contentStyle={{ border: '1px solid #dbe5f1', borderRadius: 10, boxShadow: '0 12px 28px rgb(15 23 42 / 12%)', color: '#172033' }} labelStyle={{ color: '#52627a', fontSize: 12, fontWeight: 650 }} itemStyle={{ color: '#172033', fontSize: 13, fontWeight: 700 }} formatter={(value) => [Number(value).toLocaleString(), 'Products']}/><Bar dataKey="count" radius={[6, 6, 2, 2]} maxBarSize={58}>{risks.map((entry) => <Cell key={entry.name} fill={entry.color}/>)}</Bar></BarChart></ResponsiveContainer> : <Empty title="Inventory insights aren't available yet">Add a supplier and generate a forecast to calculate stock risk.</Empty>}</article>
       <article className="panel dashboard-priority-panel"><header><div><p className="eyebrow">Action queue</p><h2>Restock recommendations</h2></div><Link to="/decisions">See all</Link></header>{rec.length ? <div className="mini-list">{rec.slice(0, 5).map((item) => { const product = displayProduct(productById.get(item.product_id) || { sku: `Product ${item.product_id}` }); return <div key={item.id}><div><strong>{product.name}</strong><span>{product.sku} / Suggested {formatUnits(item.recommended_quantity)}</span></div><Badge tone={toneFor(item.status)}>{displayStatus(item.status)}</Badge></div> })}</div> : <Empty title="No restock recommendations yet">Recommendations appear when a product genuinely needs more stock.</Empty>}</article>
     </section>
 

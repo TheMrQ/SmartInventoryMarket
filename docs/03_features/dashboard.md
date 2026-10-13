@@ -27,6 +27,14 @@ The Dashboard replaces the generic equal-KPI-card opening with an **Inventory Pu
 
 The experimental scope explicitly excludes the approved sidebar/collapse rail, active ribbon, avatar ring, modals, authentication screens, all API contracts, and all non-Dashboard routes. Responsive layouts collapse the snapshot, pulse evidence, and content grids without changing information or interaction. Browser automation is unavailable in this environment, so desktop and mobile screenshots are required for user approval before this direction can be extended elsewhere.
 
+## P19 V2 operational precision refinement
+
+Following approval of the Dashboard direction, the experiment refines rather than replaces it. Manrope Variable is loaded locally and is deliberately scoped to the Dashboard page title, Inventory Pulse headline, and primary metric values; Inter Variable remains the compact face for tables, controls, lists, body copy, and navigation. This creates a measured display/body distinction without introducing a second typographic system into operational density.
+
+The Inventory Pulse retains its existing live calculations. The live stockout/reorder count alone receives alert-amber emphasis when it is non-zero, so urgency is neither fabricated nor applied to a healthy state. The existing risk distribution chart retains its source values and semantic series colors, while adding quiet horizontal gridlines, blue-gray axis labels, a tabular formatted count tooltip, and responsive bar sizing. Supporting summaries use tabular numerals; action rows, badges, empty states, panel borders, buttons, hover treatment, and focus/reduced-motion behavior receive restrained shared finishing. No forecast calculation, metric, backend value, route, or business behavior changes.
+
+`docs/design/visual-system.md` is the shared visual-system reference for typography, palette/status semantics, spacing, surfaces, charts, motion, contrast, and responsive rules. Browser automation remains unavailable; manual desktop and narrow Dashboard screenshots plus loading/empty, focus, and sidebar checks are required for final visual acceptance.
+
 ## P17 Polish
 
 The visual system now uses the blue Smart Inventory Market palette: `#2563EB` primary actions, blue slate navigation, blue focus states, and blue forecast-chart treatment. Green is reserved for successful/healthy semantic states. KPI cards now have differentiated icon containers, supporting context, subtle elevation, and responsive hover/focus-safe transitions. Tables, controls, drawers, modals, badges, and empty states use the same restrained feedback language, with `prefers-reduced-motion` support.

@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-13 — P19 Inventory Control Room V2 operational precision
+
+- Refined the approved Dashboard experiment on `experiment/inventory-control-room` without changing API queries, calculations, business logic, routes, sidebar geometry, authentication, or non-Dashboard compositions. Inventory Pulse remains the single decision-first surface; its real risk value uses amber only when actual stockout/reorder work exists.
+- Added local `@fontsource-variable/manrope` and scoped it to Dashboard display titles and tabular primary metrics. Inter Variable remains the operational face for dense controls, lists, and tables. Refined chart gridlines, axis labels, semantic bars, tooltip formatting, compact summaries, status badges, empty states, borders, hover responses, and accessible focus/motion.
+- Added `docs/design/visual-system.md` as the single reference for typography, palette/status semantics, spacing, surfaces, charts, interaction, contrast, and responsive behavior. Frontend lint/build and `git diff --check` pass; browser automation is unavailable, so manual visual acceptance remains required.
+
 ## 2026-10-13 — P19 Inventory Control Room visual experiment
 
 - Created the isolated `experiment/inventory-control-room` branch and preserved the existing untracked user/tooling artifacts. The experiment changes only the Dashboard and shared frontend presentation tokens; no backend, ML, database, API contract, sidebar, authentication, or non-Dashboard route changed.
