@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-10-13 — P19 Inventory Control Room visual experiment
+
+- Created the isolated `experiment/inventory-control-room` branch and preserved the existing untracked user/tooling artifacts. The experiment changes only the Dashboard and shared frontend presentation tokens; no backend, ML, database, API contract, sidebar, authentication, or non-Dashboard route changed.
+- Reframed the Dashboard around live decision evidence: Inventory Pulse prioritizes actual stockout/reorder and pending-review counts, then links to the existing decision and forecast workflows. Live inventory snapshot, risk distribution, restock recommendations, inventory attention, purchase-order status, and intentional empty states remain available; no values or charts are mocked.
+- Established a restrained Inter-based hierarchy and three surface roles (canvas, standard operational panel, decision panel), avoiding the former equal-KPI-card opening. Frontend lint/build pass; browser automation is unavailable, so required desktop/mobile manual screenshots remain part of experimental acceptance. This visual direction is not approved for other pages until the user confirms it.
+
 ## 2026-10-10 — P18 Dashboard optical-icon alignment
 
 - Confirmed from the shared navigation source that Dashboard uses the same tooltip wrapper, route link, and centered 19px frame as every other icon; no per-route CSS movement was introduced.
