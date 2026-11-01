@@ -210,6 +210,60 @@ class SalesDaily(TimestampMixin, Base):
     operational_sales: Mapped[list["OperationalSale"]] = relationship(back_populates="sales_daily")
 
 
+class DemoScenario(Base):
+    """Manifest for a reproducible, explicitly synthetic operational scenario."""
+
+    __tablename__ = "demo_scenarios"
+
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
+    scenario_key: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    m5_store_id: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_sales_file: Mapped[str] = mapped_column(String(255), nullable=False)
+    source_calendar_file: Mapped[str] = mapped_column(String(255), nullable=False)
+    source_prices_file: Mapped[str] = mapped_column(String(255), nullable=False)
+    history_start_d: Mapped[str] = mapped_column(String(16), nullable=False)
+    history_end_d: Mapped[str] = mapped_column(String(16), nullable=False)
+    selection_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    selection_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(), default=utc_now, nullable=False)
+
+    product_sources: Mapped[list["DemoProductSource"]] = relationship(back_populates="scenario")
+    forecasts: Mapped[list["DemoScenarioForecast"]] = relationship(back_populates="scenario")
+
+
+class DemoProductSource(Base):
+    """Exact observed M5 identity behind one application product in a scenario."""
+
+    __tablename__ = "demo_product_sources"
+    __table_args__ = (
+        UniqueConstraint("scenario_id", "product_id", name="demo_scenario_product"),
+        UniqueConstraint("scenario_id", "m5_item_id", name="demo_scenario_m5_item"),
+    )
+
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
+    scenario_id: Mapped[int] = mapped_column(ForeignKey("demo_scenarios.id"), nullable=False)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
+    m5_item_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    m5_dept_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    source_kind: Mapped[str] = mapped_column(String(32), nullable=False, default="OBSERVED_M5")
+
+    scenario: Mapped[DemoScenario] = relationship(back_populates="product_sources")
+
+
+class DemoScenarioForecast(Base):
+    """Connects one real frozen-model run to its scenario manifest."""
+
+    __tablename__ = "demo_scenario_forecasts"
+    __table_args__ = (UniqueConstraint("scenario_id", "forecast_run_id", name="demo_scenario_forecast"),)
+
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
+    scenario_id: Mapped[int] = mapped_column(ForeignKey("demo_scenarios.id"), nullable=False)
+    forecast_run_id: Mapped[int] = mapped_column(ForeignKey("forecast_runs.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(), default=utc_now, nullable=False)
+
+    scenario: Mapped[DemoScenario] = relationship(back_populates="forecasts")
+
+
 class OperationalSale(Base):
     """One durable idempotent operational sale, separate from a daily sales aggregate."""
 

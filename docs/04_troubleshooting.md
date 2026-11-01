@@ -307,3 +307,10 @@ When an AI agent loses context:
 7. Run verification commands.
 8. Continue from repository state.
 9. Do not redo tasks already marked `DONE` unless verification fails.
+## 2026-11-01 — P22 scenario apply requires an existing manager/admin — BLOCKED
+
+**Symptom:** The explicit `scripts/db/setup_m5_supermarket_scenario.py --apply` preflight stopped before any scenario write with `P22 apply requires an existing active manager or admin; it will not create a user`.
+
+**Root cause:** P21 correctly requires synthetic adjustments, recommendation reviews, POs, and receipts to retain a real server-side actor. The local database has no active manager/admin suitable for this scenario. Creating an account automatically would bypass the ownership and password boundary.
+
+**Safe resolution:** The project owner must run the password-prompting local utility `scripts/db/provision_manager.py --email <manager-email> --full-name <manager-name>`, then rerun the P22 dry-run and explicit `--apply`. Do not supply credentials to an agent, add passwords to repository files, impersonate a staff user, or weaken the P21 actor requirement. No P22 data was imported before this stop.

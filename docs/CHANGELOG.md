@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-11-01 — P22 M5 scenario provenance and safe dry-run
+
+- Added additive revision `f6b8c4d92a10` with manifest-scoped M5 scenario, product-source, and frozen-forecast provenance tables; local MySQL is at head with no drift.
+- Added a configurable deterministic 36-SKU CA_1/FOODS selection (12 per department), observed M5 sales/price import boundary through `d_1913`, and an explicit dry-run/`--apply` scenario utility. It labels observed M5 history separately from synthetic inventory, supplier, PO, receipt, and review records.
+- Verified the raw-data dry run and isolated deterministic-selection tests. Explicit apply intentionally stopped before writes because no active local manager/admin exists; this authorization blocker is documented rather than bypassed.
+
 ## 2026-11-01 — CHECKPOINT-021: business integrity and workflow completion
 
 - Added additive Alembic revision `d4e9a6c21f35`: a database-unique operational-sale idempotency ledger plus an optional, unique source-recommendation link on purchase orders. Applied it forward to local MySQL; current/head/check agree without resetting existing records.

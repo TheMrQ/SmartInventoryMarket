@@ -1,0 +1,13 @@
+scenario_key: SIM_M5_CA1_FOODS_V1
+store_id: CA_1
+category_code: SIM_M5_CA1_FOODS_V1
+history_start_d: d_1
+history_end_d: d_1913
+horizon_days: 28
+selection:
+  per_department: 12
+  departments: [FOODS_1, FOODS_2, FOODS_3]
+sources:
+  sales: sales_train_evaluation.csv
+  calendar: calendar.csv
+  prices: sell_prices.csv

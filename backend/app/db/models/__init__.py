@@ -2,6 +2,9 @@
 
 from backend.app.db.models.application import (
     Category,
+    DemoProductSource,
+    DemoScenario,
+    DemoScenarioForecast,
     AuthSession,
     ForecastRun,
     ForecastValue,
@@ -26,6 +29,9 @@ from backend.app.db.models.application import (
 
 __all__ = [
     "Category",
+    "DemoProductSource",
+    "DemoScenario",
+    "DemoScenarioForecast",
     "AuthSession",
     "ForecastRun",
     "ForecastValue",
