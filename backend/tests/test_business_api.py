@@ -13,6 +13,7 @@ from backend.app.db.base import Base
 from backend.app.db.database import get_db_session
 from backend.app.api.auth import operational_user
 import backend.app.db.models  # noqa: F401 - register all metadata
+from backend.app.db.models import User, UserRole
 from backend.app.main import app
 
 
@@ -25,6 +26,9 @@ def client() -> Generator[TestClient, None, None]:
     )
     Base.metadata.create_all(engine)
     test_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    with test_session() as session:
+        session.add(User(email="manager@example.test", full_name="Test Manager", password_hash="test", role=UserRole.MANAGER))
+        session.commit()
 
     def override_session() -> Generator[Session, None, None]:
         session = test_session()
@@ -34,7 +38,7 @@ def client() -> Generator[TestClient, None, None]:
             session.close()
 
     app.dependency_overrides[get_db_session] = override_session
-    app.dependency_overrides[operational_user] = lambda: SimpleNamespace(role="MANAGER")
+    app.dependency_overrides[operational_user] = lambda: SimpleNamespace(id=1, role="MANAGER")
     with TestClient(app) as api_client:
         yield api_client
     app.dependency_overrides.clear()

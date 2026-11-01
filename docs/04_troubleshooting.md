@@ -1,6 +1,6 @@
 # Troubleshooting and Recovery
 
-## 2026-11-01 — P20 audit found actor-attribution and recommendation-to-PO gaps — PLANNED
+## 2026-11-01 — P20 audit found actor-attribution and recommendation-to-PO gaps — RESOLVED IN P21
 
 **Symptom:** Operational writes can omit `created_by_user_id`/`approved_by_user_id`/`reviewed_by_user_id`, and a manager client can submit another existing user ID. A reviewed recommendation also stops before any linked purchase order.
 
@@ -8,7 +8,7 @@
 
 **Current containment:** Manager-only server authorization, CSRF checks, transactional inventory rules, and human review remain active. P20 changed no data or behavior; its full evidence is in `docs/implementation/P20_functional_audit.md`.
 
-**Planned fix:** P21 will bind actor attribution server-side, remove client authority over audit identities, add tests, then introduce an explicit reviewed-recommendation-to-draft-PO transaction with a durable link and duplicate guard. P22 follows with the separately marked M5-grounded simulation data boundary. Do not infer that accepting a recommendation changes stock or creates an order until P21 implements and tests that command.
+**Resolution:** P21 binds adjustment, operational-sale, purchase-order mutation/receipt, and recommendation-review actors to the authenticated server user; spoofed payload actor fields are ignored. Revision `d4e9a6c21f35` adds the durable operational-sale idempotency ledger and nullable one-to-one recommendation-to-PO link. A manager must explicitly confirm conversion of an appropriately reviewed recommendation to one linked draft PO; duplicate conversions are rejected by the database. The flow does not change on-hand stock until receipt. Isolated regression tests and the local MySQL additive migration/head/check pass. Browser workflow evidence remains a P24 acceptance item.
 
 ## 2026-10-10 — P18 Dashboard glyph still appeared optically left in the common icon frame — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db_session
 from backend.app.api.auth import operational_user
-from backend.app.db.models import RecommendationStatus
+from backend.app.db.models import RecommendationStatus, User
 from backend.app.schemas.business import (
     InventoryDecisionRead,
     RecommendationGenerate,
@@ -22,6 +22,7 @@ router = APIRouter(prefix="/api", dependencies=[Depends(operational_user)])
 SessionDep = Annotated[Session, Depends(get_db_session)]
 PageSize = Annotated[int, Query(ge=1, le=100)]
 PageOffset = Annotated[int, Query(ge=0)]
+UserDep = Annotated[User, Depends(operational_user)]
 
 
 @router.get("/inventory-decisions", response_model=list[InventoryDecisionRead], tags=["Inventory Decisions"])
@@ -45,5 +46,5 @@ def get_recommendation(recommendation_id: int, session: SessionDep):
 
 
 @router.post("/reorder-recommendations/{recommendation_id}/review", response_model=ReorderRecommendationRead, tags=["Reorder Recommendations"])
-def review_recommendation(recommendation_id: int, data: RecommendationReview, session: SessionDep):
-    return InventoryDecisionService(session).review(recommendation_id, data)
+def review_recommendation(recommendation_id: int, data: RecommendationReview, session: SessionDep, user: UserDep):
+    return InventoryDecisionService(session).review(recommendation_id, data, user.id)

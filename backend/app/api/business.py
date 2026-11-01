@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db_session
 from backend.app.api.auth import operational_user
-from backend.app.db.models import PurchaseOrderStatus, StockTransactionType
+from backend.app.db.models import PurchaseOrderStatus, StockTransactionType, User
 from backend.app.schemas.business import (
     AdjustmentCreate,
     CategoryCreate,
@@ -24,6 +24,7 @@ from backend.app.schemas.business import (
     PurchaseOrderRead,
     PurchaseOrderTransition,
     ReceiptCreate,
+    RecommendationPurchaseOrderCreate,
     StockTransactionRead,
     SupplierCreate,
     SupplierProductCreate,
@@ -40,6 +41,7 @@ router = APIRouter(prefix="/api", dependencies=[Depends(operational_user)])
 SessionDep = Annotated[Session, Depends(get_db_session)]
 PageSize = Annotated[int, Query(ge=1, le=100)]
 PageOffset = Annotated[int, Query(ge=0)]
+UserDep = Annotated[User, Depends(operational_user)]
 
 
 def service(session: SessionDep) -> BusinessService:
@@ -155,8 +157,8 @@ def get_inventory(product_id: int, session: SessionDep):
     status_code=status.HTTP_201_CREATED,
     tags=["Inventory"],
 )
-def create_adjustment(product_id: int, data: AdjustmentCreate, session: SessionDep):
-    return service(session).adjustment(product_id, data)
+def create_adjustment(product_id: int, data: AdjustmentCreate, session: SessionDep, user: UserDep):
+    return service(session).adjustment(product_id, data, user.id)
 
 
 @router.get("/stock-transactions", response_model=list[StockTransactionRead], tags=["Stock Transactions"])
@@ -175,8 +177,8 @@ def list_stock_transactions(
 @router.post(
     "/purchase-orders", response_model=PurchaseOrderRead, status_code=status.HTTP_201_CREATED, tags=["Purchase Orders"]
 )
-def create_purchase_order(data: PurchaseOrderCreate, session: SessionDep):
-    return service(session).purchase_order_create(data)
+def create_purchase_order(data: PurchaseOrderCreate, session: SessionDep, user: UserDep):
+    return service(session).purchase_order_create(data, user.id)
 
 
 @router.get("/purchase-orders", response_model=list[PurchaseOrderRead], tags=["Purchase Orders"])
@@ -195,26 +197,38 @@ def get_purchase_order(purchase_order_id: int, session: SessionDep):
 
 
 @router.post("/purchase-orders/{purchase_order_id}/items", response_model=PurchaseOrderRead, tags=["Purchase Orders"])
-def add_purchase_order_item(purchase_order_id: int, data: PurchaseOrderItemCreate, session: SessionDep):
-    return service(session).purchase_order_item_add(purchase_order_id, data)
+def add_purchase_order_item(purchase_order_id: int, data: PurchaseOrderItemCreate, session: SessionDep, user: UserDep):
+    return service(session).purchase_order_item_add(purchase_order_id, data, user.id)
 
 
 @router.patch("/purchase-orders/{purchase_order_id}/items/{item_id}", response_model=PurchaseOrderRead, tags=["Purchase Orders"])
-def update_purchase_order_item(purchase_order_id: int, item_id: int, data: PurchaseOrderItemUpdate, session: SessionDep):
-    return service(session).purchase_order_item_update(purchase_order_id, item_id, data)
+def update_purchase_order_item(purchase_order_id: int, item_id: int, data: PurchaseOrderItemUpdate, session: SessionDep, user: UserDep):
+    return service(session).purchase_order_item_update(purchase_order_id, item_id, data, user.id)
 
 
 @router.delete("/purchase-orders/{purchase_order_id}/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Purchase Orders"])
-def delete_purchase_order_item(purchase_order_id: int, item_id: int, session: SessionDep) -> Response:
-    service(session).purchase_order_item_delete(purchase_order_id, item_id)
+def delete_purchase_order_item(purchase_order_id: int, item_id: int, session: SessionDep, user: UserDep) -> Response:
+    service(session).purchase_order_item_delete(purchase_order_id, item_id, user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/purchase-orders/{purchase_order_id}/transition", response_model=PurchaseOrderRead, tags=["Purchase Orders"])
-def transition_purchase_order(purchase_order_id: int, data: PurchaseOrderTransition, session: SessionDep):
-    return service(session).purchase_order_transition(purchase_order_id, data)
+def transition_purchase_order(purchase_order_id: int, data: PurchaseOrderTransition, session: SessionDep, user: UserDep):
+    return service(session).purchase_order_transition(purchase_order_id, data, user.id)
 
 
 @router.post("/purchase-orders/{purchase_order_id}/receive", response_model=PurchaseOrderRead, tags=["Purchase Orders"])
-def receive_purchase_order(purchase_order_id: int, data: ReceiptCreate, session: SessionDep):
-    return service(session).receive_purchase_order(purchase_order_id, data)
+def receive_purchase_order(purchase_order_id: int, data: ReceiptCreate, session: SessionDep, user: UserDep):
+    return service(session).receive_purchase_order(purchase_order_id, data, user.id)
+
+
+@router.post(
+    "/reorder-recommendations/{recommendation_id}/purchase-order",
+    response_model=PurchaseOrderRead,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Purchase Orders"],
+)
+def create_purchase_order_from_recommendation(
+    recommendation_id: int, data: RecommendationPurchaseOrderCreate, session: SessionDep, user: UserDep
+):
+    return service(session).recommendation_purchase_order_create(recommendation_id, data, user.id)

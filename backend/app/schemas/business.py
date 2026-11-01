@@ -202,6 +202,7 @@ class OperationalSaleCreate(ApiModel):
     sale_date: date
     sell_price: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
     source: str | None = Field(default="MANUAL", max_length=100)
+    idempotency_key: NonBlank = Field(max_length=128)
     created_by_user_id: int | None = Field(default=None, gt=0)
 
 
@@ -222,6 +223,12 @@ class ForecastCreate(ApiModel):
         if value not in {7, 14, 28}:
             raise ValueError("horizon_days must be one of 7, 14, or 28")
         return value
+
+
+class ForecastEligibilityRead(ApiModel):
+    product_id: int
+    eligible: bool
+    reason: str | None = None
 
 
 class ForecastValueRead(ApiModel):
@@ -298,6 +305,7 @@ class ReorderRecommendationRead(ApiModel):
     notes: str | None
     supplier_id: int | None = None
     supplier_name: str | None = None
+    purchase_order_id: int | None = None
 
 
 class RecommendationReview(ApiModel):
@@ -305,6 +313,21 @@ class RecommendationReview(ApiModel):
     approved_quantity: int | None = Field(default=None, ge=0)
     reviewed_by_user_id: int | None = Field(default=None, gt=0)
     notes: str | None = Field(default=None, max_length=2000)
+
+
+class RecommendationPurchaseOrderCreate(ApiModel):
+    po_number: NonBlank = Field(max_length=64)
+    expected_arrival_date: date | None = None
+    notes: str | None = Field(default=None, max_length=2000)
+    confirm: Literal[True]
+
+    @field_validator("po_number")
+    @classmethod
+    def trim_po_number(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("must not be blank")
+        return value
 
 
 class PurchaseOrderItemCreate(ApiModel):
@@ -355,6 +378,7 @@ class PurchaseOrderRead(ApiModel):
     received_at: datetime | None
     created_by_user_id: int | None
     approved_by_user_id: int | None
+    reorder_recommendation_id: int | None
     notes: str | None
     created_at: datetime
     updated_at: datetime

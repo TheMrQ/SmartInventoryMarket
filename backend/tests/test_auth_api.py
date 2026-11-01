@@ -57,3 +57,14 @@ def test_login_session_me_logout_and_unauthorized_access(client: TestClient) -> 
     assert client.post("/api/auth/logout", headers={"X-CSRF-Token": client.cookies.get("sim_csrf")}).status_code == 204
     assert client.cookies.get("sim_session") is None
     assert client.get("/api/products").status_code == 401
+
+
+def test_operational_writes_require_session_csrf_and_manager_role(client: TestClient) -> None:
+    payload = {"code": "SECURE", "name": "Secured category"}
+    assert client.post("/api/categories", json=payload).status_code == 401
+
+    assert register(client).status_code == 201  # Public registration is inventory staff only.
+    assert client.post("/api/categories", json=payload).status_code == 403  # Missing CSRF token.
+    assert client.post(
+        "/api/categories", json=payload, headers={"X-CSRF-Token": client.cookies.get("sim_csrf")}
+    ).status_code == 403  # CSRF is valid, but the authenticated staff role is not operationally authorized.

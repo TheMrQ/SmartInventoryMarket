@@ -8,8 +8,10 @@ from sqlalchemy.orm import Session
 
 from backend.app.db.database import get_db_session
 from backend.app.api.auth import operational_user
+from backend.app.db.models import User
 from backend.app.schemas.business import (
     ForecastCreate,
+    ForecastEligibilityRead,
     ForecastRunRead,
     OperationalSaleCreate,
     SalesDailyRead,
@@ -23,6 +25,7 @@ router = APIRouter(prefix="/api", dependencies=[Depends(operational_user)])
 SessionDep = Annotated[Session, Depends(get_db_session)]
 PageSize = Annotated[int, Query(ge=1, le=100)]
 PageOffset = Annotated[int, Query(ge=0)]
+UserDep = Annotated[User, Depends(operational_user)]
 
 
 @router.get("/sales", response_model=list[SalesDailyRead], tags=["Sales"])
@@ -44,8 +47,8 @@ async def import_sales(session: SessionDep, file: UploadFile = File(...)):
 
 
 @router.post("/sales/record", response_model=SalesDailyRead, status_code=status.HTTP_201_CREATED, tags=["Sales"])
-def record_sale(data: OperationalSaleCreate, session: SessionDep):
-    return SalesService(session).record_sale(data)
+def record_sale(data: OperationalSaleCreate, session: SessionDep, user: UserDep):
+    return SalesService(session).record_sale(data, user.id)
 
 
 @router.get("/sales/{product_id}", response_model=list[SalesDailyRead], tags=["Sales"])
@@ -56,6 +59,11 @@ def product_sales(product_id: int, session: SessionDep, start_date: date | None 
 @router.post("/forecasts", response_model=ForecastRunRead, status_code=status.HTTP_201_CREATED, tags=["Forecasts"])
 def create_forecast(data: ForecastCreate, session: SessionDep):
     return ForecastService(session).create(data)
+
+
+@router.get("/forecasts/eligibility", response_model=list[ForecastEligibilityRead], tags=["Forecasts"])
+def forecast_eligibility(session: SessionDep):
+    return ForecastService(session).eligibility()
 
 
 @router.get("/forecast-runs", response_model=list[ForecastRunRead], tags=["Forecasts"])

@@ -2,6 +2,13 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-11-01 — CHECKPOINT-021: business integrity and workflow completion
+
+- Added additive Alembic revision `d4e9a6c21f35`: a database-unique operational-sale idempotency ledger plus an optional, unique source-recommendation link on purchase orders. Applied it forward to local MySQL; current/head/check agree without resetting existing records.
+- Bound adjustments, sales, PO mutations/transitions/receipts, and recommendation reviews to the authenticated server actor, ignoring client-supplied audit IDs. Added retry-safe operational sales and an explicit accepted/modified-recommendation-to-one-linked-draft-PO flow that uses approved quantity and never changes stock until receipt.
+- Completed the operational UI with draft-line management, remaining/partial receipt visibility and confirmation, permitted cancellation confirmation, forecast eligibility feedback, and failed-query retry states across all eight operational pages. Preserved the frozen M5/XGBoost V1 boundary and the approved visual direction.
+- Verified 70 isolated Python tests, local MySQL migration/head/no-drift checks, dependency-free frontend workflow tests, frontend lint, and production build. Browser-driven end-to-end evidence remains a P24 requirement.
+
 ## 2026-11-01 — P20 roadmap reconciliation
 
 - Reclassified the post-P17 roadmap without altering P0–P17 history: P18 is Authentication and UI refinement (**PENDING_VERIFICATION**), P19 is the Inventory Control Room visual experiment V1/V2 (**PENDING_VERIFICATION**), and P20 Functional audit is **DONE**.

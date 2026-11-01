@@ -24,8 +24,11 @@ from backend.app.db.models import (
     SalesDaily,
     Supplier,
     SupplierProduct,
+    User,
+    UserRole,
 )
-from backend.app.schemas.business import RecommendationReview
+from backend.app.schemas.business import RecommendationPurchaseOrderCreate, RecommendationReview
+from backend.app.services.business import BusinessService
 from backend.app.services.errors import ConflictError
 from backend.app.services.inventory_decisions import InventoryDecisionService
 
@@ -41,6 +44,8 @@ def session():
 
 
 def seed(session: Session, *, on_hand: int = 0, lead_time: int = 2, supplier_count: int = 1, preferred: bool = True, history_days: int = 28, forecast_days: int = 7, incoming: int = 0):
+    session.add(User(email="manager@example.test", full_name="Test Manager", password_hash="test", role=UserRole.MANAGER))
+    session.flush()
     category = Category(code="FOOD", name="Food")
     session.add(category); session.flush()
     product = Product(sku="FOODS_1_001", name="Demo", category_id=category.id)
@@ -130,14 +135,33 @@ def test_expiration_and_human_review_transitions(session: Session) -> None:
     first = service.generate(product.id)["recommendation"]
     second = service.generate(product.id)["recommendation"]
     assert service.recommendation(first["id"])["status"] == RecommendationStatus.EXPIRED
-    accepted = service.review(second["id"], RecommendationReview(action="ACCEPT", notes="approved"))
+    accepted = service.review(second["id"], RecommendationReview(action="ACCEPT", notes="approved"), 1)
     assert accepted["status"] == RecommendationStatus.ACCEPTED
     assert accepted["approved_quantity"] == accepted["recommended_quantity"]
     with pytest.raises(ConflictError, match="only NEW"):
-        service.review(second["id"], RecommendationReview(action="REJECT"))
+        service.review(second["id"], RecommendationReview(action="REJECT"), 1)
     modified = service.generate(product.id)["recommendation"]
-    changed = service.review(modified["id"], RecommendationReview(action="MODIFY", approved_quantity=4))
+    changed = service.review(modified["id"], RecommendationReview(action="MODIFY", approved_quantity=4), 1)
     assert changed["status"] == RecommendationStatus.MODIFIED and changed["approved_quantity"] == 4
     rejected = service.generate(product.id)["recommendation"]
-    declined = service.review(rejected["id"], RecommendationReview(action="REJECT"))
+    declined = service.review(rejected["id"], RecommendationReview(action="REJECT"), 1)
     assert declined["status"] == RecommendationStatus.REJECTED and declined["approved_quantity"] is None
+
+
+def test_reviewed_recommendation_creates_one_linked_draft_po(session: Session) -> None:
+    product, supplier = seed(session)
+    decisions = InventoryDecisionService(session)
+    recommendation = decisions.generate(product.id)["recommendation"]
+    decisions.review(recommendation["id"], RecommendationReview(action="MODIFY", approved_quantity=4), 1)
+    created = BusinessService(session).recommendation_purchase_order_create(
+        recommendation["id"], RecommendationPurchaseOrderCreate(po_number="REC-1", confirm=True), 1
+    )
+    assert created.status == PurchaseOrderStatus.DRAFT
+    assert created.reorder_recommendation_id == recommendation["id"]
+    assert created.supplier_id == supplier.id
+    assert created.items[0].ordered_quantity == 4
+    assert session.get(Inventory, product.id).on_hand == 0
+    with pytest.raises(ConflictError, match="already linked"):
+        BusinessService(session).recommendation_purchase_order_create(
+            recommendation["id"], RecommendationPurchaseOrderCreate(po_number="REC-2", confirm=True), 1
+        )

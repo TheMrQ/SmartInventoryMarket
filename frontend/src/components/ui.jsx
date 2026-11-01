@@ -7,6 +7,12 @@ export function Badge({ children, tone = 'neutral' }) { return <span className={
 export function Button({ children, loading, className = '', disabled, ...props }) { return <button className={`button ${className}`} disabled={loading || disabled} {...props}>{loading && <LoaderCircle size={15} className="spin" />}{children}</button> }
 export function Empty({ title, children }) { return <div className="empty"><PackageOpen size={28} /><strong>{title}</strong><span>{children}</span></div> }
 export function Loading() { return <div className="loading"><span /><span /><span /></div> }
+export function QueryError({ queries, title = 'Information could not be loaded' }) {
+  const failed = queries.filter((query) => query.isError)
+  if (!failed.length) return null
+  const message = failed[0].error?.message || 'Check your connection and try again.'
+  return <div className="callout" role="alert"><strong>{title}</strong><span>{message}</span><Button className="secondary compact" onClick={() => failed.forEach((query) => query.refetch())}>Try again</Button></div>
+}
 export function Modal({ title, onClose, children, className = '' }) {
   const { collapsed } = useContext(WorkspaceContext)
   useEffect(() => {

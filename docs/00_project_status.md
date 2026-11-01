@@ -4,13 +4,13 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P20 functional audit is complete; the next planned delivery closes the confirmed business-integrity and workflow gaps before the M5-grounded supermarket simulation.
+Overall status: 🟡 **IN_PROGRESS** — P21 business-integrity and workflow completion is verified on the experiment branch; the next planned delivery is the M5-grounded supermarket simulation.
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P21 — Business Integrity & Workflow Fixes` is **PLANNED**. It will resolve the P20-confirmed gaps: server-bound audit attribution, sale idempotency, accepted recommendation to linked draft PO, duplicate PO prevention, partial receipt/cancellation/draft editing UI, forecast SKU eligibility in the UI, and query-error/retry handling. No P21 write has started.
+- **Current Phase:** `P21 — Business Integrity & Workflow Fixes` is **DONE**. It closes the P20-confirmed gaps with server-bound audit attribution, durable sale idempotency, reviewed-recommendation-to-linked-draft-PO conversion and duplicate prevention, PO management controls, forecast SKU eligibility feedback, and query-error recovery. The additive local MySQL migration is at head and the isolated suite has 70 passing tests.
 - **Next Phase:** `P22 — M5-Grounded Supermarket Simulation` is **PLANNED**. It will use traceable real M5 CA_1/FOODS sales, calendar, and price history while keeping synthetic operational inventory, supplier, and purchase-order records clearly separate.
-- **Known Blockers:** P18 and P19 are **PENDING_VERIFICATION** because browser/manual visual evidence is still required; P20 found that the current workflow cannot yet prove trustworthy actor attribution or a traceable recommendation-to-PO loop. Browser automation was unavailable during P20. The frozen M5 model also cannot forecast arbitrary newly created SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
+- **Known Blockers:** P18 and P19 remain **PENDING_VERIFICATION** because browser/manual visual evidence is still required. P21 requires P24 browser and live-workflow evidence before claiming full end-to-end acceptance; browser automation remains unavailable. The frozen M5 model also cannot forecast arbitrary newly created SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
 
@@ -97,13 +97,15 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P18 Authentication and UI refinement | 🟡 **PENDING_VERIFICATION** |
 | P19 Inventory Control Room visual experiment V1/V2 | 🟡 **PENDING_VERIFICATION** |
 | P20 Functional audit | 🟢 **DONE** |
-| P21 Business Integrity & Workflow Fixes | ⚪ **PLANNED** |
+| P21 Business Integrity & Workflow Fixes | 🟢 **DONE** |
 | P22 M5-Grounded Supermarket Simulation | ⚪ **PLANNED** |
 | P23 XGBoost V2 Research | ⚪ **PLANNED** |
 | P24 End-to-End Testing & Evaluation | ⚪ **PLANNED** |
 | P25 Thesis Report & Defense | ⚪ **PLANNED** |
 
 ## Historical Phase Notes
+
+`P21 — Business Integrity & Workflow Fixes` is **DONE** on `experiment/inventory-control-room`. Additive Alembic revision `d4e9a6c21f35` creates the database-unique operational-sale idempotency ledger and an optional unique source-recommendation link on purchase orders; it was applied forward to local MySQL, where `current`, `heads`, and `check` agree. Operational writes now take their actor from the authenticated server session, rather than a client-controlled audit identifier. A stable sale retry key gives identical retries their original result and rejects conflicting reuse, while the transaction commits daily aggregation, inventory decrement, and one `SALE` audit event together. Reviewed accepted/modified recommendations can explicitly create one linked draft PO using the approved quantity, never automatically submit to a supplier or change stock. The UI provides draft line management, remaining/partial receipt controls, permitted cancellation confirmation, forecast-eligibility feedback, and failed-query retry states on all eight operational pages. `pytest` reports 70 passing tests; frontend workflow tests, lint, and build pass. Browser automation is unavailable, so P24 must collect manual browser and live-workflow evidence. See `docs/implementation/P21_business_integrity.md`.
 
 `P20 — Smart Inventory Functional Audit` is **DONE** on `experiment/inventory-control-room`. The audit made no functional/code changes. It verified a clean MySQL Alembic head (`a91c2e6f4b20`) with no drift, presence and pinned-hash integrity of the ignored frozen XGBoost artifact, and 65 passing isolated tests; frontend lint/build also pass. Source and test evidence confirms the product/inventory/sales/PO/forecast/decision core, but P20 identifies the next functional blockers: actor attribution is not bound to the authenticated server user, reviewed recommendations cannot safely create linked purchase orders, operational sale requests lack idempotency, the PO UI lacks partial receipt/draft/cancel controls, forecast eligibility is exposed late, and operational pages lack query-error states. Browser automation is unavailable, so no live UI route/mutation verification is claimed. `docs/implementation/P20_functional_audit.md` is the detailed evidence and P21–P24 acceptance roadmap; no P21 implementation has started.
 
@@ -211,11 +213,11 @@ The application now has real cookie-session authentication: public registration 
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-020` — Functional audit complete; the verified transactional core, forecasting boundary, UI limitations, and evidence gaps are documented without changing application behavior.
+`CHECKPOINT-021` — Business-integrity workflows complete: authenticated audit attribution, durable sale idempotency, one reviewed-recommendation-to-draft-PO conversion, PO controls, forecast eligibility, and query recovery are implemented and verified without touching M5/model evidence.
 
 ## Next Exact Step
 
-`NEXT-021` — Implement the P20-confirmed business integrity and workflow fixes: server-bound audit attribution; idempotent sales; a reviewed-recommendation-to-linked-draft-PO command with duplicate prevention; partial-receipt/cancellation/draft-editing UI; forecast SKU eligibility feedback; and query-error/retry handling. Do not alter XGBOOST_V1 or use its frozen model for arbitrary new SKUs.
+`NEXT-022` — Build the M5-grounded supermarket simulation: preserve traceable M5 sales/calendar/price data, map application products to M5 SKUs, and clearly mark synthetic inventory/supplier/PO operations. Do not alter XGBOOST_V1 or use its frozen model for arbitrary new SKUs.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 

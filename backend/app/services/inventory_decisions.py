@@ -129,6 +129,7 @@ class InventoryDecisionService:
 
     def _recommendation_dict(self, recommendation: ReorderRecommendation) -> dict:
         data = {column.name: getattr(recommendation, column.name) for column in ReorderRecommendation.__table__.columns}
+        data["purchase_order_id"] = recommendation.purchase_order.id if recommendation.purchase_order else None
         try:
             supplier = self._supplier(recommendation.product_id)
             data.update(supplier_id=supplier.supplier_id, supplier_name=supplier.supplier.name)
@@ -163,13 +164,13 @@ class InventoryDecisionService:
             raise NotFoundError("reorder recommendation not found")
         return self._recommendation_dict(item)
 
-    def review(self, recommendation_id: int, data: RecommendationReview) -> dict:
+    def review(self, recommendation_id: int, data: RecommendationReview, actor_user_id: int) -> dict:
         item = self.repo.recommendation(self.session, recommendation_id, lock=True)
         if item is None:
             raise NotFoundError("reorder recommendation not found")
         if item.status != RecommendationStatus.NEW:
             raise ConflictError("only NEW recommendations can be reviewed")
-        if data.reviewed_by_user_id is not None and not self.business_repo.user_exists(self.session, data.reviewed_by_user_id):
+        if not self.business_repo.user_exists(self.session, actor_user_id):
             raise NotFoundError("user not found")
         if data.action == "ACCEPT":
             if data.approved_quantity not in {None, item.recommended_quantity}:
@@ -187,7 +188,7 @@ class InventoryDecisionService:
             item.status = RecommendationStatus.REJECTED
             item.approved_quantity = None
         item.reviewed_at = utc_now()
-        item.reviewed_by_user_id = data.reviewed_by_user_id
+        item.reviewed_by_user_id = actor_user_id
         item.notes = data.notes
         try:
             self.session.commit()

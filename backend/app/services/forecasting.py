@@ -13,6 +13,7 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -179,6 +180,26 @@ class ForecastService:
         if persisted is None:
             raise ConflictError("forecast persistence failed")
         return self._as_response(persisted)
+
+    def eligibility(self) -> list[dict]:
+        """Expose the frozen model's SKU vocabulary without running inference."""
+        products = list(self.session.scalars(select(Product).where(Product.is_active.is_(True))))
+        try:
+            metadata = self._metadata()
+        except ConflictError as exc:
+            return [
+                {"product_id": product.id, "eligible": False, "reason": str(exc)}
+                for product in products
+            ]
+        result: list[dict] = []
+        for product in products:
+            if product.sku not in metadata.known_items:
+                result.append({"product_id": product.id, "eligible": False, "reason": "Not in the frozen M5 CA_1 / FOODS SKU vocabulary."})
+            elif self._dept_from_sku(product.sku) not in metadata.encodings.dept_codes:
+                result.append({"product_id": product.id, "eligible": False, "reason": "Frozen M5 department metadata is unavailable for this SKU."})
+            else:
+                result.append({"product_id": product.id, "eligible": True, "reason": None})
+        return result
 
     def runs(self, limit: int, offset: int) -> list[dict]:
         return [self._as_response(run) for run in self.repo.forecast_runs(self.session, limit, offset)]

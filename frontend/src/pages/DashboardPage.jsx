@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowDownToLine, ArrowRight, Boxes, ClipboardCheck, Pack
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import { Badge, Empty, Loading } from '../components/ui'
+import { Badge, Empty, Loading, QueryError } from '../components/ui'
 import { displayProduct, displayStatus, formatUnits } from '../utils/presentation'
 import { toneFor } from '../utils/status'
 
@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const recommendations = useQuery({ queryKey: ['recommendations'], queryFn: api.recommendations })
   const orders = useQuery({ queryKey: ['orders'], queryFn: api.purchaseOrders })
   if ([inventory, products, decisions, recommendations, orders].some((query) => query.isLoading)) return <Loading />
+  if ([inventory, products, decisions, recommendations, orders].some((query) => query.isError)) return <QueryError queries={[inventory, products, decisions, recommendations, orders]} />
 
   const inv = inventory.data || []
   const dec = decisions.data || []

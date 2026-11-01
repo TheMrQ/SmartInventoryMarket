@@ -45,6 +45,7 @@ def test_metadata_contains_the_frozen_single_store_schema() -> None:
         "supplier_products",
         "inventory",
         "sales_daily",
+        "operational_sales",
         "purchase_orders",
         "purchase_order_items",
         "stock_transactions",
@@ -61,6 +62,8 @@ def test_important_constraints_and_indexes_are_declared() -> None:
     inventory = Base.metadata.tables["inventory"]
     purchase_order_items = Base.metadata.tables["purchase_order_items"]
     sales_daily = Base.metadata.tables["sales_daily"]
+    operational_sales = Base.metadata.tables["operational_sales"]
+    purchase_orders = Base.metadata.tables["purchase_orders"]
 
     assert any("on_hand >= 0" in str(item.sqltext) for item in inventory.constraints if isinstance(item, CheckConstraint))
     assert any(
@@ -71,6 +74,16 @@ def test_important_constraints_and_indexes_are_declared() -> None:
     assert any(
         {"product_id", "sale_date"} == {column.name for column in item.columns}
         for item in sales_daily.constraints
+        if isinstance(item, UniqueConstraint)
+    )
+    assert any(
+        {"idempotency_key"} == {column.name for column in item.columns}
+        for item in operational_sales.constraints
+        if isinstance(item, UniqueConstraint)
+    )
+    assert any(
+        {"reorder_recommendation_id"} == {column.name for column in item.columns}
+        for item in purchase_orders.constraints
         if isinstance(item, UniqueConstraint)
     )
     assert "ix_stock_transactions_product_occurred" in {

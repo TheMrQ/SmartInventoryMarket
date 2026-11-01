@@ -17,7 +17,7 @@ from backend.app.db.base import Base
 from backend.app.db.database import get_db_session
 from backend.app.api.auth import operational_user
 import backend.app.db.models  # noqa: F401
-from backend.app.db.models import Category, ForecastRun, Inventory, Product, SalesDaily, StockTransaction
+from backend.app.db.models import Category, ForecastRun, Inventory, Product, SalesDaily, StockTransaction, User, UserRole
 from backend.app.main import app
 from backend.app.schemas.business import ForecastCreate
 from backend.app.services.errors import ConflictError
@@ -30,6 +30,9 @@ def client() -> Generator[TestClient, None, None]:
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    with factory() as session:
+        session.add(User(email="manager@example.test", full_name="Test Manager", password_hash="test", role=UserRole.MANAGER))
+        session.commit()
     def override() -> Generator[Session, None, None]:
         session = factory()
         try:
@@ -37,7 +40,7 @@ def client() -> Generator[TestClient, None, None]:
         finally:
             session.close()
     app.dependency_overrides[get_db_session] = override
-    app.dependency_overrides[operational_user] = lambda: SimpleNamespace(role="MANAGER")
+    app.dependency_overrides[operational_user] = lambda: SimpleNamespace(id=1, role="MANAGER")
     with TestClient(app) as api_client:
         yield api_client
     app.dependency_overrides.clear()
@@ -80,17 +83,42 @@ def test_import_rejects_unknown_duplicate_and_invalid_csv(client: TestClient) ->
 def test_operational_sale_is_atomic_inventory_and_audit(client: TestClient) -> None:
     product_id = catalog(client)
     assert client.post(f"/api/inventory/{product_id}/adjustments", json={"transaction_type": "ADJUSTMENT_IN", "quantity": 5, "reason": "opening"}).status_code == 201
-    sale = client.post("/api/sales/record", json={"product_id": product_id, "quantity": 2, "sale_date": "2016-04-24", "sell_price": "3.25"})
+    sale = client.post("/api/sales/record", json={"product_id": product_id, "quantity": 2, "sale_date": "2016-04-24", "sell_price": "3.25", "idempotency_key": "sale-1"})
     assert sale.status_code == 201 and sale.json()["quantity_sold"] == 2
-    second = client.post("/api/sales/record", json={"product_id": product_id, "quantity": 1, "sale_date": "2016-04-24"})
+    second = client.post("/api/sales/record", json={"product_id": product_id, "quantity": 1, "sale_date": "2016-04-24", "idempotency_key": "sale-2"})
     assert second.json()["quantity_sold"] == 3 and second.json()["sell_price"] == "3.25"
     assert client.get(f"/api/inventory/{product_id}").json()["on_hand"] == 2
     history = client.get("/api/stock-transactions", params={"product_id": product_id}).json()
     assert [item["transaction_type"] for item in history].count("SALE") == 2
-    rejected = client.post("/api/sales/record", json={"product_id": product_id, "quantity": 3, "sale_date": "2016-04-24"})
+    rejected = client.post("/api/sales/record", json={"product_id": product_id, "quantity": 3, "sale_date": "2016-04-24", "idempotency_key": "sale-3"})
     assert rejected.status_code == 409
     assert client.get(f"/api/inventory/{product_id}").json()["on_hand"] == 2
     assert client.get(f"/api/sales/{product_id}").json()[0]["quantity_sold"] == 3
+
+
+def test_operational_sale_replay_is_idempotent_and_conflicts_on_payload_change(client: TestClient) -> None:
+    product_id = catalog(client)
+    assert client.post(f"/api/inventory/{product_id}/adjustments", json={"transaction_type": "ADJUSTMENT_IN", "quantity": 5, "reason": "opening"}).status_code == 201
+    payload = {"product_id": product_id, "quantity": 2, "sale_date": "2016-04-24", "idempotency_key": "same-logical-sale"}
+    first = client.post("/api/sales/record", json=payload)
+    replay = client.post("/api/sales/record", json=payload)
+    assert first.status_code == replay.status_code == 201
+    assert replay.json()["id"] == first.json()["id"]
+    assert client.get(f"/api/inventory/{product_id}").json()["on_hand"] == 3
+    assert [row["transaction_type"] for row in client.get("/api/stock-transactions", params={"product_id": product_id}).json()].count("SALE") == 1
+    conflict = client.post("/api/sales/record", json={**payload, "quantity": 1})
+    assert conflict.status_code == 409
+    assert client.get(f"/api/inventory/{product_id}").json()["on_hand"] == 3
+
+
+def test_server_actor_ignores_forged_actor_fields(client: TestClient) -> None:
+    product_id = catalog(client)
+    adjustment = client.post(
+        f"/api/inventory/{product_id}/adjustments",
+        json={"transaction_type": "ADJUSTMENT_IN", "quantity": 2, "reason": "opening", "created_by_user_id": 9999},
+    )
+    assert adjustment.status_code == 201
+    assert adjustment.json()["created_by_user_id"] == 1
 
 
 class FakeModel:
@@ -138,4 +166,25 @@ def test_forecast_rejects_unknown_and_insufficient_history_and_hash(tmp_path) ->
         product = Product(sku="NOT_M5", name="No", category_id=category.id); session.add(product); session.commit()
         with pytest.raises(ConflictError, match="frozen M5 vocabulary"):
             ForecastService(session, fake_metadata(), lambda: FakeModel()).create(ForecastCreate(product_ids=[product.id], horizon_days=7))
+    engine.dispose()
+
+
+def test_forecast_eligibility_exposes_frozen_m5_boundary() -> None:
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        category = Category(code="M5", name="M5")
+        session.add(category)
+        session.flush()
+        session.add_all(
+            [
+                Product(sku="FOODS_1_001", name="Supported", category_id=category.id),
+                Product(sku="LOCAL-001", name="Local", category_id=category.id),
+            ]
+        )
+        session.commit()
+        eligibility = {item["product_id"]: item for item in ForecastService(session, fake_metadata()).eligibility()}
+        assert eligibility[1] == {"product_id": 1, "eligible": True, "reason": None}
+        assert eligibility[2]["eligible"] is False
+        assert "frozen M5" in eligibility[2]["reason"]
     engine.dispose()

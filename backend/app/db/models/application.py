@@ -207,11 +207,35 @@ class SalesDaily(TimestampMixin, Base):
 
     product: Mapped[Product] = relationship(back_populates="sales")
     stock_transactions: Mapped[list["StockTransaction"]] = relationship(back_populates="sales_daily")
+    operational_sales: Mapped[list["OperationalSale"]] = relationship(back_populates="sales_daily")
+
+
+class OperationalSale(Base):
+    """One durable idempotent operational sale, separate from a daily sales aggregate."""
+
+    __tablename__ = "operational_sales"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="operational_sale_idempotency_key"),)
+
+    id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
+    idempotency_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
+    sales_daily_id: Mapped[int] = mapped_column(ForeignKey("sales_daily.id"), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    sale_date: Mapped[date] = mapped_column(Date, nullable=False)
+    sell_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
+    source: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(), default=utc_now, nullable=False)
+
+    sales_daily: Mapped[SalesDaily] = relationship(back_populates="operational_sales")
 
 
 class PurchaseOrder(TimestampMixin, Base):
     __tablename__ = "purchase_orders"
-    __table_args__ = (Index("ix_purchase_orders_status", "status"),)
+    __table_args__ = (
+        Index("ix_purchase_orders_status", "status"),
+        UniqueConstraint("reorder_recommendation_id", name="purchase_order_recommendation_unique"),
+    )
 
     id: Mapped[int] = mapped_column(ID_TYPE, primary_key=True, autoincrement=True)
     po_number: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
@@ -226,6 +250,7 @@ class PurchaseOrder(TimestampMixin, Base):
     received_at: Mapped[datetime | None] = mapped_column(DateTime(), nullable=True)
     created_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     approved_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    reorder_recommendation_id: Mapped[int | None] = mapped_column(ForeignKey("reorder_recommendations.id"), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     supplier: Mapped[Supplier] = relationship(back_populates="purchase_orders")
@@ -236,6 +261,7 @@ class PurchaseOrder(TimestampMixin, Base):
         back_populates="approved_purchase_orders", foreign_keys=[approved_by_user_id]
     )
     items: Mapped[list["PurchaseOrderItem"]] = relationship(back_populates="purchase_order")
+    reorder_recommendation: Mapped["ReorderRecommendation | None"] = relationship(back_populates="purchase_order")
 
 
 class PurchaseOrderItem(TimestampMixin, Base):
@@ -378,3 +404,4 @@ class ReorderRecommendation(Base):
     product: Mapped[Product] = relationship(back_populates="reorder_recommendations")
     forecast_run: Mapped[ForecastRun | None] = relationship(back_populates="reorder_recommendations")
     reviewed_by_user: Mapped[User | None] = relationship(back_populates="reviewed_recommendations")
+    purchase_order: Mapped[PurchaseOrder | None] = relationship(back_populates="reorder_recommendation", uselist=False)

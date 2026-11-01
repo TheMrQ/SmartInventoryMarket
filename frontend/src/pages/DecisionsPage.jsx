@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api } from '../api/client'
 import { DemandForecastChart } from '../components/DemandForecastChart'
-import { Badge, Button, Empty, Loading, Modal, Tooltip } from '../components/ui'
+import { Badge, Button, Empty, Loading, Modal, QueryError, Tooltip } from '../components/ui'
 import { displayProduct, displayStatus, formatForecast, formatUnits } from '../utils/presentation'
 import { toneFor } from '../utils/status'
 
@@ -20,6 +20,7 @@ export default function DecisionsPage() {
   const [search, setSearch] = useState('')
   const [review, setReview] = useState(null)
   const [selectedDecision, setSelectedDecision] = useState(null)
+  const [poRecommendation, setPoRecommendation] = useState(null)
   const decisions = useQuery({ queryKey: ['decisions', risk, search], queryFn: () => api.decisions({ ...(risk && { risk_status: risk }), ...(search && { search }) }) })
   const recommendations = useQuery({ queryKey: ['recommendations'], queryFn: api.recommendations })
   const products = useQuery({ queryKey: ['products'], queryFn: () => api.products({ limit: 100 }) })
@@ -29,6 +30,7 @@ export default function DecisionsPage() {
     onError: fail,
   })
   if ([decisions, recommendations, products].some((query) => query.isLoading)) return <Loading />
+  if ([decisions, recommendations, products].some((query) => query.isError)) return <QueryError queries={[decisions, recommendations, products]} />
   const productById = new Map((products.data || []).map((product) => [product.id, product]))
   return <div className="stack">
     <header className="page-heading"><div><p className="eyebrow">Decision support</p><h2>Inventory Insights</h2><p>Use saved demand forecasts, supplier delivery time, and current stock together to make a restocking decision.</p></div></header>
@@ -36,10 +38,11 @@ export default function DecisionsPage() {
     {tab === 'decisions' ? <>
       <div className="toolbar"><label>Stock status<select value={risk} onChange={(event) => setRisk(event.target.value)}><option value="">All statuses</option><RiskOption value="STOCKOUT_RISK"/><RiskOption value="REORDER_NEEDED"/><RiskOption value="HEALTHY"/><RiskOption value="OVERSTOCK_RISK"/></select></label><label>Search<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="SKU or product"/></label></div>
       <article className="panel table-wrap"><table><thead><tr><th>Product</th><th>Available / incoming</th><th>Supplier</th><th><Tooltip label="Estimated supplier delivery time"><span>Lead time <HelpCircle size={13}/></span></Tooltip></th><th>Forecast demand</th><th><Tooltip label="Extra inventory kept as a buffer against forecast error and demand variation."><span>Safety stock <HelpCircle size={13}/></span></Tooltip></th><th>Stock status</th><th>Recommended order</th><th /></tr></thead><tbody>{decisions.data?.map((item) => <tr key={item.product_id} className="decision-row" onClick={() => setSelectedDecision(item)}><td><strong>{displayProduct(item).name}</strong><small>{item.sku}</small></td><td>{formatUnits(item.on_hand)}<small>{formatUnits(item.incoming_quantity)} incoming · {formatUnits(item.inventory_position)} position</small></td><td>{item.supplier_name}<small>Selected supplier</small></td><td>{item.lead_time_days} days</td><td>{formatForecast(item.expected_lead_time_demand)}</td><td>{formatUnits(item.safety_stock)}</td><td><Badge tone={toneFor(item.risk_status)}>{displayStatus(item.risk_status)}</Badge></td><td><strong className="recommended-quantity">{formatUnits(item.recommended_quantity)}</strong></td><td><button className="link-button" onClick={(event) => { event.stopPropagation(); setSelectedDecision(item) }}>View insight</button></td></tr>)}</tbody></table>{!decisions.data?.length && <Empty title="Inventory insights aren't available yet">Add a supplier and <Link to="/forecasts">generate a forecast first</Link> to calculate stock risk.</Empty>}</article>
-    </> : <Recommendations rows={recommendations.data || []} productById={productById} onReview={setReview}/>}
-    <p className="callout">A restock recommendation is always human-reviewed. Accepting, adjusting, or rejecting it does not change inventory or automatically create a purchase order.</p>
+    </> : <Recommendations rows={recommendations.data || []} productById={productById} onReview={setReview} onCreatePurchaseOrder={setPoRecommendation}/>}
+    <p className="callout">A restock recommendation is always human-reviewed. Creating a linked draft purchase order requires a separate manager confirmation and does not change on-hand stock.</p>
     {selectedDecision && <DecisionDetail decision={selectedDecision} product={productById.get(selectedDecision.product_id)} onClose={() => setSelectedDecision(null)} onGenerate={() => generate.mutate(selectedDecision.product_id)} generating={generate.isPending}/>}
     {review && <ReviewModal recommendation={review} product={productById.get(review.product_id)} onClose={() => setReview(null)} client={client}/>}
+    {poRecommendation && <RecommendationPoModal recommendation={poRecommendation} product={productById.get(poRecommendation.product_id)} onClose={() => setPoRecommendation(null)} client={client}/>}
   </div>
 }
 
@@ -68,8 +71,14 @@ function DecisionDetail({ decision, product, onClose, onGenerate, generating }) 
 
 function DecisionValue({ label, value, emphasis, helper }) { return <div className={emphasis ? 'decision-value emphasis' : 'decision-value'}><span>{label}{helper && <Tooltip label={helper}><HelpCircle size={13}/></Tooltip>}</span><strong>{value}</strong></div> }
 
-function Recommendations({ rows, productById, onReview }) {
-  return <article className="panel table-wrap"><table><thead><tr><th>Product</th><th>Status</th><th>Suggested order</th><th>Approved quantity</th><th>Supplier</th><th>Expires</th><th /></tr></thead><tbody>{rows.map((row) => { const product = displayProduct(productById.get(row.product_id) || { sku: `Product ${row.product_id}` }); return <tr key={row.id}><td><strong>{product.name}</strong><small>{product.sku}</small></td><td><Badge tone={toneFor(row.status)}>{displayStatus(row.status)}</Badge></td><td><strong className="recommended-quantity">{formatUnits(row.recommended_quantity)}</strong></td><td>{row.approved_quantity == null ? '—' : formatUnits(row.approved_quantity)}</td><td>{row.supplier_name || 'Supplier unavailable'}</td><td>{row.expires_at ? new Date(row.expires_at).toLocaleString() : '—'}</td><td>{row.status === 'NEW' && <Button className="compact" onClick={() => onReview(row)}>Review</Button>}</td></tr> })}</tbody></table>{!rows.length && <Empty title="No restock recommendations yet">Recommendations appear here when a product genuinely needs more stock.</Empty>}</article>
+function Recommendations({ rows, productById, onReview, onCreatePurchaseOrder }) {
+  return <article className="panel table-wrap"><table><thead><tr><th>Product</th><th>Status</th><th>Suggested order</th><th>Approved quantity</th><th>Supplier</th><th>Expires</th><th /></tr></thead><tbody>{rows.map((row) => { const product = displayProduct(productById.get(row.product_id) || { sku: `Product ${row.product_id}` }); const canCreate = ['ACCEPTED', 'MODIFIED'].includes(row.status) && !row.purchase_order_id; return <tr key={row.id}><td><strong>{product.name}</strong><small>{product.sku}</small></td><td><Badge tone={toneFor(row.status)}>{displayStatus(row.status)}</Badge></td><td><strong className="recommended-quantity">{formatUnits(row.recommended_quantity)}</strong></td><td>{row.approved_quantity == null ? '—' : formatUnits(row.approved_quantity)}</td><td>{row.supplier_name || 'Supplier unavailable'}</td><td>{row.expires_at ? new Date(row.expires_at).toLocaleString() : '—'}</td><td>{row.status === 'NEW' && <Button className="compact" onClick={() => onReview(row)}>Review</Button>}{canCreate && <Button className="compact secondary" onClick={() => onCreatePurchaseOrder(row)}>Create draft PO</Button>}{row.purchase_order_id && <span>Linked PO #{row.purchase_order_id}</span>}</td></tr> })}</tbody></table>{!rows.length && <Empty title="No restock recommendations yet">Recommendations appear here when a product genuinely needs more stock.</Empty>}</article>
+}
+
+function RecommendationPoModal({ recommendation, product, onClose, client }) {
+  const [form, setForm] = useState({ po_number: `REC-${recommendation.id}-DRAFT`, expected_arrival_date: '', notes: '' })
+  const create = useMutation({ mutationFn: (data) => api.createPurchaseOrderFromRecommendation(recommendation.id, { ...data, confirm: true }), onSuccess: () => { invalidate(client); client.invalidateQueries({ queryKey: ['orders'] }); toast.success('Linked draft purchase order created'); onClose() }, onError: fail })
+  return <Modal title="Create linked draft purchase order" onClose={onClose}><form className="form-grid" onSubmit={(event) => { event.preventDefault(); create.mutate({ ...form, expected_arrival_date: form.expected_arrival_date || null }) }}><p className="callout">Create one draft for <strong>{displayProduct(product || { sku: `Product ${recommendation.product_id}` }).name}</strong> using the reviewed quantity <strong>{formatUnits(recommendation.approved_quantity)}</strong>. This does not place an order or change stock.</p><label>Draft PO number<input required value={form.po_number} onChange={(event) => setForm({ ...form, po_number: event.target.value })}/></label><label>Expected arrival<input type="date" value={form.expected_arrival_date} onChange={(event) => setForm({ ...form, expected_arrival_date: event.target.value })}/></label><label>Notes<textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })}/></label><footer><Button type="button" className="secondary" onClick={onClose}>Cancel</Button><Button loading={create.isPending}>Confirm draft PO</Button></footer></form></Modal>
 }
 
 function ReviewModal({ recommendation, product, onClose, client }) {

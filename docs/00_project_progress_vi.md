@@ -18,9 +18,9 @@ Engine ưu tiên nhà cung cấp preferred; nếu chỉ có một nhà cung cấ
 
 ## Giai đoạn hiện tại / Giai đoạn tiếp theo / Vướng mắc đã biết
 
-- **Giai đoạn hiện tại:** `P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ` là **PLANNED**. P21 xử lý đúng các phát hiện P20: gắn người thực hiện từ phiên đăng nhập ở server, idempotency cho bán hàng, liên kết đề xuất đã duyệt với PO nháp có chống trùng, UI PO còn thiếu, thông báo điều kiện forecast và lỗi tải dữ liệu.
+- **Giai đoạn hiện tại:** `P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ` là **DONE**. P21 đã gắn người thực hiện từ phiên đăng nhập ở server, thêm idempotency bền vững cho bán hàng, liên kết đề xuất đã duyệt với một PO nháp có chống trùng, hoàn thiện thao tác PO, thông báo điều kiện forecast và lỗi tải dữ liệu. Migration MySQL cộng thêm đã ở head; bộ test cô lập có 70 test đạt.
 - **Giai đoạn tiếp theo:** `P22 — Mô phỏng siêu thị dựa trên M5` là **PLANNED**. P22 sẽ dùng dữ liệu lịch sử doanh số, lịch/sự kiện và giá M5 CA_1/FOODS có thật; tồn kho, nhà cung cấp và PO chỉ là dữ liệu vận hành tổng hợp, được gắn nhãn riêng.
-- **Vướng mắc đã biết:** P18 và P19 là **PENDING_VERIFICATION**, vì vẫn cần ảnh/chạy thử thủ công trên trình duyệt thật. P20 không có browser automation. Model M5 hiện tại không thể dự báo SKU siêu thị mới tùy ý; một siêu thị mới phải huấn luyện/đánh giá lại bằng POS, danh mục, lịch và giá của chính siêu thị đó.
+- **Vướng mắc đã biết:** P18 và P19 là **PENDING_VERIFICATION**, vì vẫn cần ảnh/chạy thử thủ công trên trình duyệt thật. P24 còn cần bằng chứng browser và workflow chạy thật cho P21; không có browser automation trong môi trường này. Model M5 hiện tại không thể dự báo SKU siêu thị mới tùy ý; một siêu thị mới phải huấn luyện/đánh giá lại bằng POS, danh mục, lịch và giá của chính siêu thị đó.
 
 ## Đề tài
 
@@ -53,7 +53,7 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P18 — Xác thực và tinh chỉnh UI** | 🟡 **PENDING_VERIFICATION** | Đã có xác thực phiên và các tinh chỉnh UI; lint/build không thay thế ảnh/chạy thử thủ công cần thiết. |
 | **P19 — Thử nghiệm trực quan Inventory Control Room V1/V2** | 🟡 **PENDING_VERIFICATION** | Dashboard thử nghiệm dùng dữ liệu API thật; cần evidence trực quan desktop/mobile trước khi mở rộng sang trang khác. |
 | **P20 — Kiểm tra chức năng** | 🟢 **DONE** | Đã kiểm tra source, test, MySQL chỉ đọc và build; ghi rõ những khoảng trống cần hoàn thiện. |
-| **P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ** | ⚪ **PLANNED** | Hoàn thiện attribution phía server, review-to-PO, idempotency, PO UI, forecast eligibility và thông báo lỗi theo phát hiện P20. |
+| **P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ** | 🟢 **DONE** | Actor audit lấy từ session server; sale có idempotency key duy nhất; đề xuất đã duyệt tạo đúng một PO nháp liên kết; UI có sửa draft/nhận một phần/hủy; forecast phân biệt SKU M5 hợp lệ; tám trang có retry khi query lỗi. |
 | **P22 — Mô phỏng siêu thị dựa trên M5** | ⚪ **PLANNED** | Tách rõ dữ liệu M5 quan sát được khỏi tồn kho/nhà cung cấp/PO tổng hợp có gắn marker và mapping SKU truy vết được. |
 | **P23 — Nghiên cứu XGBoost V2** | ⚪ **PLANNED** | Thí nghiệm phiên bản mới tách biệt; giữ nguyên kết quả XGBoost V1 và không tuning lại trên TEST V1. |
 | **P24 — Kiểm thử và đánh giá đầu-cuối** | ⚪ **PLANNED** | Kiểm tra workflow tích hợp, MySQL/browser evidence và các giả định mô phỏng inventory. |
@@ -137,3 +137,11 @@ P20 chưa thêm chức năng mới. Mục tiêu là kiểm tra xem hệ thống 
 - P22 sau đó tạo bộ dữ liệu mô phỏng M5 lặp lại được: chỉ dùng doanh số lịch sử, lịch/sự kiện và giá M5 thật cho SKU CA_1/FOODS đủ điều kiện; product trong app phải có mapping truy vết được tới M5 item/store/SKU. Tồn kho, nhà cung cấp, lead time và PO là dữ liệu tổng hợp có marker riêng; reset chỉ được phép xóa đúng record có scenario manifest, không đụng dữ liệu người dùng khác. Không dự báo SKU mới tùy ý; siêu thị mới phải huấn luyện/đánh giá lại bằng dữ liệu POS của mình.
 
 Chi tiết kỹ thuật, ma trận 8 trang, mức độ lỗi, bằng chứng test và kế hoạch P21–P24 nằm ở `docs/implementation/P20_functional_audit.md`.
+
+## P21 — Hoàn thiện tính toàn vẹn và quy trình nghiệp vụ (2026-11-01)
+
+- Server lấy actor audit từ phiên đăng nhập cho điều chỉnh kho, bán hàng, PO, nhận hàng và review; ID actor gửi từ client không thể mạo danh người khác.
+- Mỗi lần bán vận hành cần idempotency key. Cùng key và cùng payload trả lại kết quả đã ghi; cùng key nhưng khác payload bị từ chối. Database giữ unique key nên hai request trùng không thể tạo hai lần trừ tồn/audit.
+- Đề xuất `ACCEPTED` hoặc `MODIFIED` có số lượng đã duyệt dương chỉ tạo được một PO `DRAFT` liên kết, sau xác nhận rõ ràng. PO dùng số lượng đã duyệt, chưa làm đổi tồn kho và không tự gửi nhà cung cấp.
+- Màn hình PO hiển thị còn lại, sửa/xóa dòng khi nháp, nhận một phần và hủy có xác nhận. Forecast báo rõ SKU nào thuộc M5 CA_1/FOODS để được dùng XGBoost V1; tám trang vận hành có trạng thái lỗi và nút thử lại thay vì nhầm lỗi thành dữ liệu rỗng.
+- Đã áp dụng migration cộng thêm `d4e9a6c21f35` lên MySQL local; Alembic head/check đều đạt. Đã chạy 70 test Python, test workflow frontend, lint và build đều đạt. Chưa có browser automation nên P24 phải bấm thử và chụp bằng chứng luồng thực tế.

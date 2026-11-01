@@ -18,6 +18,8 @@ from backend.app.db.models import (
     StockTransactionType,
     Supplier,
     SupplierProduct,
+    RecommendationStatus,
+    ReorderRecommendation,
     utc_now,
 )
 from backend.app.repositories.business import BusinessRepository
@@ -32,6 +34,7 @@ from backend.app.schemas.business import (
     PurchaseOrderItemUpdate,
     PurchaseOrderTransition,
     ReceiptCreate,
+    RecommendationPurchaseOrderCreate,
     SupplierCreate,
     SupplierProductCreate,
     SupplierProductUpdate,
@@ -273,9 +276,9 @@ class BusinessService:
             statement = statement.where(StockTransaction.occurred_at <= end_at)
         return list(self.session.scalars(statement.limit(limit).offset(offset)))
 
-    def adjustment(self, product_id: int, data: AdjustmentCreate) -> StockTransaction:
+    def adjustment(self, product_id: int, data: AdjustmentCreate, actor_user_id: int) -> StockTransaction:
         self._product(product_id)
-        self._require_user(data.created_by_user_id)
+        self._require_user(actor_user_id)
         inventory = self.repo.lock_inventory(self.session, product_id)
         if inventory is None:
             raise ConflictError("product has no inventory row")
@@ -289,7 +292,7 @@ class BusinessService:
             product_id=product_id,
             transaction_type=data.transaction_type,
             quantity=data.quantity,
-            created_by_user_id=data.created_by_user_id,
+            created_by_user_id=actor_user_id,
             reason=data.reason.strip(),
             occurred_at=utc_now(),
         )
@@ -298,11 +301,13 @@ class BusinessService:
         self.session.refresh(transaction)
         return transaction
 
-    def purchase_order_create(self, data: PurchaseOrderCreate) -> PurchaseOrder:
+    def purchase_order_create(
+        self, data: PurchaseOrderCreate, actor_user_id: int, reorder_recommendation_id: int | None = None
+    ) -> PurchaseOrder:
         supplier = self._supplier(data.supplier_id)
         if not supplier.is_active:
             raise ConflictError("inactive suppliers cannot receive new purchase orders")
-        self._require_user(data.created_by_user_id)
+        self._require_user(actor_user_id)
         product_ids = [line.product_id for line in data.items]
         if len(product_ids) != len(set(product_ids)):
             raise ConflictError("a purchase order cannot contain duplicate product lines")
@@ -326,10 +331,66 @@ class BusinessService:
             po_number=data.po_number,
             supplier_id=data.supplier_id,
             expected_arrival_date=data.expected_arrival_date,
-            created_by_user_id=data.created_by_user_id,
+            created_by_user_id=actor_user_id,
+            reorder_recommendation_id=reorder_recommendation_id,
             notes=data.notes,
             status=PurchaseOrderStatus.DRAFT,
             items=lines,
+        )
+        self.session.add(order)
+        self._commit()
+        return self.purchase_order(order.id)
+
+    def recommendation_purchase_order_create(
+        self, recommendation_id: int, data: RecommendationPurchaseOrderCreate, actor_user_id: int
+    ) -> PurchaseOrder:
+        """Create exactly one manager-confirmed draft PO from a reviewed recommendation."""
+        self._require_user(actor_user_id)
+        recommendation = self.session.scalar(
+            select(ReorderRecommendation)
+            .where(ReorderRecommendation.id == recommendation_id)
+            .with_for_update()
+        )
+        if recommendation is None:
+            raise self._not_found("reorder recommendation")
+        if recommendation.status not in {RecommendationStatus.ACCEPTED, RecommendationStatus.MODIFIED}:
+            raise ConflictError("only ACCEPTED or MODIFIED recommendations can create a draft purchase order")
+        if recommendation.approved_quantity is None or recommendation.approved_quantity <= 0:
+            raise ConflictError("the reviewed recommendation must have a positive approved quantity")
+        existing = self.session.scalar(
+            select(PurchaseOrder.id).where(PurchaseOrder.reorder_recommendation_id == recommendation.id)
+        )
+        if existing is not None:
+            raise ConflictError("this recommendation is already linked to purchase order %s" % existing)
+        product = self._product(recommendation.product_id)
+        if not product.is_active:
+            raise ConflictError("inactive products cannot be ordered")
+        mappings = list(
+            self.session.scalars(
+                select(SupplierProduct)
+                .join(Supplier)
+                .where(SupplierProduct.product_id == product.id, Supplier.is_active.is_(True))
+            )
+        )
+        preferred = [mapping for mapping in mappings if mapping.is_preferred]
+        mapping = preferred[0] if len(preferred) == 1 else mappings[0] if len(mappings) == 1 else None
+        if mapping is None:
+            raise ConflictError("a single active preferred supplier mapping is required for this recommendation")
+        order = PurchaseOrder(
+            po_number=data.po_number,
+            supplier_id=mapping.supplier_id,
+            expected_arrival_date=data.expected_arrival_date,
+            created_by_user_id=actor_user_id,
+            reorder_recommendation_id=recommendation.id,
+            notes=data.notes,
+            status=PurchaseOrderStatus.DRAFT,
+            items=[
+                PurchaseOrderItem(
+                    product_id=product.id,
+                    ordered_quantity=recommendation.approved_quantity,
+                    unit_cost=mapping.unit_cost,
+                )
+            ],
         )
         self.session.add(order)
         self._commit()
@@ -356,7 +417,8 @@ class BusinessService:
             raise ConflictError("purchase-order lines can only be edited while the order is DRAFT")
         return order
 
-    def purchase_order_item_add(self, purchase_order_id: int, data: PurchaseOrderItemCreate) -> PurchaseOrder:
+    def purchase_order_item_add(self, purchase_order_id: int, data: PurchaseOrderItemCreate, actor_user_id: int) -> PurchaseOrder:
+        self._require_user(actor_user_id)
         order = self._draft_order(purchase_order_id)
         product = self._product(data.product_id)
         if not product.is_active:
@@ -376,7 +438,8 @@ class BusinessService:
         self._commit()
         return self.purchase_order(purchase_order_id)
 
-    def purchase_order_item_update(self, purchase_order_id: int, item_id: int, data: PurchaseOrderItemUpdate) -> PurchaseOrder:
+    def purchase_order_item_update(self, purchase_order_id: int, item_id: int, data: PurchaseOrderItemUpdate, actor_user_id: int) -> PurchaseOrder:
+        self._require_user(actor_user_id)
         order = self._draft_order(purchase_order_id)
         item = next((item for item in order.items if item.id == item_id), None)
         if item is None:
@@ -386,7 +449,8 @@ class BusinessService:
         self._commit()
         return self.purchase_order(purchase_order_id)
 
-    def purchase_order_item_delete(self, purchase_order_id: int, item_id: int) -> None:
+    def purchase_order_item_delete(self, purchase_order_id: int, item_id: int, actor_user_id: int) -> None:
+        self._require_user(actor_user_id)
         order = self._draft_order(purchase_order_id)
         item = next((item for item in order.items if item.id == item_id), None)
         if item is None:
@@ -394,7 +458,8 @@ class BusinessService:
         self.session.delete(item)
         self._commit()
 
-    def purchase_order_transition(self, purchase_order_id: int, data: PurchaseOrderTransition) -> PurchaseOrder:
+    def purchase_order_transition(self, purchase_order_id: int, data: PurchaseOrderTransition, actor_user_id: int) -> PurchaseOrder:
+        self._require_user(actor_user_id)
         order = self.purchase_order(purchase_order_id)
         target = data.target_status
         if target == PurchaseOrderStatus.RECEIVED:
@@ -404,16 +469,15 @@ class BusinessService:
         if target == PurchaseOrderStatus.APPROVED:
             if not order.items:
                 raise ConflictError("an empty purchase order cannot be approved")
-            self._require_user(data.approved_by_user_id)
-            order.approved_by_user_id = data.approved_by_user_id
+            order.approved_by_user_id = actor_user_id
         if target == PurchaseOrderStatus.ORDERED and order.order_date is None:
             order.order_date = utc_now().date()
         order.status = target
         self._commit()
         return self.purchase_order(purchase_order_id)
 
-    def receive_purchase_order(self, purchase_order_id: int, data: ReceiptCreate) -> PurchaseOrder:
-        self._require_user(data.created_by_user_id)
+    def receive_purchase_order(self, purchase_order_id: int, data: ReceiptCreate, actor_user_id: int) -> PurchaseOrder:
+        self._require_user(actor_user_id)
         if len({line.purchase_order_item_id for line in data.items}) != len(data.items):
             raise ConflictError("a receipt cannot contain duplicate purchase-order items")
         order = self.repo.lock_purchase_order(self.session, purchase_order_id)
@@ -442,7 +506,7 @@ class BusinessService:
                     transaction_type=StockTransactionType.RECEIPT,
                     quantity=quantity,
                     purchase_order_item_id=item.id,
-                    created_by_user_id=data.created_by_user_id,
+                    created_by_user_id=actor_user_id,
                     reason="Purchase-order receipt",
                     occurred_at=utc_now(),
                 )

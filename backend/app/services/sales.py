@@ -8,9 +8,10 @@ from decimal import Decimal, InvalidOperation
 from io import StringIO
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.db.models import SalesDaily, StockTransaction, StockTransactionType, utc_now
+from backend.app.db.models import OperationalSale, SalesDaily, StockTransaction, StockTransactionType, utc_now
 from backend.app.repositories.business import BusinessRepository
 from backend.app.repositories.sales_forecasts import SalesForecastRepository
 from backend.app.schemas.business import OperationalSaleCreate
@@ -103,13 +104,36 @@ class SalesService:
             raise ConflictError("sales import conflicts with an existing record or constraint") from exc
         return {"rows_received": len(rows), "rows_inserted": inserted, "rows_updated": updated, "rows_rejected": 0}
 
-    def record_sale(self, data: OperationalSaleCreate) -> SalesDaily:
+    @staticmethod
+    def _same_sale(existing: OperationalSale, data: OperationalSaleCreate) -> bool:
+        return (
+            existing.product_id == data.product_id
+            and existing.quantity == data.quantity
+            and existing.sale_date == data.sale_date
+            and existing.sell_price == data.sell_price
+            and existing.source == data.source
+        )
+
+    def _replayed_sale(self, data: OperationalSaleCreate) -> SalesDaily | None:
+        existing = self.session.scalar(
+            select(OperationalSale).where(OperationalSale.idempotency_key == data.idempotency_key)
+        )
+        if existing is None:
+            return None
+        if not self._same_sale(existing, data):
+            raise ConflictError("idempotency key was already used for a different sale")
+        return existing.sales_daily
+
+    def record_sale(self, data: OperationalSaleCreate, actor_user_id: int) -> SalesDaily:
+        replay = self._replayed_sale(data)
+        if replay is not None:
+            return replay
         product = self.business_repo.product(self.session, data.product_id)
         if product is None:
             raise NotFoundError("product not found")
         if not product.is_active:
             raise ConflictError("inactive products cannot be sold")
-        if data.created_by_user_id is not None and not self.business_repo.user_exists(self.session, data.created_by_user_id):
+        if not self.business_repo.user_exists(self.session, actor_user_id):
             raise NotFoundError("user not found")
         inventory = self.business_repo.lock_inventory(self.session, data.product_id)
         if inventory is None:
@@ -129,12 +153,27 @@ class SalesService:
                 daily.sell_price = data.sell_price
             if data.source:
                 daily.source = data.source
+        self.session.add(
+            OperationalSale(
+                idempotency_key=data.idempotency_key,
+                product_id=data.product_id,
+                sales_daily_id=daily.id,
+                quantity=data.quantity,
+                sale_date=data.sale_date,
+                sell_price=data.sell_price,
+                source=data.source,
+                created_by_user_id=actor_user_id,
+            )
+        )
         inventory.on_hand -= data.quantity
-        self.session.add(StockTransaction(product_id=data.product_id, transaction_type=StockTransactionType.SALE, quantity=data.quantity, sales_daily_id=daily.id, created_by_user_id=data.created_by_user_id, reason="operational sale", occurred_at=utc_now()))
+        self.session.add(StockTransaction(product_id=data.product_id, transaction_type=StockTransactionType.SALE, quantity=data.quantity, sales_daily_id=daily.id, created_by_user_id=actor_user_id, reason="operational sale", occurred_at=utc_now()))
         try:
             self.session.commit()
         except IntegrityError as exc:
             self.session.rollback()
+            replay = self._replayed_sale(data)
+            if replay is not None:
+                return replay
             raise ConflictError("sale conflicts with an existing record or constraint") from exc
         self.session.refresh(daily)
         return daily

@@ -54,7 +54,8 @@ There is deliberately no `stores` or warehouse table: this thesis MVP is single-
 | `supplier_products` | Supplier/product many-to-many data. | Unique `(supplier_id, product_id)`, optional decimal `unit_cost`, required positive `lead_time_days`, preferred flag. |
 | `inventory` | Current single-store on-hand state. | `product_id` is both PK and FK; nonnegative integer `on_hand`, `updated_at`. It intentionally does not persist a freely editable `on_order` value. |
 | `sales_daily` | Normalized application sales history / future CSV-POS import target. | Unique `(product_id, sale_date)`, nonnegative `quantity_sold`, nullable nonnegative retail `sell_price`, optional `source`; one product/date/quantity per row, never M5 day columns. |
-| `purchase_orders` | Supplier purchase-order header. | Unique indexed `po_number`, supplier and optional creator/approver FKs, controlled lifecycle `status`, order/arrival/receipt dates, notes. |
+| `operational_sales` | Durable operational-sale event ledger. | Globally unique `idempotency_key`, product/daily-sale FKs, exact submitted quantity/date/price/source, and server-derived creator; it makes retry handling distinct from daily aggregation. |
+| `purchase_orders` | Supplier purchase-order header. | Unique indexed `po_number`, supplier and optional creator/approver FKs, optional unique source-recommendation FK, controlled lifecycle `status`, order/arrival/receipt dates, notes. |
 | `purchase_order_items` | Purchase-order lines. | Unique `(purchase_order_id, product_id)`, positive ordered quantity, received quantity between zero and ordered quantity, optional decimal `unit_cost`. |
 | `stock_transactions` | Immutable future audit trail for stock movements. | Product, controlled type, positive quantity, UTC occurrence time, optional PO-item/sales/user provenance, reason. P13 creates persistence only; later services must forbid editing history. |
 | `forecast_runs` | Forecast-run metadata. | Model/feature identifiers, history/forecast dates, positive horizon, UTC generation time. The external model file is not stored in MySQL. |
@@ -78,7 +79,7 @@ SQLAlchemy portable enums (`native_enum=False` with check constraints) represent
 - Monetary fields (`unit_cost`) and continuous forecasts (`predicted_demand`) use `DECIMAL`/`NUMERIC`, never floating-point currency.
 - `inventory.on_hand`, sales quantity, incoming/recommendation quantities, forecast demand, and other quantity-like fields have nonnegative checks; ordered quantity, stock transaction quantity, horizon, and lead time are positive where required.
 - A purchase-order line cannot receive more than it ordered; supplier-product and purchase-order-item pairs are unique.
-- Unique business identifiers: user email, category code, product SKU, supplier code, and purchase-order number.
+- Unique business identifiers: user email, category code, product SKU, supplier code, purchase-order number, and operational-sale idempotency key. A source recommendation can be linked to at most one purchase order.
 - Query indexes include product category/SKU, PO status/number, stock transaction `(product_id, occurred_at)`, forecast `(product_id, forecast_date)` and run, recommendation `(product_id, created_at)` and status. Composite uniqueness on daily sales also serves normal product/date history lookup.
 - P13 does not enforce workflow transitions. P14/P16 must enforce: no negative on-hand inventory in normal transactions, auditable stock movement, receipt-only inventory increase, sale/fulfillment decrease, manager review for recommendations, and no automatic supplier purchase.
 
@@ -87,6 +88,12 @@ SQLAlchemy portable enums (`native_enum=False` with check constraints) represent
 Incoming/on-order inventory is derived later from `purchase_order_items.ordered_quantity - received_quantity` for eligible open purchase-order statuses. It is intentionally not duplicated in `inventory`, avoiding conflicting editable state. `CANCELLED` orders and completed `RECEIVED` orders do not contribute to incoming quantity.
 
 Accepting or modifying a recommendation does not change `inventory.on_hand`; creating a purchase order does not either. A later receipt service must both record a `RECEIPT` stock transaction and increase inventory atomically. Sales/fulfilled stock-outs must record the appropriate transaction and decrease inventory. P13 establishes the schema required for those rules but does not implement the services.
+
+## P21 integrity migration
+
+Alembic revision `d4e9a6c21f35` is additive and compatible with existing operational records. It creates `operational_sales` and adds nullable `purchase_orders.reorder_recommendation_id`, its foreign key, and a unique constraint. Existing manual purchase orders remain valid because the new link is nullable. The revision was applied forward to the local MySQL database and Alembic `current`, `heads`, and `check` agree at `d4e9a6c21f35`; no reset, seed, or existing-row rewrite was performed.
+
+An operational sale is recorded in the same transaction as its inventory decrement, `sales_daily` aggregation, and `SALE` stock transaction. The unique idempotency key is the database-level duplicate guard: an identical retry returns its existing daily aggregate, while a reused key with different business payload is rejected. Historical CSV imports do not create `operational_sales` records and never change on-hand stock.
 
 ## Verification Evidence
 
