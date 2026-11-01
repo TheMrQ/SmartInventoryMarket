@@ -41,7 +41,7 @@ The SQLite suite proves service and route behavior without touching local MySQL.
 ### Cross-page frontend observations
 
 - Mutations consistently use a shared API client, HTTP error normalization, toast errors, and targeted React Query invalidation.
-- Query loading indicators exist. The eight pages generally do not render a dedicated query-error state; a read failure can therefore leave an empty table/panel without a direct explanation. This is a P21 usability/reliability item, not proof of a backend failure.
+- Query loading indicators exist. The eight pages generally do not render a dedicated query-error state; a read failure can therefore leave an empty table/panel without a direct explanation. This is a P22 usability/reliability item, not proof of a backend failure.
 - The API client sends cookie credentials and the CSRF header for non-FormData mutations. Authentication and route protection remain separate from visual P19 work.
 
 ## End-to-end invariant trace
@@ -72,7 +72,7 @@ The SQLite suite proves service and route behavior without touching local MySQL.
 | P20-04 | **MEDIUM** | Purchase Order UI cannot enter partial receipt quantities, cancel an order, or edit DRAFT lines although the API supports these workflows. | The core process is usable only for full receipts and does not expose all safe backend controls. | Add PO detail/draft editor, cancellation action, and line-level receipt form; preserve server state machine. |
 | P20-05 | **MEDIUM** | Forecast selector offers arbitrary active products, while frozen model only accepts compatible M5 CA_1/FOODS SKU vocabulary. | Expected API error is exposed late; application can appear to promise universal forecasting. | Expose eligibility metadata/read endpoint, filter or mark selector choices, and give an explicit M5-simulation message before generate. |
 | P20-06 | **MEDIUM** | No dedicated query-error states across the operational pages. | Database/network failures can resemble empty data, reducing truthful operational feedback. | Add shared query-error recovery panel with retry and retain existing mutation toasts. |
-| P20-07 | **LOW** | Automated backend tests use SQLite dependency overrides and role stubs for most business endpoints. | They are strong rule tests but do not prove MySQL locking or a real browser workflow. | Keep isolated tests; add carefully marked, opt-in live-MySQL smoke tests and browser E2E only after the P21 integrity work. |
+| P20-07 | **LOW** | Automated backend tests use SQLite dependency overrides and role stubs for most business endpoints. | They are strong rule tests but do not prove MySQL locking or a real browser workflow. | Keep isolated tests; add carefully marked, opt-in live-MySQL smoke tests and browser E2E as P24 integration evidence after P21/P22 implementation is stable. |
 
 No source-confirmed defect was changed during P20 because the findings require coordinated design and new tests rather than an isolated audit-only fix.
 
@@ -101,21 +101,34 @@ The existing `scripts/db/setup_ui_demo.py` demonstrates several useful principle
 
 ## Prioritized implementation backlog
 
-### P21 — Integrity, attribution, and workflow completion
+### P21 — M5-grounded supermarket simulation
+
+1. Implement the marker- and manifest-scoped M5 scenario setup/reset design above, with dry-run, non-destructive preflight, exact created-ID recording, and reset refusal for externally modified or unmarked records.
+2. Use real M5 CA_1/FOODS historical sales, calendar/events, and sell-price inputs only for frozen-model-eligible SKUs. Persist a traceable application-product-to-M5 item/store/SKU mapping and scenario provenance.
+3. Create only clearly marked synthetic operational inventory, suppliers, supplier mappings/lead times, and purchase orders. Do not label those records as observed M5/Walmart inventory or procurement facts.
+4. Generate real predictions only with the unchanged frozen XGBOOST_V1 artifact and only after eligibility preflight. Do not forecast arbitrary new SKUs; retain a future POS ingestion boundary and require retraining/evaluation for a new supermarket.
+5. Acceptance evidence: rerun setup safely, prove provenance labels/mapping, show the separated observed and synthetic domains, and prove safe reset affects only manifest-scoped scenario records.
+
+### P22 — End-to-end business workflow completion
 
 1. Bind all write/audit actor IDs to authenticated server-side identity; remove client-controlled actor attribution and add API tests.
 2. Add a reviewed-recommendation-to-draft-PO workflow, relationship/audit fields, idempotent duplicate guard, and explicit human confirmation.
 3. Add sale idempotency/POS reference support and regression tests for duplicate delivery.
 4. Complete PO UI: draft line editing, cancellation, controlled partial receipts, and clear stock/audit refresh.
-5. Add shared query-error/retry UI and explicit M5 forecast eligibility feedback.
-6. Add targeted live-MySQL smoke coverage only through marker-scoped, opt-in scripts; add browser E2E after those flows are stable.
+5. Add shared query-error/retry UI and explicit M5 forecast eligibility feedback before forecast action.
+6. Acceptance evidence: a documented manager workflow traverses scenario setup, forecast, decision, human review, linked PO, partial/final receipt, sale retry, and audit attribution without automatically changing stock at recommendation time.
 
-### P22 — Repeatable thesis simulation and acceptance evidence
+### P23 — XGBoost V2 research and evaluation
 
-1. Implement the marker- and manifest-scoped M5 scenario setup/reset design above, with dry-run and non-destructive preflight.
-2. Seed only eligible M5 SKUs and generate real frozen-model predictions; distinguish historical versus synthetic records throughout the UI.
-3. Execute documented manager workflow acceptance: product/supplier/inventory, historical import, safe sale, forecast, decision, review, linked PO, partial/final receipt, and audit proof.
-4. Capture manual browser evidence for all eight pages, expanded/collapsed sidebar, error/empty/loading/focus/narrow states, and the full business workflow.
+1. Preserve all original XGBOOST_V1 configuration, artifacts, validation metrics, and one-time TEST evaluation as immutable historical evidence.
+2. Define a separately versioned research hypothesis, data/config manifest, validation protocol, artifact, and comparison table; do not use the V1 TEST window for V2 tuning or selection.
+3. Report any V2 result as a separate experiment, not as a revision of V1 or a forecast claim for arbitrary supermarket SKUs.
+
+### P24 — Integration, regression, and inventory evaluation
+
+1. Add regression coverage for the P21 scenario boundary and P22 workflow invariants, including provenance, reset safety, actor attribution, PO duplicate prevention, sale idempotency, and inventory transaction correctness.
+2. Run opt-in marker-scoped live-MySQL smoke checks and browser E2E/manual acceptance across all eight pages, expanded/collapsed sidebar, error/empty/loading/focus/narrow states, and the complete workflow.
+3. Evaluate inventory outcomes only against documented simulation assumptions and keep them distinct from observed M5 inventory facts and from forecasting model-selection evidence.
 
 ## Test results
 
@@ -127,8 +140,8 @@ The existing `scripts/db/setup_ui_demo.py` demonstrates several useful principle
 | `npm run lint` | **Passed** | Source lint only. |
 | `npm run build` | **Passed** | Existing Vite large-chunk advisory remains non-failing. |
 | `git diff --check` | **Passed** before documentation commit | No whitespace error in audit changes. |
-| Browser/local UI E2E | **Unavailable** | Browser access host/native pipe unavailable; use the manual checklist in P22. |
+| Browser/local UI E2E | **Unavailable** | Browser access host/native pipe unavailable; use the manual checklist and integration evidence planned for P24. |
 
 ## P20 conclusion
 
-The application has a credible, tested transactional core for inventory, historical sales, frozen forecasting, risk decisions, and human-reviewed recommendations. It is not yet a complete operational loop. P21 must secure audit attribution and bridge reviewed recommendations to controlled purchase orders before P22 seeds and demonstrates a repeatable M5-grounded supermarket scenario.
+The application has a credible, tested transactional core for inventory, historical sales, frozen forecasting, risk decisions, and human-reviewed recommendations. It is not yet a complete operational loop. P21 must establish a safe, traceable M5-grounded simulation without conflating observed M5 history with synthetic operations. P22 must then close the attribution, idempotency, recommendation-to-PO, PO-control, eligibility-feedback, and error-recovery gaps. P24 is the point for integrated live-environment and browser evidence; P23 remains separate research and cannot revise the original XGBOOST_V1 historical results.

@@ -4,7 +4,13 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P18 Dashboard optical-icon correction is implementation-verified and awaits the requested collapsed-sidebar screenshot; broader final evidence remains
+Overall status: 🟡 **IN_PROGRESS** — P20 functional audit is complete; the next planned delivery is a clearly bounded, M5-grounded supermarket simulation, followed by completion and verification of the operational workflow.
+
+## Current Phase / Next Phase / Known Blockers
+
+- **Current Phase:** `P21 — M5-grounded supermarket simulation` is **PLANNED**. It will use real, frozen M5 CA_1/FOODS sales, calendar, and price history, plus explicitly synthetic operational inventory, supplier, and purchase-order records. No P21 write has started.
+- **Next Phase:** `P22 — End-to-end business workflow completion` is **PLANNED**. It will address the P20 evidence gaps: server-bound actor attribution, a reviewed-recommendation-to-draft-PO link with duplicate prevention, sales idempotency, incomplete PO controls, forecast eligibility feedback, and read-error recovery.
+- **Known Blockers:** P18 and P19 are **PENDING_VERIFICATION** because browser/manual visual evidence is still required; P20 found that the current workflow cannot yet prove trustworthy actor attribution or a traceable recommendation-to-PO loop. Browser automation was unavailable during P20. The frozen M5 model also cannot forecast arbitrary newly created SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
 
@@ -88,12 +94,18 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P15 Sales ingestion + forecasting API | 🟢 **DONE** |
 | P16 Inventory decision engine | 🟢 **DONE** |
 | P17 React dashboard + integration | 🟢 **DONE** |
-| P18 Testing + final experiments | 🟡 **IN_PROGRESS** |
-| P19 Thesis report + defense package | ⚪ **TODO** |
+| P18 Authentication and UI refinement | 🟡 **PENDING_VERIFICATION** |
+| P19 Inventory Control Room visual experiment V1/V2 | 🟡 **PENDING_VERIFICATION** |
+| P20 Functional audit | 🟢 **DONE** |
+| P21 M5-grounded supermarket simulation | ⚪ **PLANNED** |
+| P22 End-to-end business workflow completion | ⚪ **PLANNED** |
+| P23 XGBoost V2 research and evaluation | ⚪ **PLANNED** |
+| P24 Integration, regression, and inventory evaluation | ⚪ **PLANNED** |
+| P25 Thesis report and defense preparation | ⚪ **PLANNED** |
 
-## Current Task
+## Historical Phase Notes
 
-`P20 — Smart Inventory Functional Audit` is **DONE** on `experiment/inventory-control-room`. The audit made no functional/code changes. It verified a clean MySQL Alembic head (`a91c2e6f4b20`) with no drift, presence and pinned-hash integrity of the ignored frozen XGBoost artifact, and 65 passing isolated tests; frontend lint/build also pass. Source and test evidence confirms the product/inventory/sales/PO/forecast/decision core, but P20 identifies the next functional blockers: actor attribution is not bound to the authenticated server user, reviewed recommendations cannot safely create linked purchase orders, operational sale requests lack idempotency, the PO UI lacks partial receipt/draft/cancel controls, forecast eligibility is exposed late, and operational pages lack query-error states. Browser automation is unavailable, so no live UI route/mutation verification is claimed. `docs/implementation/P20_functional_audit.md` is the detailed evidence, simulation proposal, and P21/P22 backlog; no P21 implementation has started.
+`P20 — Smart Inventory Functional Audit` is **DONE** on `experiment/inventory-control-room`. The audit made no functional/code changes. It verified a clean MySQL Alembic head (`a91c2e6f4b20`) with no drift, presence and pinned-hash integrity of the ignored frozen XGBoost artifact, and 65 passing isolated tests; frontend lint/build also pass. Source and test evidence confirms the product/inventory/sales/PO/forecast/decision core, but P20 identifies the next functional blockers: actor attribution is not bound to the authenticated server user, reviewed recommendations cannot safely create linked purchase orders, operational sale requests lack idempotency, the PO UI lacks partial receipt/draft/cancel controls, forecast eligibility is exposed late, and operational pages lack query-error states. Browser automation is unavailable, so no live UI route/mutation verification is claimed. `docs/implementation/P20_functional_audit.md` is the detailed evidence and P21–P24 acceptance roadmap; no P21 implementation has started.
 
 `P19-VISUAL-REFINEMENT-V2 — Inventory Control Room Operational Precision` continues on the isolated `experiment/inventory-control-room` branch after the user approved the first Dashboard direction. It adds Manrope Variable only for Dashboard display hierarchy and tabular primary metrics while retaining Inter Variable for dense operational UI. The live decision panel now gives actual stockout/reorder signals amber emphasis only when present; the existing API-backed risk chart gains quiet gridlines, readable axes, semantic data colors, and a high-contrast formatted tooltip. Compact summaries, list rows, badges, empty states, buttons, borders, and focus/motion behavior are refined through the shared presentation system without changing any calculation, API, business logic, sidebar geometry, authentication, or non-Dashboard composition. `docs/design/visual-system.md` defines the one shared token system. Lint/build/diff checks pass; browser automation is unavailable, so desktop/mobile, loading/empty, focus, and sidebar screenshots remain the required manual acceptance evidence. Do not extend this experiment to other pages without user approval.
 
@@ -199,14 +211,14 @@ The application now has real cookie-session authentication: public registration 
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-017` — Human-friendly polished React dashboard, real local thesis-demo workflow, and historical-to-forecast visualization integrated with FastAPI
+`CHECKPOINT-020` — Functional audit complete; the verified transactional core, forecasting boundary, UI limitations, and evidence gaps are documented without changing application behavior.
 
 ## Next Exact Step
 
-`NEXT-018` — End-to-end verification, UX polish, integration testing, and final experiment/evidence consolidation.
+`NEXT-021` — Design and implement the marker-scoped M5-grounded supermarket simulation: real M5 historical sales/calendar/prices; synthetic operational inventory, suppliers, and POs; and a traceable product-to-M5-SKU mapping. Do not use the frozen model for arbitrary new SKUs and do not retrain or alter XGBOOST_V1.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 
 ## Known Blockers
 
-`P18-DASHBOARD-OPTICAL-ICON-ALIGNMENT` needs a user screenshot with the collapsed sidebar, showing the balanced `LayoutGrid` Dashboard icon beside the remaining icons. Browser automation is unavailable in the current environment; this does not block source, lint, build, or Git verification.
+P18/P19 manual visual verification remains outstanding: browser automation is unavailable, so the requested authentication, collapsed-sidebar, and desktop/mobile Dashboard screenshots have not been captured. P20 additionally records the workflow blockers that P22 must resolve before a complete operational-loop claim: server-bound actor attribution, recommendation-to-PO traceability and duplicate prevention, sale idempotency, missing PO UI controls, forecast eligibility feedback, and query-error states.

@@ -1,6 +1,6 @@
 # Visual System
 
-Status: `IN_PROGRESS` — P19 Inventory Control Room visual direction is approved for Dashboard refinement only. It must not be extended to other pages until separately approved.
+Status: `PENDING_VERIFICATION` — P19 Inventory Control Room visual direction is approved for Dashboard refinement only, but browser/manual visual evidence remains required. It must not be extended to other pages until separately approved.
 
 ## Intent
 

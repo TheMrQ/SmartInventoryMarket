@@ -96,4 +96,29 @@ P13+ must preserve these boundaries: FastAPI routes coordinate requests and resp
 
 ## Current Implementation Status
 
-P17 implements the React/Vite presentation layer. Browser routes use a shared fetch/error client and React Query cache invalidation to call the thin FastAPI routes already owned by service/repository layers. Vite proxies `/api` and `/health` to the local backend; `VITE_API_BASE_URL` supports a future non-secret deployment origin. The frontend visualizes existing persisted forecast and decision data but does not reproduce ML or inventory formulas in the browser. Authentication remains later scope.
+P17 implements the React/Vite presentation layer, and P18 added cookie-session authentication and UI refinement. Browser routes use a shared fetch/error client and React Query cache invalidation to call the thin FastAPI routes already owned by service/repository layers. Vite proxies `/api` and `/health` to the local backend; `VITE_API_BASE_URL` supports a future non-secret deployment origin. The frontend visualizes existing persisted forecast and decision data but does not reproduce ML or inventory formulas in the browser. P20 audited the functional boundary; its unresolved workflow findings are deliberately planned work, not claims of completed behavior.
+
+## P21 M5-grounded supermarket simulation architecture (PLANNED)
+
+P21 is a thesis demonstration data architecture, not a claim that M5 contains operational inventory. It keeps two provenance domains separate:
+
+```text
+Observed M5 CA_1/FOODS data
+  sales history + calendar/events + sell prices
+      + traceable product-to-M5-SKU mapping
+      ↓
+Frozen XGBOOST_V1 eligible forecast
+
+Synthetic operational scenario (separately marked)
+  inventory + suppliers + supplier-product mappings + purchase orders
+      ↓
+Inventory decision and manager-reviewed recommendation
+```
+
+- **Observed domain:** P21 may import only the frozen M5 historical sales, calendar/event context, and historical prices needed by an eligible CA_1/FOODS SKU. The imported product record must retain a durable mapping to its exact M5 item/store/SKU identity and scenario manifest entry.
+- **Synthetic domain:** on-hand inventory, suppliers, lead times, supplier mappings, and purchase orders are simulation inputs. They must be visibly and persistently scenario-marked, must never be described as observed Walmart inventory, and must support a marker/manifest-scoped dry run and safe reset.
+- **Forecast boundary:** the frozen XGBOOST_V1 artifact is usable only for mapped, eligible M5 SKU identities with the required historical context. The application must not imply or attempt forecasting for an arbitrary newly created SKU.
+- **Future POS boundary:** the `sales_daily` CSV/import and API integration boundary remains compatible with real POS ingestion. A different supermarket must map its own product catalog and retrain/evaluate a new model on its own POS, product, calendar, and price context before operational forecasting.
+- **Version boundary:** P21 does not modify, retrain, reselect, or reinterpret original XGBOOST_V1 validation or TEST results. Any later research is versioned separately as P23 XGBoost V2.
+
+P22 follows P21 to complete the end-to-end operational workflow identified by the P20 audit: server-derived audit attribution, a guarded recommendation-to-draft-PO workflow, idempotent operational sales, missing PO controls, forecast eligibility feedback, and query-error recovery. P24 then evaluates the integrated workflow with regression, live-environment, browser, and inventory evidence; no phase may use the original held-out XGBOOST_V1 TEST window for later tuning.

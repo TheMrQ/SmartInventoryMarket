@@ -2,11 +2,17 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-11-01 — P20 roadmap reconciliation
+
+- Reclassified the post-P17 roadmap without altering P0–P17 history: P18 is Authentication and UI refinement (**PENDING_VERIFICATION**), P19 is the Inventory Control Room visual experiment V1/V2 (**PENDING_VERIFICATION**), and P20 Functional audit is **DONE**.
+- Defined P21 as the **PLANNED** M5-grounded supermarket simulation, P22 as **PLANNED** end-to-end business workflow completion, P23 as **PLANNED** XGBoost V2 research/evaluation, P24 as **PLANNED** integration/regression/inventory evaluation, and P25 as **PLANNED** thesis report/defense preparation.
+- Recorded the P21 provenance architecture: real M5 historical sales/calendar/prices plus traceable product-to-M5-SKU mapping; separately marked synthetic inventory/suppliers/POs; no arbitrary-new-SKU forecast claim; POS-ingestion compatibility; and retraining for a different supermarket. Original XGBOOST_V1 evaluation evidence remains immutable.
+
 ## 2026-11-01 — P20 Smart Inventory functional audit
 
 - Added `docs/implementation/P20_functional_audit.md`, a source/test/read-only-environment audit of all eight application pages, transactional invariants, RBAC, frozen forecasting limits, real bugs/risks, and a safe M5 simulation/reset proposal. No feature implementation, seed, database reset, model retraining, or raw-data change occurred.
-- Verified local MySQL migration revision `a91c2e6f4b20` at head with no drift, frozen XGBoost artifact checksum match, 65 passing isolated tests, frontend lint/build, and whitespace validation. Browser automation was unavailable, so live UI verification is explicitly deferred to manual P22 evidence.
-- Prioritized P21 for server-bound actor attribution, review-to-PO traceability/duplicate prevention, sale idempotency, missing PO UI controls, explicit forecast eligibility, and query-error handling; P22 follows with a marker-scoped repeatable M5 simulation and end-to-end acceptance evidence.
+- Verified local MySQL migration revision `a91c2e6f4b20` at head with no drift, frozen XGBoost artifact checksum match, 65 passing isolated tests, frontend lint/build, and whitespace validation. Browser automation was unavailable, so live UI verification is explicitly deferred to P24 integration evidence.
+- The P20 findings feed the reconciled roadmap: P21 establishes the marker-scoped M5 simulation and provenance boundary; P22 addresses server-bound actor attribution, review-to-PO traceability/duplicate prevention, sale idempotency, missing PO UI controls, explicit forecast eligibility, and query-error handling; P24 gathers integrated acceptance evidence.
 
 ## 2026-10-13 — P19 Inventory Control Room V2 operational precision
 
