@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { api } from '../api/client'
 import { DemandForecastChart } from '../components/DemandForecastChart'
 import { Badge, Button, Empty, Loading, Modal, QueryError, Tooltip } from '../components/ui'
+import { hasBlockingQueryError } from '../utils/queryState'
 import { displayProduct, displayStatus, formatForecast, formatUnits } from '../utils/presentation'
 import { toneFor } from '../utils/status'
 
@@ -30,7 +31,7 @@ export default function DecisionsPage() {
     onError: fail,
   })
   if ([decisions, recommendations, products].some((query) => query.isLoading)) return <Loading />
-  if ([decisions, recommendations, products].some((query) => query.isError)) return <QueryError queries={[decisions, recommendations, products]} />
+  if (hasBlockingQueryError([decisions, recommendations, products])) return <QueryError queries={[decisions, recommendations, products]} />
   const productById = new Map((products.data || []).map((product) => [product.id, product]))
   return <div className="stack">
     <header className="page-heading"><div><p className="eyebrow">Decision support</p><h2>Inventory Insights</h2><p>Use saved demand forecasts, supplier delivery time, and current stock together to make a restocking decision.</p></div></header>

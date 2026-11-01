@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { canGenerateForecast, createSaleIdempotencyKey, receiptLinesForSubmission } from '../src/utils/operationalWorkflows.js'
+import { hasBlockingQueryError } from '../src/utils/queryState.js'
 
 test('a sale modal can retain one caller-supplied idempotency key for retries', () => {
   let calls = 0
@@ -22,4 +23,9 @@ test('receipt submission retains only valid positive quantities within remaining
   assert.deepEqual(receiptLinesForSubmission(items, { 1: '3', 2: '0' }), [{ purchase_order_item_id: 1, quantity: 3 }])
   assert.throws(() => receiptLinesForSubmission(items, { 1: '4' }), /remaining quantity/)
   assert.throws(() => receiptLinesForSubmission(items, { 1: '0', 2: '0' }), /at least one/)
+})
+
+test('a background refetch error keeps cached operational data and open input mounted', () => {
+  assert.equal(hasBlockingQueryError([{ isError: true, data: [{ id: 1 }] }]), false)
+  assert.equal(hasBlockingQueryError([{ isError: true, data: undefined }]), true)
 })

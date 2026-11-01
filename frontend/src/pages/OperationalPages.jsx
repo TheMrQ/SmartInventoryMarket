@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { api } from '../api/client'
 import { DemandForecastChart } from '../components/DemandForecastChart'
 import { Badge, Button, Empty, Loading, Modal, QueryError } from '../components/ui'
+import { hasBlockingQueryError } from '../utils/queryState'
 import { displayProduct, displayStatus, formatForecast } from '../utils/presentation'
 import { toneFor } from '../utils/status'
 import { createSaleIdempotencyKey, receiptLinesForSubmission, canGenerateForecast } from '../utils/operationalWorkflows'
@@ -24,7 +25,7 @@ export function PurchaseOrdersPage() {
   const products = useQuery({ queryKey: ['products'], queryFn: () => api.products({ limit: 100 }) })
   const transition = useMutation({ mutationFn: ({ id, target_status }) => api.transitionOrder(id, { target_status }), onSuccess: () => { revalidate(client, ['orders', 'inventory', 'transactions']); toast.success('Purchase order updated') }, onError: errorToast })
   if ([orders, suppliers, products].some((query) => query.isLoading)) return <Loading />
-  if ([orders, suppliers, products].some((query) => query.isError)) return <QueryError queries={[orders, suppliers, products]} />
+  if (hasBlockingQueryError([orders, suppliers, products])) return <QueryError queries={[orders, suppliers, products]} />
   const nextAction = { DRAFT: ['APPROVED', 'Approve order'], APPROVED: ['ORDERED', 'Place order'], ORDERED: ['IN_TRANSIT', 'Mark as in transit'] }
   return <div className="stack"><Heading title="Purchase Orders" text="Create, approve, place, and receive supplier orders through controlled steps."><Button onClick={() => setCreate(true)}><Plus size={16}/>Create purchase order</Button></Heading><article className="panel table-wrap"><table><thead><tr><th>Purchase order</th><th>Supplier</th><th>Status</th><th>Expected arrival</th><th>Lines</th><th /></tr></thead><tbody>{orders.data?.map((order) => { const next = nextAction[order.status]; return <tr key={order.id}><td><strong>{order.po_number}</strong></td><td>{suppliers.data?.find((supplier) => supplier.id === order.supplier_id)?.name || `Supplier #${order.supplier_id}`}</td><td><Badge tone={toneFor(order.status)}>{displayStatus(order.status)}</Badge></td><td>{order.expected_arrival_date || '—'}</td><td>{order.items.length}</td><td>{next && <button className="link-button" onClick={() => transition.mutate({ id: order.id, target_status: next[0] })}>{next[1]}</button>}<button className="link-button" onClick={() => setManage(order)}>Manage</button></td></tr> })}</tbody></table>{!orders.data?.length && <Empty title="No purchase orders yet">Create a supplier order when stock needs to be replenished.</Empty>}</article>{create && <OrderModal suppliers={suppliers.data} products={products.data} onClose={() => setCreate(false)} client={client}/>} {manage && <PurchaseOrderManageModal order={manage} onClose={() => setManage(null)} client={client}/>}</div>
 }
@@ -63,7 +64,7 @@ export function SalesPage() {
   const sales = useQuery({ queryKey: ['sales', selected], queryFn: () => api.sales(selected ? { product_id: selected } : {}) })
   const products = useQuery({ queryKey: ['products'], queryFn: () => api.products({ limit: 100 }) })
   if (sales.isLoading || products.isLoading) return <Loading />
-  if (sales.isError || products.isError) return <QueryError queries={[sales, products]} />
+  if (hasBlockingQueryError([sales, products])) return <QueryError queries={[sales, products]} />
   const byId = new Map((products.data || []).map((product) => [product.id, product]))
   return <div className="stack"><Heading title="Sales" text="Record daily sales and import historical sales without changing current stock."><div className="button-group"><Button className="secondary" onClick={() => setUpload(true)}><FileUp size={16}/>Import historical CSV</Button><Button onClick={() => setRecord(true)}><ShoppingCart size={16}/>Record sale</Button></div></Heading><div className="callout">Historical imports update sales history only. They do not reduce available inventory.</div><div className="toolbar"><label>Product<select value={selected} onChange={(event) => setSelected(event.target.value)}><option value="">All products</option>{products.data?.map((product) => <ProductOption key={product.id} product={product}/>)}</select></label></div><article className="panel table-wrap"><table><thead><tr><th>Date</th><th>Product</th><th>Quantity</th><th>Sell price</th><th>Source</th></tr></thead><tbody>{sales.data?.map((row) => { const product = displayProduct(byId.get(row.product_id) || { sku: `Product ${row.product_id}` }); return <tr key={row.id}><td>{row.sale_date}</td><td><strong>{product.name}</strong><small>{product.sku}</small></td><td><strong>{row.quantity_sold}</strong></td><td>{row.sell_price || '—'}</td><td>{row.source || '—'}</td></tr> })}</tbody></table>{!sales.data?.length && <Empty title="No sales records yet">Record a sale or import historical sales to begin.</Empty>}</article>{record && <SaleModal products={products.data} onClose={() => setRecord(false)} client={client}/>} {upload && <UploadModal onClose={() => setUpload(false)} client={client}/>}</div>
 }
@@ -94,7 +95,7 @@ export function ForecastsPage() {
   const product = (products.data || []).find((item) => item.id === Number(productId))
   const updateSelection = (nextProductId = productId, nextHorizon = horizon) => { const next = new URLSearchParams(); if (nextProductId) next.set('product', nextProductId); next.set('horizon', String(nextHorizon)); setSearchParams(next) }
   if (products.isLoading || eligibility.isLoading) return <Loading />
-  if (products.isError || eligibility.isError) return <QueryError queries={[products, eligibility]} />
+  if (hasBlockingQueryError([products, eligibility])) return <QueryError queries={[products, eligibility]} />
   const active = latestForecast.data
   const eligibilityByProduct = new Map((eligibility.data || []).map((item) => [item.product_id, item]))
   const selectedEligibility = eligibilityByProduct.get(Number(productId))

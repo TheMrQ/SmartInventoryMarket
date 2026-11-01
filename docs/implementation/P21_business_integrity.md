@@ -36,7 +36,7 @@ The local MySQL migration was advanced forward with `alembic upgrade head`. `ale
 
 `pytest` completed with **68 passed** (two third-party TestClient deprecation warnings). The isolated suite covers operational-sale replay and conflicting replay, one inventory decrement/`SALE` audit record, forged actor-field resistance, recommendation-to-draft-PO linkage and duplicate prevention, valid/invalid PO transitions, partial receipt, over-receipt rejection, repeated final receipt rejection, and existing session/RBAC/CSRF checks. SQLite is intentionally disposable for those tests; it does not replace database-engine concurrency/load testing. The unique database constraint is the production concurrency guard.
 
-The frontend's dependency-free `npm test` covers stable caller-held sale-key generation, eligibility gating, and client-side receipt-line bounds. `npm run lint` and `npm run build` pass. The build retains the pre-existing Vite advisory about a bundle over 500 kB. `git diff --check` passes before commit.
+The frontend's dependency-free `npm test` covers stable caller-held sale-key generation, eligibility gating, client-side receipt-line bounds, and the distinction between an initial-load failure (blocking) and a background refetch failure with cached data (non-blocking, so open input stays mounted). `npm run lint` and `npm run build` pass. The build retains the pre-existing Vite advisory about a bundle over 500 kB. `git diff --check` passes before commit.
 
 ## Remaining limitations and P24 manual checklist
 
