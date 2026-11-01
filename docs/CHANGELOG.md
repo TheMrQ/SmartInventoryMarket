@@ -2,6 +2,12 @@
 
 All notable project changes are recorded here chronologically.
 
+## 2026-11-01 — P20 Smart Inventory functional audit
+
+- Added `docs/implementation/P20_functional_audit.md`, a source/test/read-only-environment audit of all eight application pages, transactional invariants, RBAC, frozen forecasting limits, real bugs/risks, and a safe M5 simulation/reset proposal. No feature implementation, seed, database reset, model retraining, or raw-data change occurred.
+- Verified local MySQL migration revision `a91c2e6f4b20` at head with no drift, frozen XGBoost artifact checksum match, 65 passing isolated tests, frontend lint/build, and whitespace validation. Browser automation was unavailable, so live UI verification is explicitly deferred to manual P22 evidence.
+- Prioritized P21 for server-bound actor attribution, review-to-PO traceability/duplicate prevention, sale idempotency, missing PO UI controls, explicit forecast eligibility, and query-error handling; P22 follows with a marker-scoped repeatable M5 simulation and end-to-end acceptance evidence.
+
 ## 2026-10-13 — P19 Inventory Control Room V2 operational precision
 
 - Refined the approved Dashboard experiment on `experiment/inventory-control-room` without changing API queries, calculations, business logic, routes, sidebar geometry, authentication, or non-Dashboard compositions. Inventory Pulse remains the single decision-first surface; its real risk value uses amber only when actual stockout/reorder work exists.

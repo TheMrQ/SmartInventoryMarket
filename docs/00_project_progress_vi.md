@@ -113,3 +113,15 @@ Purchase Order → Receive Goods → Inventory Updated
 ```
 
 Sau mỗi phase tiếp theo, cần cập nhật file này cùng với `docs/00_project_status.md` để sinh viên và giảng viên luôn thấy tiến độ hiện tại.
+
+## P20 — Kiểm tra chức năng thực tế (2026-11-01)
+
+P20 chưa thêm chức năng mới. Mục tiêu là kiểm tra xem hệ thống đang làm được gì thật sự trước khi tiếp tục phát triển. Kết quả dễ hiểu như sau:
+
+- Đã chạy **65 kiểm thử tự động và đều đạt**. Các kiểm thử nghiệp vụ chạy trên database SQLite tạm thời, vì vậy chứng minh được luật xử lý trong code nhưng chưa thay thế cho việc bấm thử toàn bộ trên MySQL và trình duyệt thật.
+- MySQL local đang ở migration mới nhất, model XGBoost đã khóa có đúng mã kiểm tra SHA-256, và dữ liệu M5/model cần thiết đang có trên máy. P20 không xóa dữ liệu, không train lại model và không chạy script seed demo vì script đó có thể thay đổi database.
+- Luồng cốt lõi đã có: tạo sản phẩm thì tồn kho bằng 0; import lịch sử bán không trừ tồn; bán hàng thực tế trừ tồn và ghi audit; điều chỉnh kho/nhận hàng ghi audit; PO chỉ được tính hàng sắp về ở trạng thái `ORDERED`/`IN_TRANSIT`; đề xuất nhập hàng không tự đổi tồn kho.
+- Cần làm tiếp ở P21: lấy người thực hiện từ phiên đăng nhập ở backend thay vì tin `user_id` do client gửi; biến đề xuất đã duyệt thành PO nháp có liên kết và chống tạo trùng; thêm idempotency cho thao tác bán; hoàn thiện UI PO nhận một phần/sửa nháp/hủy; báo lỗi tải dữ liệu rõ ràng; báo trước SKU nào đủ điều kiện forecast M5.
+- P22 sau đó mới tạo bộ dữ liệu mô phỏng M5 lặp lại được. Dữ liệu bán lịch sử M5 và dữ liệu tồn/nhà cung cấp/PO mô phỏng phải được gắn nhãn khác nhau; reset chỉ được phép xóa đúng record có scenario marker, không đụng dữ liệu người dùng khác.
+
+Chi tiết kỹ thuật, ma trận 8 trang, mức độ lỗi, bằng chứng test và kế hoạch P21/P22 nằm ở `docs/implementation/P20_functional_audit.md`.

@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-11-01 — P20 audit found actor-attribution and recommendation-to-PO gaps — IN_PROGRESS
+
+**Symptom:** Operational writes can omit `created_by_user_id`/`approved_by_user_id`/`reviewed_by_user_id`, and a manager client can submit another existing user ID. A reviewed recommendation also stops before any linked purchase order.
+
+**Root cause:** The operational router dependency correctly verifies an authenticated `MANAGER`/`ADMIN`, but route handlers do not pass that authenticated identity into services. Actor IDs remain optional request fields. The schema has no recommendation-to-purchase-order relationship or duplicate-order guard.
+
+**Current containment:** Manager-only server authorization, CSRF checks, transactional inventory rules, and human review remain active. P20 changed no data or behavior; its full evidence is in `docs/implementation/P20_functional_audit.md`.
+
+**Planned fix:** P21 will bind actor attribution server-side, remove client authority over audit identities, add tests, then introduce an explicit reviewed-recommendation-to-draft-PO transaction with a durable link and duplicate guard. Do not infer that accepting a recommendation changes stock or creates an order until P21 implements and tests that command.
+
 ## 2026-10-10 — P18 Dashboard glyph still appeared optically left in the common icon frame — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
 **Symptom:** User visual evidence still showed the collapsed Dashboard glyph left of Products, Inventory, Suppliers, and the remaining route icons after their parent layout was standardized.
