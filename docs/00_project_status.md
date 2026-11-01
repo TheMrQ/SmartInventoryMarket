@@ -4,12 +4,12 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P20 functional audit is complete; the next planned delivery is a clearly bounded, M5-grounded supermarket simulation, followed by completion and verification of the operational workflow.
+Overall status: 🟡 **IN_PROGRESS** — P20 functional audit is complete; the next planned delivery closes the confirmed business-integrity and workflow gaps before the M5-grounded supermarket simulation.
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P21 — M5-grounded supermarket simulation` is **PLANNED**. It will use real, frozen M5 CA_1/FOODS sales, calendar, and price history, plus explicitly synthetic operational inventory, supplier, and purchase-order records. No P21 write has started.
-- **Next Phase:** `P22 — End-to-end business workflow completion` is **PLANNED**. It will address the P20 evidence gaps: server-bound actor attribution, a reviewed-recommendation-to-draft-PO link with duplicate prevention, sales idempotency, incomplete PO controls, forecast eligibility feedback, and read-error recovery.
+- **Current Phase:** `P21 — Business Integrity & Workflow Fixes` is **PLANNED**. It will resolve the P20-confirmed gaps: server-bound audit attribution, sale idempotency, accepted recommendation to linked draft PO, duplicate PO prevention, partial receipt/cancellation/draft editing UI, forecast SKU eligibility in the UI, and query-error/retry handling. No P21 write has started.
+- **Next Phase:** `P22 — M5-Grounded Supermarket Simulation` is **PLANNED**. It will use traceable real M5 CA_1/FOODS sales, calendar, and price history while keeping synthetic operational inventory, supplier, and purchase-order records clearly separate.
 - **Known Blockers:** P18 and P19 are **PENDING_VERIFICATION** because browser/manual visual evidence is still required; P20 found that the current workflow cannot yet prove trustworthy actor attribution or a traceable recommendation-to-PO loop. Browser automation was unavailable during P20. The frozen M5 model also cannot forecast arbitrary newly created SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
@@ -97,11 +97,11 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P18 Authentication and UI refinement | 🟡 **PENDING_VERIFICATION** |
 | P19 Inventory Control Room visual experiment V1/V2 | 🟡 **PENDING_VERIFICATION** |
 | P20 Functional audit | 🟢 **DONE** |
-| P21 M5-grounded supermarket simulation | ⚪ **PLANNED** |
-| P22 End-to-end business workflow completion | ⚪ **PLANNED** |
-| P23 XGBoost V2 research and evaluation | ⚪ **PLANNED** |
-| P24 Integration, regression, and inventory evaluation | ⚪ **PLANNED** |
-| P25 Thesis report and defense preparation | ⚪ **PLANNED** |
+| P21 Business Integrity & Workflow Fixes | ⚪ **PLANNED** |
+| P22 M5-Grounded Supermarket Simulation | ⚪ **PLANNED** |
+| P23 XGBoost V2 Research | ⚪ **PLANNED** |
+| P24 End-to-End Testing & Evaluation | ⚪ **PLANNED** |
+| P25 Thesis Report & Defense | ⚪ **PLANNED** |
 
 ## Historical Phase Notes
 
@@ -215,10 +215,10 @@ The application now has real cookie-session authentication: public registration 
 
 ## Next Exact Step
 
-`NEXT-021` — Design and implement the marker-scoped M5-grounded supermarket simulation: real M5 historical sales/calendar/prices; synthetic operational inventory, suppliers, and POs; and a traceable product-to-M5-SKU mapping. Do not use the frozen model for arbitrary new SKUs and do not retrain or alter XGBOOST_V1.
+`NEXT-021` — Implement the P20-confirmed business integrity and workflow fixes: server-bound audit attribution; idempotent sales; a reviewed-recommendation-to-linked-draft-PO command with duplicate prevention; partial-receipt/cancellation/draft-editing UI; forecast SKU eligibility feedback; and query-error/retry handling. Do not alter XGBOOST_V1 or use its frozen model for arbitrary new SKUs.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 
 ## Known Blockers
 
-P18/P19 manual visual verification remains outstanding: browser automation is unavailable, so the requested authentication, collapsed-sidebar, and desktop/mobile Dashboard screenshots have not been captured. P20 additionally records the workflow blockers that P22 must resolve before a complete operational-loop claim: server-bound actor attribution, recommendation-to-PO traceability and duplicate prevention, sale idempotency, missing PO UI controls, forecast eligibility feedback, and query-error states.
+P18/P19 manual visual verification remains outstanding: browser automation is unavailable, so the requested authentication, collapsed-sidebar, and desktop/mobile Dashboard screenshots have not been captured. P20 additionally records the workflow blockers that P21 must resolve before a complete operational-loop claim: server-bound actor attribution, recommendation-to-PO traceability and duplicate prevention, sale idempotency, missing PO UI controls, forecast eligibility feedback, and query-error states.

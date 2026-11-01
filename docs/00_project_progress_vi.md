@@ -18,8 +18,8 @@ Engine ưu tiên nhà cung cấp preferred; nếu chỉ có một nhà cung cấ
 
 ## Giai đoạn hiện tại / Giai đoạn tiếp theo / Vướng mắc đã biết
 
-- **Giai đoạn hiện tại:** `P21 — Mô phỏng siêu thị dựa trên M5` là **PLANNED**. P21 sẽ dùng dữ liệu lịch sử doanh số, lịch/sự kiện và giá M5 CA_1/FOODS có thật; tồn kho, nhà cung cấp và PO chỉ là dữ liệu vận hành tổng hợp, được gắn nhãn riêng.
-- **Giai đoạn tiếp theo:** `P22 — Hoàn thiện quy trình nghiệp vụ đầu-cuối` là **PLANNED**. P22 xử lý đúng các phát hiện P20: gắn người thực hiện từ phiên đăng nhập ở server, liên kết đề xuất đã duyệt với PO nháp có chống trùng, idempotency cho bán hàng, UI PO còn thiếu, thông báo điều kiện forecast và lỗi tải dữ liệu.
+- **Giai đoạn hiện tại:** `P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ` là **PLANNED**. P21 xử lý đúng các phát hiện P20: gắn người thực hiện từ phiên đăng nhập ở server, idempotency cho bán hàng, liên kết đề xuất đã duyệt với PO nháp có chống trùng, UI PO còn thiếu, thông báo điều kiện forecast và lỗi tải dữ liệu.
+- **Giai đoạn tiếp theo:** `P22 — Mô phỏng siêu thị dựa trên M5` là **PLANNED**. P22 sẽ dùng dữ liệu lịch sử doanh số, lịch/sự kiện và giá M5 CA_1/FOODS có thật; tồn kho, nhà cung cấp và PO chỉ là dữ liệu vận hành tổng hợp, được gắn nhãn riêng.
 - **Vướng mắc đã biết:** P18 và P19 là **PENDING_VERIFICATION**, vì vẫn cần ảnh/chạy thử thủ công trên trình duyệt thật. P20 không có browser automation. Model M5 hiện tại không thể dự báo SKU siêu thị mới tùy ý; một siêu thị mới phải huấn luyện/đánh giá lại bằng POS, danh mục, lịch và giá của chính siêu thị đó.
 
 ## Đề tài
@@ -53,11 +53,11 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P18 — Xác thực và tinh chỉnh UI** | 🟡 **PENDING_VERIFICATION** | Đã có xác thực phiên và các tinh chỉnh UI; lint/build không thay thế ảnh/chạy thử thủ công cần thiết. |
 | **P19 — Thử nghiệm trực quan Inventory Control Room V1/V2** | 🟡 **PENDING_VERIFICATION** | Dashboard thử nghiệm dùng dữ liệu API thật; cần evidence trực quan desktop/mobile trước khi mở rộng sang trang khác. |
 | **P20 — Kiểm tra chức năng** | 🟢 **DONE** | Đã kiểm tra source, test, MySQL chỉ đọc và build; ghi rõ những khoảng trống cần hoàn thiện. |
-| **P21 — Mô phỏng siêu thị dựa trên M5** | ⚪ **PLANNED** | Tách rõ dữ liệu M5 quan sát được khỏi tồn kho/nhà cung cấp/PO tổng hợp có gắn marker và mapping SKU truy vết được. |
-| **P22 — Hoàn thiện quy trình nghiệp vụ đầu-cuối** | ⚪ **PLANNED** | Hoàn thiện attribution, review-to-PO, idempotency, PO UI, forecast eligibility và thông báo lỗi theo phát hiện P20. |
-| **P23 — Nghiên cứu và đánh giá XGBoost V2** | ⚪ **PLANNED** | Thí nghiệm phiên bản mới tách biệt; giữ nguyên kết quả XGBoost V1 và không tuning lại trên TEST V1. |
-| **P24 — Tích hợp, regression và đánh giá inventory** | ⚪ **PLANNED** | Kiểm tra workflow tích hợp, MySQL/browser evidence và các giả định mô phỏng inventory. |
-| **P25 — Chuẩn bị luận văn và bảo vệ** | ⚪ **PLANNED** | Tổng hợp methodology, ERD, kết quả, giới hạn, ảnh demo và bằng chứng tái lập. |
+| **P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ** | ⚪ **PLANNED** | Hoàn thiện attribution phía server, review-to-PO, idempotency, PO UI, forecast eligibility và thông báo lỗi theo phát hiện P20. |
+| **P22 — Mô phỏng siêu thị dựa trên M5** | ⚪ **PLANNED** | Tách rõ dữ liệu M5 quan sát được khỏi tồn kho/nhà cung cấp/PO tổng hợp có gắn marker và mapping SKU truy vết được. |
+| **P23 — Nghiên cứu XGBoost V2** | ⚪ **PLANNED** | Thí nghiệm phiên bản mới tách biệt; giữ nguyên kết quả XGBoost V1 và không tuning lại trên TEST V1. |
+| **P24 — Kiểm thử và đánh giá đầu-cuối** | ⚪ **PLANNED** | Kiểm tra workflow tích hợp, MySQL/browser evidence và các giả định mô phỏng inventory. |
+| **P25 — Báo cáo luận văn và bảo vệ** | ⚪ **PLANNED** | Tổng hợp methodology, ERD, kết quả, giới hạn, ảnh demo và bằng chứng tái lập. |
 
 ## Kết quả P12 dễ hiểu
 
@@ -133,7 +133,7 @@ P20 chưa thêm chức năng mới. Mục tiêu là kiểm tra xem hệ thống 
 - Đã chạy **65 kiểm thử tự động và đều đạt**. Các kiểm thử nghiệp vụ chạy trên database SQLite tạm thời, vì vậy chứng minh được luật xử lý trong code nhưng chưa thay thế cho việc bấm thử toàn bộ trên MySQL và trình duyệt thật.
 - MySQL local đang ở migration mới nhất, model XGBoost đã khóa có đúng mã kiểm tra SHA-256, và dữ liệu M5/model cần thiết đang có trên máy. P20 không xóa dữ liệu, không train lại model và không chạy script seed demo vì script đó có thể thay đổi database.
 - Luồng cốt lõi đã có: tạo sản phẩm thì tồn kho bằng 0; import lịch sử bán không trừ tồn; bán hàng thực tế trừ tồn và ghi audit; điều chỉnh kho/nhận hàng ghi audit; PO chỉ được tính hàng sắp về ở trạng thái `ORDERED`/`IN_TRANSIT`; đề xuất nhập hàng không tự đổi tồn kho.
-- P21 tiếp theo sẽ tạo bộ dữ liệu mô phỏng M5 lặp lại được: chỉ dùng doanh số lịch sử, lịch/sự kiện và giá M5 thật cho SKU CA_1/FOODS đủ điều kiện; product trong app phải có mapping truy vết được tới M5 item/store/SKU. Tồn kho, nhà cung cấp, lead time và PO là dữ liệu tổng hợp có marker riêng; reset chỉ được phép xóa đúng record có scenario manifest, không đụng dữ liệu người dùng khác. Không dự báo SKU mới tùy ý; siêu thị mới phải huấn luyện/đánh giá lại bằng dữ liệu POS của mình.
-- P22 sau đó hoàn thiện vòng nghiệp vụ: lấy người thực hiện từ phiên đăng nhập ở backend thay vì tin `user_id` do client gửi; biến đề xuất đã duyệt thành PO nháp có liên kết và chống tạo trùng; thêm idempotency cho thao tác bán; hoàn thiện UI PO nhận một phần/sửa nháp/hủy; báo lỗi tải dữ liệu rõ ràng; báo trước SKU nào đủ điều kiện forecast M5.
+- P21 tiếp theo hoàn thiện vòng nghiệp vụ: lấy người thực hiện từ phiên đăng nhập ở backend thay vì tin `user_id` do client gửi; biến đề xuất đã duyệt thành PO nháp có liên kết và chống tạo trùng; thêm idempotency cho thao tác bán; hoàn thiện UI PO nhận một phần/sửa nháp/hủy; báo lỗi tải dữ liệu rõ ràng; báo trước SKU nào đủ điều kiện forecast M5.
+- P22 sau đó tạo bộ dữ liệu mô phỏng M5 lặp lại được: chỉ dùng doanh số lịch sử, lịch/sự kiện và giá M5 thật cho SKU CA_1/FOODS đủ điều kiện; product trong app phải có mapping truy vết được tới M5 item/store/SKU. Tồn kho, nhà cung cấp, lead time và PO là dữ liệu tổng hợp có marker riêng; reset chỉ được phép xóa đúng record có scenario manifest, không đụng dữ liệu người dùng khác. Không dự báo SKU mới tùy ý; siêu thị mới phải huấn luyện/đánh giá lại bằng dữ liệu POS của mình.
 
 Chi tiết kỹ thuật, ma trận 8 trang, mức độ lỗi, bằng chứng test và kế hoạch P21–P24 nằm ở `docs/implementation/P20_functional_audit.md`.

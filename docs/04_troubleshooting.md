@@ -8,7 +8,7 @@
 
 **Current containment:** Manager-only server authorization, CSRF checks, transactional inventory rules, and human review remain active. P20 changed no data or behavior; its full evidence is in `docs/implementation/P20_functional_audit.md`.
 
-**Planned fix:** P22 will bind actor attribution server-side, remove client authority over audit identities, add tests, then introduce an explicit reviewed-recommendation-to-draft-PO transaction with a durable link and duplicate guard. P21 first establishes the separately marked M5-grounded simulation data boundary. Do not infer that accepting a recommendation changes stock or creates an order until P22 implements and tests that command.
+**Planned fix:** P21 will bind actor attribution server-side, remove client authority over audit identities, add tests, then introduce an explicit reviewed-recommendation-to-draft-PO transaction with a durable link and duplicate guard. P22 follows with the separately marked M5-grounded simulation data boundary. Do not infer that accepting a recommendation changes stock or creates an order until P21 implements and tests that command.
 
 ## 2026-10-10 — P18 Dashboard glyph still appeared optically left in the common icon frame — IMPLEMENTED, MANUAL VISUAL CHECK PENDING
 
