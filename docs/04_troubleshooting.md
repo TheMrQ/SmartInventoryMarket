@@ -1,5 +1,13 @@
 # Troubleshooting and Recovery
 
+## 2026-11-06 — P22 scenario retry attempted a duplicate linked draft PO — RESOLVED
+
+**Symptom:** The first scenario rerun regenerated recommendations and attempted to insert its fixed linked-draft PO number, which MySQL rejected through the unique PO-number constraint.
+
+**Cause:** The original idempotency sequence checked the linked PO only after regenerating recommendation workflow state, so it was not truly read-only after a completed manifest.
+
+**Resolution:** `setup_m5_supermarket_scenario.py` now checks for the named scenario immediately after actor preflight. An existing manifest is validated and summarized without entering any write path; incomplete existing manifests fail safely. Isolated tests cover this destructive-scenario guard. The failed insert was rolled back; pre-existing audit rows are retained rather than deleted.
+
 ## 2026-11-06 — P23 squared-error recursive candidate emitted negative demand — RESOLVED BY DISQUALIFICATION
 
 **Symptom:** The predeclared `V2_SQUARED_REGULARIZED` XGBoost candidate emitted a negative value during its recursive validation forecast.

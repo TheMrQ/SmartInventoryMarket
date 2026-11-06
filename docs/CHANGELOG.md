@@ -2,6 +2,11 @@
 
 ## 2026-11-06
 
+- Completed P22 locally: promoted the owner-authorized existing active inventory-staff account with a password-preserving local-only CLI, applied the deterministic M5 scenario, and verified its persisted forecast, inventory, PO, receipt, and audit evidence.
+- Fixed P22 rerun safety: an existing manifest now returns a read-only verification summary before any operational write, preventing duplicate adjustments, recommendations, receipts, and POs.
+
+## 2026-11-06
+
 - Added P23's leak-safe, validation-only XGBoost V2 research runner, isolated 34-feature schema, candidate configuration, aggregate evidence, and regression tests.
 - Retained `XGBOOST_V1`: the best V2 Poisson candidate improved WAPE/MAE but slightly regressed RMSE, and the squared-error candidate was rejected for negative recursive output without clipping.
 

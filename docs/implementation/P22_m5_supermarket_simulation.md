@@ -1,6 +1,6 @@
 # P22 — M5-Grounded Supermarket Simulation
 
-Status: `BLOCKED` — the provenance schema, deterministic 36-SKU selection, dry-run setup, and local migration are implemented and verified. The script deliberately refuses its first state-changing apply because no active local `MANAGER` or `ADMIN` account exists. No scenario data was imported or fabricated.
+Status: `DONE` — an existing active owner account was locally promoted from `INVENTORY_STAFF` to `MANAGER` without changing its password, then the named scenario was applied and verified.
 
 ## Data boundary and deterministic selection
 
@@ -40,11 +40,11 @@ After an active manager/admin exists, run:
 .\.venv\Scripts\python.exe scripts\db\setup_m5_supermarket_scenario.py --apply
 ```
 
-The apply path is idempotent for the scenario key: it reuses its manifest/provenance mappings, M5 products/history, synthetic suppliers/mappings, forecast-run link, and fixed PO numbers instead of duplicating them. It does not create users, reset/truncate tables, replace raw data/model artifacts, or touch unrelated product records. A conflicting pre-existing SKU or daily-sales record is refused rather than overwritten.
+The apply path is idempotent for the scenario key. After a manifest exists, rerunning `--apply` verifies and reports the existing scenario **before any operational write**; it does not generate more adjustments, recommendations, POs, or receipt rows. It does not create users, reset/truncate tables, replace raw data/model artifacts, or touch unrelated product records. A conflicting pre-existing SKU or daily-sales record is refused rather than overwritten.
 
-It uses the existing services for synthetic stock adjustments, PO transitions/receipts, recommendation review, and linked-draft PO conversion. Intended coverage is healthy, reorder-needed, stockout-risk, overstock, incoming stock, pending/accepted/modified recommendations, linked draft PO, partially received PO, and completed PO. Those states remain pending until a manager authorizes apply.
+It uses the existing services for synthetic stock adjustments, PO transitions/receipts, recommendation review, and linked-draft PO conversion. It covers healthy, reorder-needed, stockout-risk, overstock, incoming stock, accepted/modified recommendations, linked draft PO, partially received PO, and completed PO.
 
-## Blocker and safe resolution
+## Historical blocker and safe resolution
 
 The apply attempt stopped before importing data with: `P22 apply requires an existing active manager or admin; it will not create a user`. This preserves P21 server-bound attribution rather than inserting synthetic records under an invented or unauthorized actor.
 
@@ -63,4 +63,10 @@ Then rerun dry-run, run `--apply`, verify the real persisted forecast/decision/P
 - Local MySQL safely upgraded to `f6b8c4d92a10`; `alembic current` and `alembic check` pass with no schema drift.
 - No scenario products, historical sales, forecasts, suppliers, POs, inventory movements, or recommendations were written because apply stopped at the actor preflight.
 
-P22 cannot be marked `DONE` until the explicit apply succeeds under a real existing manager/admin and verifies the persisted frozen forecast and engine-derived scenarios.
+## Completion evidence
+
+- The owner-authorized existing active account was promoted locally through `scripts/db/promote_existing_manager.py`; it changes only an active `INVENTORY_STAFF` role, preserves password/name/sessions, and has no public endpoint.
+- Apply created 36 provenance mappings and 68,868 observed M5 sales rows (36 × `d_1`–`d_1913`), linked one real frozen `XGBOOST_V1` / `FEATURE_SET_V1` forecast run (ID 18), and saved all 1,008 28-day forecast values.
+- Synthetic operations are visibly marked: all four inventory risks are represented on final read (12 healthy, 12 reorder-needed, 6 stockout-risk, 6 overstock-risk); the four fixed POs cover incoming, partial receipt (6/8), complete receipt (6/6), and a linked draft. Stock history has 34 adjustment-in, 5 adjustment-out, and 3 receipt records for scenario products.
+- A failed pre-fix retry had created additional reviewed recommendation audit rows before its duplicate-PO insertion was rejected. They are retained (not deleted); the repaired script checks the existing manifest before its write path. A later rerun reported `reused_existing: True` with 36 mappings, one forecast link, four POs, and no new records.
+- P24 still requires browser/live-workflow walkthrough evidence.

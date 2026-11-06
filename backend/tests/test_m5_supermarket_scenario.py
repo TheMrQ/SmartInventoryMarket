@@ -33,3 +33,27 @@ def test_selection_is_deterministic_balanced_and_preserves_original_m5_ids() -> 
 
 def test_friendly_name_is_honest_about_anonymized_m5_identity() -> None:
     assert scenario.friendly_name("FOODS_2_123") == "Food Item 2-123 (M5 simulation)"
+
+
+def test_existing_manifest_apply_is_read_only(monkeypatch) -> None:
+    existing = object()
+
+    class Session:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def scalar(self, _statement):
+            return existing
+
+    monkeypatch.setattr(scenario, "load_observed_selection", lambda _config: ([], None, None, None))
+    monkeypatch.setattr(scenario, "validate_artifact", lambda: None)
+    monkeypatch.setattr(scenario.FrozenMetadata, "load", lambda: None)
+    monkeypatch.setattr(scenario, "SessionLocal", Session)
+    monkeypatch.setattr(scenario, "_actor", lambda *_args: object())
+    monkeypatch.setattr(scenario, "_existing_scenario_result", lambda _session, value: {"scenario": "existing", "reused_existing": value is existing})
+    monkeypatch.setattr(scenario, "_upsert_observed_history", lambda *_args: (_ for _ in ()).throw(AssertionError("must not write")))
+
+    assert scenario.apply({"scenario_key": "existing"}) == {"scenario": "existing", "reused_existing": True}

@@ -132,6 +132,33 @@ def _scenario(session, config: dict, selected: list[SelectedSku]) -> DemoScenari
     return scenario
 
 
+def _existing_scenario_result(session, scenario: DemoScenario) -> dict:
+    """Return an existing manifest's state without issuing operational writes."""
+    products = list(session.scalars(select(Product).join(DemoProductSource).where(DemoProductSource.scenario_id == scenario.id)))
+    if len(products) != scenario.selection_size:
+        raise RuntimeError("existing scenario has incomplete product provenance; refusing to mutate it")
+    forecast = session.scalar(select(DemoScenarioForecast).where(DemoScenarioForecast.scenario_id == scenario.id))
+    if forecast is None:
+        raise RuntimeError("existing scenario has no persisted forecast link; refusing to mutate it")
+    marker = scenario.scenario_key
+    orders = list(session.scalars(select(PurchaseOrder).where(PurchaseOrder.po_number.like(f"{marker}-%"))))
+    if len(orders) != 4:
+        raise RuntimeError("existing scenario has an unexpected purchase-order count; refusing to mutate it")
+    risks = [InventoryDecisionService(session).analyze(product.id).risk_status for product in products]
+    recommendations = list(session.scalars(select(ReorderRecommendation).where(ReorderRecommendation.notes.like(f"{marker}:%"))))
+    if len(recommendations) < 3:
+        raise RuntimeError("existing scenario has incomplete reviewed recommendations; refusing to mutate it")
+    linked = next((order for order in orders if order.po_number == f"{marker}-LINKED-DRAFT"), None)
+    if linked is None or linked.reorder_recommendation_id is None:
+        raise RuntimeError("existing scenario lacks its linked draft purchase order")
+    return {
+        "scenario": marker, "skus": len(products), "forecast_run_id": forecast.forecast_run_id,
+        "risk_distribution": {name: risks.count(name) for name in ("HEALTHY", "REORDER_NEEDED", "STOCKOUT_RISK", "OVERSTOCK_RISK")},
+        "purchase_orders": {order.po_number.removeprefix(f"{marker}-").lower(): order.id for order in orders},
+        "recommendation_count": len(recommendations), "reused_existing": True,
+    }
+
+
 def _upsert_observed_history(session, scenario: DemoScenario, config: dict, selected: list[SelectedSku], sales: pd.DataFrame, calendar: pd.DataFrame, prices: pd.DataFrame) -> list[Product]:
     category = session.scalar(select(Category).where(Category.code == config["category_code"]))
     if category is None:
@@ -225,6 +252,11 @@ def apply(config: dict) -> dict:
     validate_artifact(); FrozenMetadata.load()
     with SessionLocal() as session:
         actor = _actor(session)
+        existing = session.scalar(select(DemoScenario).where(DemoScenario.scenario_key == config["scenario_key"]))
+        if existing is not None:
+            # An applied manifest is immutable on rerun.  This avoids duplicate
+            # stock adjustments, reviews, purchase orders, and audit rows.
+            return _existing_scenario_result(session, existing)
         scenario = _scenario(session, config, selected)
         products = _upsert_observed_history(session, scenario, config, selected, sales, calendar, prices)
         business = BusinessService(session)

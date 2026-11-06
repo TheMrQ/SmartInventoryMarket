@@ -18,8 +18,8 @@ Engine ưu tiên nhà cung cấp preferred; nếu chỉ có một nhà cung cấ
 
 ## Giai đoạn hiện tại / Giai đoạn tiếp theo / Vướng mắc đã biết
 
-- **Giai đoạn hiện tại:** `P23 — Nghiên cứu XGBoost V2` là **DONE**. Ba candidate chỉ dùng validation đã chạy riêng; candidate tốt nhất giảm WAPE/MAE nhưng tăng nhẹ RMSE nên không thay thế `XGBOOST_V1`.
-- **Giai đoạn tiếp theo:** quay lại `P22 — Mô phỏng siêu thị dựa trên M5` tại bước apply an toàn cần manager/admin local, sau đó là `P24 — Kiểm thử và đánh giá đầu-cuối`.
+- **Giai đoạn hiện tại:** `P22 — Mô phỏng siêu thị dựa trên M5` là **DONE**. Tài khoản owner local hiện có đã được nâng quyền an toàn, scenario 36 SKU đã apply và chạy lại không tạo bản ghi mới.
+- **Giai đoạn tiếp theo:** `P24 — Kiểm thử và đánh giá đầu-cuối`, đặc biệt là walkthrough browser/live-workflow.
 - **Vướng mắc đã biết:** P22 dừng an toàn vì MySQL local chưa có tài khoản `MANAGER`/`ADMIN` active; script không tự tạo hay mạo danh người dùng. P18/P19 vẫn cần ảnh/chạy thử thủ công, P24 cần evidence browser/workflow. Model M5 hiện tại không thể dự báo SKU siêu thị mới tùy ý; một siêu thị mới phải huấn luyện/đánh giá lại bằng POS, danh mục, lịch và giá của chính siêu thị đó.
 
 ## Đề tài
@@ -54,7 +54,7 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P19 — Thử nghiệm trực quan Inventory Control Room V1/V2** | 🟡 **PENDING_VERIFICATION** | Dashboard thử nghiệm dùng dữ liệu API thật; cần evidence trực quan desktop/mobile trước khi mở rộng sang trang khác. |
 | **P20 — Kiểm tra chức năng** | 🟢 **DONE** | Đã kiểm tra source, test, MySQL chỉ đọc và build; ghi rõ những khoảng trống cần hoàn thiện. |
 | **P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ** | 🟢 **DONE** | Actor audit lấy từ session server; sale có idempotency key duy nhất; đề xuất đã duyệt tạo đúng một PO nháp liên kết; UI có sửa draft/nhận một phần/hủy; forecast phân biệt SKU M5 hợp lệ; tám trang có retry khi query lỗi. |
-| **P22 — Mô phỏng siêu thị dựa trên M5** | 🔴 **BLOCKED** | Đã có schema provenance và dry-run chọn 36 SKU M5 thật đến `d_1913`; apply dừng trước khi ghi vì chưa có manager/admin local để tạo audit đúng P21. |
+| **P22 — Mô phỏng siêu thị dựa trên M5** | 🟢 **DONE** | Apply scenario 36 SKU M5 đã tạo mapping, 68.868 dòng sales quan sát, forecast XGBoost V1 đã lưu, tồn kho/PO synthetic có provenance và rerun idempotent. |
 | **P23 — Nghiên cứu XGBoost V2** | 🟢 **DONE** | V2 chạy tách biệt trên validation `d_1886`–`d_1913`; WAPE/MAE tốt hơn V1 nhưng RMSE không tốt hơn nên V1 vẫn là model mặc định. Không dùng lại TEST V1. |
 | **P24 — Kiểm thử và đánh giá đầu-cuối** | ⚪ **PLANNED** | Kiểm tra workflow tích hợp, MySQL/browser evidence và các giả định mô phỏng inventory. |
 | **P25 — Báo cáo luận văn và bảo vệ** | ⚪ **PLANNED** | Tổng hợp methodology, ERD, kết quả, giới hạn, ảnh demo và bằng chứng tái lập. |
