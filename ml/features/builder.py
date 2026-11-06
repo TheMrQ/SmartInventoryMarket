@@ -41,7 +41,12 @@ class FeatureBuildResult:
 
 
 def load_feature_config(config_path: str | Path) -> dict[str, Any]:
-    """Load FEATURE_SET_V1 and reject changes that violate the frozen definition."""
+    """Load a supported feature schema while keeping FEATURE_SET_V1 immutable.
+
+    FEATURE_SET_V2 is deliberately a separate P23 research schema.  It shares
+    the same past-only builder, but its values are validated independently so a
+    caller cannot silently alter the frozen V1 definition.
+    """
     with Path(config_path).open(encoding="utf-8") as file:
         config = yaml.safe_load(file)
     if not isinstance(config, dict):
@@ -63,7 +68,7 @@ def load_feature_config(config_path: str | Path) -> dict[str, Any]:
     missing = required.difference(config)
     if missing:
         raise ValueError(f"Feature configuration missing keys: {sorted(missing)}")
-    expected = {
+    expected_v1 = {
         "feature_set": "FEATURE_SET_V1",
         "model_formulation": "global_one_step_regression",
         "recursive_forecasting": True,
@@ -83,9 +88,32 @@ def load_feature_config(config_path: str | Path) -> dict[str, Any]:
         ],
         "price_policy": "past_only_forward_fill_within_item_store",
     }
-    for key, value in expected.items():
+    if config["feature_set"] == "FEATURE_SET_V1":
+        for key, value in expected_v1.items():
+            if config[key] != value:
+                raise ValueError(f"FEATURE_SET_V1 requires {key}={value!r}.")
+        return config
+
+    expected_v2 = {
+        "feature_set": "FEATURE_SET_V2",
+        "model_formulation": "global_one_step_regression",
+        "recursive_forecasting": True,
+        "sales_lags": [1, 2, 3, 7, 14, 21, 28, 35, 56],
+        "rolling_mean_windows": [3, 7, 14, 28, 56],
+        "rolling_std_windows": [7, 14, 28, 56],
+        "warmup_days": 56,
+        "calendar_numeric_features": ["wday", "month", "year", "is_weekend", "snap_CA"],
+        "calendar_categorical_features": ["event_name_1", "event_type_1", "event_name_2", "event_type_2"],
+        "product_categorical_features": ["item_id", "dept_id"],
+        "price_features": [
+            "last_known_sell_price", "price_lag_7", "price_change_from_7_days_ago",
+            "price_available", "price_missing",
+        ],
+        "price_policy": "past_only_forward_fill_within_item_store",
+    }
+    for key, value in expected_v2.items():
         if config[key] != value:
-            raise ValueError(f"FEATURE_SET_V1 requires {key}={value!r}.")
+            raise ValueError(f"FEATURE_SET_V2 requires {key}={value!r}.")
     return config
 
 

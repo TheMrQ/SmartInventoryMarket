@@ -1,5 +1,13 @@
 # Troubleshooting and Recovery
 
+## 2026-11-06 — P23 squared-error recursive candidate emitted negative demand — RESOLVED BY DISQUALIFICATION
+
+**Symptom:** The predeclared `V2_SQUARED_REGULARIZED` XGBoost candidate emitted a negative value during its recursive validation forecast.
+
+**Cause:** A squared-error regression objective is unconstrained and can produce negative continuous demand estimates, unlike the count-focused Poisson candidates.
+
+**Resolution:** The runner rejects non-finite/negative predictions before scoring and never clips them. It records the candidate as disqualified in the aggregate validation report while allowing the other predeclared candidates to finish before validation actuals are opened. The frozen V1 model and application default are unchanged.
+
 ## 2026-11-01 — P20 audit found actor-attribution and recommendation-to-PO gaps — RESOLVED IN P21
 
 **Symptom:** Operational writes can omit `created_by_user_id`/`approved_by_user_id`/`reviewed_by_user_id`, and a manager client can submit another existing user ID. A reviewed recommendation also stops before any linked purchase order.

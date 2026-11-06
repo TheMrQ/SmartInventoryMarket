@@ -2,6 +2,13 @@
 
 Status: 🟢 **DONE** — final held-out forecasting evaluation and frozen inventory-policy comparison are complete; TEST is consumed once without tuning.
 
+## P23 — XGBoost V2 Validation-Only Research
+
+- **Date:** 2026-11-06; **Status:** `DONE` — separate research only, with no API/default-model switch.
+- **Controls:** V2 used train `d_1`–`d_1885` and validation `d_1886`–`d_1913` only. The V1 TEST outcome was not read, tuned, compared, or repeated. All candidate recursive forecasts existed before validation actuals were loaded.
+- **Result:** V2 Poisson capacity reached MAE 1.389021 / RMSE 2.571583 / WAPE 66.009157%, versus V1 1.402449 / 2.568234 / 66.647316%. It improves WAPE/MAE but worsens RMSE; under the declared primary-plus-non-regression criterion it is **not selected**. V1 remains immutable and default.
+- **Finding:** the squared-error candidate produced a negative recursive value and was disqualified without clipping. Direct multi-horizon was not justified after this result. See `docs/implementation/P23_xgboost_v2_research.md` and tracked aggregate evidence.
+
 | ID | Planned experiment |
 | --- | --- |
 | E0 | Formal M5 local audit — DONE (data audit, not a forecasting experiment) |

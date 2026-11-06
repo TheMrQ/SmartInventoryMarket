@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-06
+
+- Added P23's leak-safe, validation-only XGBoost V2 research runner, isolated 34-feature schema, candidate configuration, aggregate evidence, and regression tests.
+- Retained `XGBOOST_V1`: the best V2 Poisson candidate improved WAPE/MAE but slightly regressed RMSE, and the squared-error candidate was rejected for negative recursive output without clipping.
+
 All notable project changes are recorded here chronologically.
 
 ## 2026-11-01 — P22 M5 scenario provenance and safe dry-run

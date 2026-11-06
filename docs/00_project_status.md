@@ -4,12 +4,12 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P22 M5 simulation provenance and dry-run are implemented, but safe scenario application is blocked pending an existing local manager/admin actor.
+Overall status: 🟡 **IN_PROGRESS** — P23 validation-only XGBoost V2 research is complete with no replacement selected; P22 scenario application remains blocked pending an existing local manager/admin actor.
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P21 — Business Integrity & Workflow Fixes` is **DONE**. It closes the P20-confirmed gaps with server-bound audit attribution, durable sale idempotency, reviewed-recommendation-to-linked-draft-PO conversion and duplicate prevention, PO management controls, forecast SKU eligibility feedback, and query-error recovery. The additive local MySQL migration is at head and the isolated suite has 70 passing tests.
-- **Next Phase:** `P22 — M5-Grounded Supermarket Simulation` is **BLOCKED** after a verified dry run and additive provenance migration. It needs an existing active local `MANAGER` or `ADMIN` before explicit scenario apply can create actor-attributed synthetic operations.
+- **Current Phase:** `P23 — XGBoost V2 Research` is **DONE**. Three predeclared validation-only candidates were evaluated; the best lowers WAPE/MAE but worsens RMSE, so `XGBOOST_V1` remains the frozen default.
+- **Next Phase:** Resume `P22 — M5-Grounded Supermarket Simulation` at its authorization-safe apply boundary, then perform `P24 — End-to-End Testing & Evaluation`.
 - **Known Blockers:** P22 apply correctly refuses to create or impersonate an actor because local MySQL has no active manager/admin. P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. The frozen M5 model also cannot forecast arbitrary newly created SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
@@ -99,7 +99,7 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P20 Functional audit | 🟢 **DONE** |
 | P21 Business Integrity & Workflow Fixes | 🟢 **DONE** |
 | P22 M5-Grounded Supermarket Simulation | 🔴 **BLOCKED** |
-| P23 XGBoost V2 Research | ⚪ **PLANNED** |
+| P23 XGBoost V2 Research | 🟢 **DONE** |
 | P24 End-to-End Testing & Evaluation | ⚪ **PLANNED** |
 | P25 Thesis Report & Defense | ⚪ **PLANNED** |
 

@@ -1,0 +1,43 @@
+experiment_id: XGBOOST_V2_VALIDATION_RESEARCH
+status: IN_PROGRESS
+scope: {store_id: CA_1, category_id: FOODS, series_count: 1437}
+train: {start_d: d_1, end_d: d_1885}
+validation: {start_d: d_1886, end_d: d_1913, horizon_days: 28}
+test_policy: V1_TEST_ALREADY_CONSULTED_NOT_USED_FOR_V2_SELECTION_OR_EVALUATION
+primary_metric: WAPE
+secondary_metrics: [MAE, RMSE, horizon_stability, training_seconds, model_size_MiB]
+random_state: 42
+candidates:
+  - name: V2_POISSON_CONSERVATIVE
+    objective: count:poisson
+    n_estimators: 500
+    learning_rate: 0.04
+    max_depth: 7
+    min_child_weight: 20
+    subsample: 0.9
+    colsample_bytree: 0.9
+    reg_alpha: 0.05
+    reg_lambda: 2.0
+  - name: V2_POISSON_CAPACITY
+    objective: count:poisson
+    n_estimators: 650
+    learning_rate: 0.03
+    max_depth: 9
+    min_child_weight: 15
+    subsample: 0.9
+    colsample_bytree: 0.9
+    reg_alpha: 0.05
+    reg_lambda: 2.0
+  - name: V2_SQUARED_REGULARIZED
+    objective: reg:squarederror
+    n_estimators: 500
+    learning_rate: 0.04
+    max_depth: 7
+    min_child_weight: 20
+    subsample: 0.9
+    colsample_bytree: 0.9
+    reg_alpha: 0.1
+    reg_lambda: 3.0
+direct_multi_horizon:
+  status: NOT_RUN
+  reason: A faithful direct strategy requires 28 horizon-specific models and separately generated past-only target rows; it is deferred until a candidate justifies this substantially higher compute/maintenance cost.
