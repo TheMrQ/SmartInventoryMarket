@@ -129,6 +129,10 @@ The shell becomes inert while a modal is mounted, preventing background route cl
 
 The Dashboard entry shares its `Tooltip`, `NavLink`, and 19px centered `.nav-icon-frame` with all other routes; no per-route positioning rule exists. No browser is available to capture bounding rectangles, so rendered pixel identity is not claimed. The prior `LayoutDashboard` glyph uses diagonal unequal cells that can appear optically left-weighted at 19px. It has been replaced only with Lucide `LayoutGrid`, whose four equal cells are bilaterally balanced inside the unchanged frame. This alters neither the route, active ribbon, hover state, profile/sidebar layout, nor mobile behavior.
 
+## P24-04d Dashboard metric polish
+
+The Inventory Snapshot treats its Lucide glyph and visual frame as distinct elements: the semantic icon frame is a stable 40px grid container and the SVG remains an unpadded 19px glyph. Product, available, incoming, and review metrics use blue, green, cyan, and amber frames/labels respectively; the metric values remain navy for operational readability. This is a React/CSS-only presentation refinement: its live values, API sources, and Dashboard summary interaction are unchanged. Browser visual acceptance remains required in P24.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.

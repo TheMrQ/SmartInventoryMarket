@@ -385,3 +385,23 @@ Lý do nghiệp vụ: filters này giúp quản lý tìm đúng chứng cứ inv
 ## M. P24-04 composition acceptance — MANUAL VERIFICATION REQUIRED
 
 Kiểm tra desktop/1280/1024/900/550: icon header phải thẳng giữa title line; Suppliers phải là Supplier Directory full-width rồi Product Mappings full-width; `41 mappings` không tách số/từ ở desktop; mapping selects không bị cắt; PO Search và Status là một nhóm ở trái, count ở phải. Đổi transaction type, PO/supplier mapping filter và Insight tabs để xác nhận fade/up nhanh, focus control giữ nguyên. Hover chỉ các dashboard summary/action cards: grow nhẹ + elevation, không làm table/form/modal di chuyển. Bật reduced motion để xác nhận transition/scale gần như tức thời. Không chấm PASS khi chưa có screenshot browser; các kiểm tra này không được mutation MySQL/P22.
+
+## N. P24-04d — Dashboard KPI và tương tác Supplier — MANUAL VERIFICATION REQUIRED
+
+Đợt này chỉ thay đổi React/CSS; **không seed, reset, ghi hoặc sửa MySQL/P22**. Các giá trị Dashboard, mapping, supplier, PO và tồn kho phải giữ nguyên.
+
+### N.1 Dashboard — KPI Snapshot
+
+- **Trang:** Dashboard. Chụp trạng thái bình thường ở desktop và một chiều rộng hẹp phù hợp.
+- **Thao tác:** quan sát bốn snapshot Products, Available units, Incoming units và Awaiting review; hover một dashboard summary/action card đã có sẵn.
+- **Kỳ vọng UI:** mỗi icon nằm giữa một khung 40px, còn SVG Lucide là glyph 19px không có padding/dot riêng. Products dùng blue, Available dùng green, Incoming dùng cyan, Awaiting review dùng amber; số KPI lớn vẫn navy. Hover dashboard summary/action còn lift/elevation theo thiết kế đã duyệt.
+- **PASS:** khung/icon không chồng hoặc lệch, màu đúng ngữ nghĩa, số và dữ liệu không đổi. **FAIL:** SVG tự tạo một nền nhỏ, icon mất cân giữa khung, màu cảnh báo áp dụng sai, hoặc một thao tác hover làm thay đổi số liệu.
+- **Evidence:** screenshot Dashboard trước/sau hover, gồm đủ bốn KPI. Không cần và không được thực hiện mutation database.
+
+### N.2 Suppliers — card và row interaction
+
+- **Trang:** Suppliers. Dùng tìm kiếm chỉ đọc `SIM_M5_CA1_FOODS_V1_SUP_02` hoặc `FOODS_2_005`; sau đó clear để xem workspace đầy đủ.
+- **Thao tác:** hover riêng Supplier Directory card, Product Mappings card, một supplier row và một mapping row. Lặp lại với Reduced Motion của hệ điều hành/browser bật.
+- **Kỳ vọng UI:** chỉ hai workspace card lift rất nhẹ (khoảng 2px), viền/shadow rõ hơn, không scale các panel/table/modal khác. Supplier/mapping row chỉ đổi nền blue-neutral nhẹ và có left accent; row không scale. Với Reduced Motion, card không transform và chuyển động gần như tức thời.
+- **PASS:** card và row phản hồi khác nhau, filter/modal/mapping data không thay đổi, không có horizontal scrollbar/clipping. **FAIL:** table row scale, card ngoài Suppliers lift, card dịch khi bật Reduced Motion, hoặc bất kỳ bản ghi supplier/mapping nào bị sửa.
+- **Evidence:** screenshot hover card, hover row và Reduced Motion; giữ lại ảnh trước/sau filter để chứng minh đây là kiểm tra chỉ đọc.

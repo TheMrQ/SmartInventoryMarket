@@ -72,7 +72,7 @@ export default function DashboardPage() {
     </section>
 
     <section className="inventory-snapshot" aria-label="Inventory snapshot">
-      {snapshotItems.map(({ key, label, detail, icon: Icon }) => <article key={key} className="snapshot-item"><i><Icon size={18}/></i><div><span>{label}</span><strong className="metric-number">{key === 'products' || key === 'new' ? values[key].toLocaleString() : formatUnits(values[key])}</strong><small>{detail}</small></div></article>)}
+      {snapshotItems.map(({ key, label, detail, icon: Icon }) => <article key={key} className={`snapshot-item snapshot-${key}`}><i><Icon size={19}/></i><div><span>{label}</span><strong className="metric-number">{key === 'products' || key === 'new' ? values[key].toLocaleString() : formatUnits(values[key])}</strong><small>{detail}</small></div></article>)}
     </section>
 
     <section className="dashboard-primary-grid">

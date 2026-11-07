@@ -355,12 +355,16 @@ tbody tr:hover { background: #f8fbff; }
 .snapshot-item + .snapshot-item { border-left: 1px solid #e7edf5; }
 
 .snapshot-item svg {
-  flex: 0 0 auto;
-  padding: 8px;
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #2563eb;
+  padding: 0;
 }
+.snapshot-item i { display:grid; place-items:center; flex:0 0 40px; width:40px; height:40px; border-radius:10px; }
+.snapshot-products i { background:#eff6ff; color:#2563eb; }.snapshot-products span { color:#2563eb; }
+.snapshot-onHand i { background:#ecfdf3; color:#15803d; }.snapshot-onHand span { color:#15803d; }
+.snapshot-incoming i { background:#ecfeff; color:#0284c7; }.snapshot-incoming span { color:#0284c7; }
+.snapshot-new i { background:#fffbeb; color:#b45309; }.snapshot-new span { color:#b45309; }
+.two-grid > .panel { transition:transform 220ms var(--ease-standard),box-shadow 220ms var(--ease-standard),border-color 180ms ease; }
+.two-grid > .panel:hover { transform:translateY(-2px) scale(1.005); border-color:#cbdcf1; box-shadow:var(--shadow-md); }
+.two-grid .table-wrap tbody tr:hover,.mapping-table tbody tr:hover { background:#f1f7ff; box-shadow:inset 3px 0 #93c5fd; }
 
 .snapshot-item span {
   display: block;
@@ -540,4 +544,5 @@ tbody tr:hover { background: #f8fbff; }
 
 @media (prefers-reduced-motion: reduce) {
   .page-transition,.tabs + .toolbar,.tabs + .panel { animation: none; transform: none; }
+  .two-grid > .panel:hover { transform:none; }
 }
