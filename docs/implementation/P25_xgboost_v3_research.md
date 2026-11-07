@@ -52,9 +52,11 @@ The preregistered gate required lower mean WAPE, non-worse MAE and RMSE, at leas
 | 3 | 1.386687 / 2.561367 / 66.840035% | 1.445886 / 2.563968 / 69.693546% | 1.447966 / 2.574409 / 69.793798% |
 | 4 | 1.402449 / 2.568234 / 66.647316% | 1.437707 / 2.557989 / 68.322857% | 1.441046 / 2.565325 / 68.481506% |
 
-## Error-profile interpretation
+## Error-profile and horizon interpretation
 
 Diagnostics are aggregate series-fold results, not an inventory or stockout claim. The regularized V3 candidate modestly improves the densest 0–25%-zero band (MAE 2.350445 vs V1 2.372054) and the high-volume quartile (2.811343 vs 2.839041), but it degrades the 75–100%-zero band (0.870094 vs 0.552827), low-volume Q1 (0.722023 vs 0.478143), and every department aggregate. Department MAE is 1.284970/1.075629/1.622467 for `FOODS_1`/`FOODS_2`/`FOODS_3`, versus V1's 1.233519/1.023052/1.565254. Thus the additional intermittent signals do not behave acceptably across the intended product mix.
+
+The horizon table now contains both all 28 daily measurements and explicit exact groups (days 1–7, 8–14, 15–21, and 22–28). Mean V1 MAE by group is 1.317850, 1.393628, 1.358314, and 1.391080 respectively; its WAPE rises from 63.858431% in days 1–7 to 69.897719% in days 22–28. Both V3 finalists are worse on grouped WAPE at every group, including the late horizon (regularized: 71.430279%; balanced: 71.612320%). There is horizon variation and weaker late-horizon WAPE, but this study does not justify an unplanned switch to 28 direct models.
 
 The tracked tables provide complete reproducible diagnostics:
 

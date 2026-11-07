@@ -178,7 +178,9 @@ def _run_model(
         dept_id=context.source.metadata["dept_id"].astype(str).to_numpy(),
         zero_demand_rate=(actual == 0).mean(axis=1),
     )
-    horizon = horizon_metrics(actual, forecast, dates).assign(candidate=label, stage=stage, fold=context.definition["name"])
+    horizon = horizon_metrics(actual, forecast, dates).assign(
+        candidate=label, stage=stage, fold=context.definition["name"], series_count=actual.shape[0]
+    )
     return record, per_series, horizon, actual, forecast
 
 
@@ -219,6 +221,42 @@ def _candidate_summary(metrics: pd.DataFrame, baseline_name: str) -> pd.DataFram
         candidate_folds = scored.loc[scored["candidate"].eq(row["candidate"]), ["fold", "WAPE_percent"]].set_index("fold")["WAPE_percent"]
         summary.loc[index, "wape_folds_improved_vs_v1"] = int((candidate_folds < baseline_folds).sum()) if row["candidate"] != baseline_name else 0
     return summary
+
+
+def summarize_horizon_groups(daily: pd.DataFrame) -> pd.DataFrame:
+    """Append exact 7-day horizon-group metrics to per-day horizon evidence.
+
+    The day rows carry enough aggregate quantities to reconstruct grouped MAE,
+    RMSE, and WAPE exactly: each has the common series count, absolute error
+    (`MAE * count`), squared error (`RMSE**2 * count`), and actual-demand sum
+    recovered from WAPE. This keeps group reporting derived from predictions
+    made before validation actuals were opened.
+    """
+    required = {"candidate", "stage", "fold", "horizon", "date", "MAE", "RMSE", "WAPE_percent", "series_count"}
+    if required.difference(daily.columns):
+        raise ValueError("daily horizon metrics lack required group-summary columns")
+    day_rows = daily.copy()
+    day_rows["granularity"] = "day"
+    day_rows["horizon_group"] = ""
+    group_rows: list[dict] = []
+    windows = ((1, 7), (8, 14), (15, 21), (22, 28))
+    for (candidate, stage, fold), rows in day_rows.groupby(["candidate", "stage", "fold"], observed=True):
+        for start, end in windows:
+            window = rows.loc[rows["horizon"].between(start, end)].sort_values("horizon")
+            if len(window) != 7:
+                raise ValueError("A horizon group must contain exactly seven daily rows.")
+            observations = float((window["series_count"] * 1).sum())
+            absolute_error = float((window["MAE"] * window["series_count"]).sum())
+            squared_error = float(((window["RMSE"] ** 2) * window["series_count"]).sum())
+            actual_sum = float((window["MAE"] * window["series_count"] / (window["WAPE_percent"] / 100)).sum())
+            group_rows.append({
+                "horizon": f"{start}-{end}", "date": f"{window.iloc[0]['date']} to {window.iloc[-1]['date']}",
+                "MAE": absolute_error / observations, "RMSE": np.sqrt(squared_error / observations),
+                "WAPE_percent": 100 * absolute_error / actual_sum, "candidate": candidate, "stage": stage,
+                "fold": fold, "series_count": int(window["series_count"].iloc[0]),
+                "granularity": "group", "horizon_group": f"days_{start}_{end}",
+            })
+    return pd.concat([day_rows, pd.DataFrame(group_rows)], ignore_index=True)
 
 
 def select_candidate(summary: pd.DataFrame, selection_rule: dict, baseline_name: str) -> tuple[str | None, pd.DataFrame]:
@@ -317,7 +355,7 @@ def main() -> None:
     metrics = pd.DataFrame(rows)
     summary = _candidate_summary(metrics, baseline_name)
     winner, summary = select_candidate(summary, research["selection_rule"], baseline_name)
-    horizon_table = pd.concat(horizons, ignore_index=True)
+    horizon_table = summarize_horizon_groups(pd.concat(horizons, ignore_index=True))
     sparsity, volume, department = _diagnose_per_series(per_series)
     args.tables_dir.mkdir(parents=True, exist_ok=True); args.figures_dir.mkdir(parents=True, exist_ok=True); args.manifests_dir.mkdir(parents=True, exist_ok=True)
     metrics.to_csv(args.tables_dir / "xgboost_v3_rolling_metrics.csv", index=False)
@@ -326,7 +364,7 @@ def main() -> None:
     volume.to_csv(args.tables_dir / "xgboost_v3_error_by_volume.csv", index=False)
     department.to_csv(args.tables_dir / "xgboost_v3_error_by_department.csv", index=False)
     horizon_table.to_csv(args.tables_dir / "xgboost_v3_horizon_metrics.csv", index=False)
-    _plot_horizon(horizon_table.loc[horizon_table["stage"].isin(["baseline", "stage_2"])], args.figures_dir / "xgboost_v3_horizon_mae.png")
+    _plot_horizon(horizon_table.loc[(horizon_table["stage"].isin(["baseline", "stage_2"])) & (horizon_table["granularity"].eq("day"))], args.figures_dir / "xgboost_v3_horizon_mae.png")
     _plot_summary(summary, args.figures_dir / "xgboost_v3_mean_rolling_wape.png")
     manifest = {
         "experiment_id": research["experiment_id"], "git_commit": _git_revision(), "selection_status": "CREDIBLE_IMPROVEMENT" if winner else "NO_CANDIDATE_SELECTED",

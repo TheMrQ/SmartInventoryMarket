@@ -5,9 +5,9 @@ import pandas as pd
 import pytest
 
 from ml.data.m5_ca1_foods import _rolling_fold_days
-from ml.features.builder import _feature_names, _intermittent_feature_arrays, load_feature_config
+from ml.features.builder import _feature_names, _intermittent_feature_arrays, _price_feature_arrays, load_feature_config
 from ml.models.recursive import recursive_forecast
-from scripts.ml.run_xgboost_v3_research import candidate_config, select_candidate, validate_research_config
+from scripts.ml.run_xgboost_v3_research import candidate_config, select_candidate, summarize_horizon_groups, validate_research_config
 
 
 def test_v3_schema_is_separate_deterministic_and_intermittent_aware() -> None:
@@ -38,6 +38,18 @@ def test_v3_intermittent_features_are_past_only_and_define_all_zero_windows() ->
     assert features["days_since_last_nonzero_capped_56"][0, 0] == 25
     for name in features:
         np.testing.assert_allclose(features[name], after[name])
+
+
+def test_v3_price_features_remain_past_only() -> None:
+    config = load_feature_config("configs/features/ml_features_v3.yaml")
+    prices = np.arange(60, dtype=float).reshape(1, -1)
+    positions = np.array([56], dtype=np.int32)
+    before = _price_feature_arrays(prices, positions, config)
+    changed_future = prices.copy()
+    changed_future[:, 56:] = 999
+    after = _price_feature_arrays(changed_future, positions, config)
+    for name in before:
+        np.testing.assert_allclose(before[name], after[name])
 
 
 def test_rolling_fold_boundaries_reject_test_and_noncontiguous_spans() -> None:
@@ -78,3 +90,16 @@ def test_research_config_keeps_exact_pretest_folds() -> None:
     import yaml
     with open("configs/experiments/xgboost_v3_research.yaml", encoding="utf-8") as handle:
         validate_research_config(yaml.safe_load(handle))
+
+
+def test_horizon_group_summary_is_exactly_derived_from_daily_metrics() -> None:
+    daily = pd.DataFrame([
+        {"candidate": "V3", "stage": "stage_2", "fold": "fold_1", "horizon": day, "date": f"d{day}", "MAE": 1.0, "RMSE": 2.0, "WAPE_percent": 50.0, "series_count": 2}
+        for day in range(1, 29)
+    ])
+    summary = summarize_horizon_groups(daily)
+    group = summary.loc[summary["horizon_group"].eq("days_1_7")].iloc[0]
+    assert len(summary.loc[summary["granularity"].eq("group")]) == 4
+    assert group["MAE"] == pytest.approx(1.0)
+    assert group["RMSE"] == pytest.approx(2.0)
+    assert group["WAPE_percent"] == pytest.approx(50.0)
