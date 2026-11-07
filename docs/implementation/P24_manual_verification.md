@@ -381,3 +381,7 @@ Trạng thái: **MANUAL VERIFICATION REQUIRED**. P24-03 chỉ thay đổi React/
 - **Products regression:** gõ liền `FOODS_1` (12 kết quả), xem `FOODS_1_001` Unit of Measure `unit` + On-hand Stock 0, rồi `NO-SUCH-SKU-P24` (0). Input phải giữ focus; debounce 300 ms/previous table/error distinction còn nguyên.
 
 Lý do nghiệp vụ: filters này giúp quản lý tìm đúng chứng cứ inventory/supplier/PO trong demo mà không sửa dữ liệu. Motion chỉ mô tả sự đổi page/tab, không mô phỏng forecast hoặc trạng thái kho.
+
+## M. P24-04 composition acceptance — MANUAL VERIFICATION REQUIRED
+
+Kiểm tra desktop/1280/1024/900/550: icon header phải thẳng giữa title line; Suppliers phải là Supplier Directory full-width rồi Product Mappings full-width; `41 mappings` không tách số/từ ở desktop; mapping selects không bị cắt; PO Search và Status là một nhóm ở trái, count ở phải. Đổi transaction type, PO/supplier mapping filter và Insight tabs để xác nhận fade/up nhanh, focus control giữ nguyên. Hover chỉ các dashboard summary/action cards: grow nhẹ + elevation, không làm table/form/modal di chuyển. Bật reduced motion để xác nhận transition/scale gần như tức thời. Không chấm PASS khi chưa có screenshot browser; các kiểm tra này không được mutation MySQL/P22.
