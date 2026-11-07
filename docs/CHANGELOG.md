@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-07
+
+- Fixed Products search remounting by debouncing search requests, retaining previous results during fetches, and adding accessible updating/no-result/error states.
+- Added the P24 read-only MySQL snapshot and Vietnamese manual browser acceptance guide; P24 remains in progress pending human evidence.
+
 ## 2026-11-06
 
 - Completed P22 locally: promoted the owner-authorized existing active inventory-staff account with a password-preserving local-only CLI, applied the deterministic M5 scenario, and verified its persisted forecast, inventory, PO, receipt, and audit evidence.

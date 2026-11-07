@@ -4,12 +4,12 @@ Project: Smart Inventory Market
 
 Thesis: Development of an Intelligent Supermarket Inventory Management and Product Demand Forecasting System Using Machine Learning
 
-Overall status: 🟡 **IN_PROGRESS** — P22 M5-grounded scenario application and P23 validation-only research are complete; P24 end-to-end browser/workflow evidence remains.
+Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has started with a read-only MySQL baseline; browser acceptance evidence remains.
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P22 — M5-Grounded Supermarket Simulation` is **DONE**. The owner-authorized existing local account was promoted safely, the 36-SKU scenario was applied, and a rerun proved manifest-scoped read-only idempotency.
-- **Next Phase:** `P24 — End-to-End Testing & Evaluation` must collect manual browser/live-workflow evidence for the saved scenario and existing application flows.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting and recorded a direct, non-sensitive MySQL snapshot/manual acceptance guide.
+- **Next Phase:** perform the browser walkthrough using the P24 guide, recording pre-mutation baselines and screenshot evidence.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
@@ -100,7 +100,7 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P21 Business Integrity & Workflow Fixes | 🟢 **DONE** |
 | P22 M5-Grounded Supermarket Simulation | 🟢 **DONE** |
 | P23 XGBoost V2 Research | 🟢 **DONE** |
-| P24 End-to-End Testing & Evaluation | ⚪ **PLANNED** |
+| P24 End-to-End Testing & Evaluation | 🟡 **IN_PROGRESS** |
 | P25 Thesis Report & Defense | ⚪ **PLANNED** |
 
 ## Historical Phase Notes

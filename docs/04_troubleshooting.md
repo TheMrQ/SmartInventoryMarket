@@ -1,5 +1,13 @@
 # Troubleshooting and Recovery
 
+## 2026-11-07 — Products search lost focus after one character — RESOLVED, BROWSER VERIFICATION PENDING
+
+**Symptom:** Typing changed the query key immediately. While the new request loaded, `ProductsPage` returned a full-page loading component, unmounting the focused search input.
+
+**Resolution:** Search input state is now independent from its 300 ms debounced query value. React Query retains previous product data during fetches; the page shows a small live “Updating products…” status, keeps the table/input mounted, and distinguishes successful no-results from API failures.
+
+**Verification:** Unit-level regression coverage checks the debounce value, SKU/name request parameters, and retained-table transition model. Frontend automated checks pass; P24 must still provide live browser focus/network evidence.
+
 ## 2026-11-06 — P22 scenario retry attempted a duplicate linked draft PO — RESOLVED
 
 **Symptom:** The first scenario rerun regenerated recommendations and attempted to insert its fixed linked-draft PO number, which MySQL rejected through the unique PO-number constraint.
