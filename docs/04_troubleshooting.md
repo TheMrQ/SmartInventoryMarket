@@ -308,6 +308,14 @@ Treat the utility as optional/local-demo setup only. Keep raw M5 files, model ar
 
 ## Problem Record Template
 
+## 2026-11-07 — P24 Purchase Order workspace exposed internal product IDs — RESOLVED, BROWSER VERIFICATION PENDING
+
+**Symptom:** The Manage dialog showed a raw `Product #<id>` and a sparse receipt form, leaving managers unable to inspect fulfillment, live inventory context, linked recommendation context, or the operational effect of receipt without cross-referencing other pages.
+
+**Resolution:** The frontend now joins already-available product, supplier, inventory, and recommendation responses in the PO workspace. It derives fulfillment from PO lines and renders product name/SKU, metadata, on-hand/incoming/backend-reported inventory position, accessible receipt labels, and an accurate explanation of the qualifying receipt transfer. The shared ResultCount's remaining 999px override was changed to the approved 11px compact-summary geometry. No backend/API/schema/business-rule or persistent scenario record changed.
+
+**Verification:** Focused frontend tests cover fulfillment arithmetic, inventory position preservation, product identity, linked-recommendation/status-specific controls, and ResultCount geometry. Browser acceptance is still required for the controlled partial PO baseline, mobile layout, dialog focus/close behavior, and the one owner-performed receipt test. No PO transition, receipt, cancellation, sale, seed, reset, or MySQL modification was executed for this fix.
+
 ## 2026-11-07 — P24-06 avatar uploads persisted but did not render in Vite development — RESOLVED
 
 **Symptom:** A successful avatar upload returned a non-null `/uploads/avatars/<generated-name>` reference, but the Account page and sidebar continued to show initials during local Vite development.

@@ -28,7 +28,7 @@ test('a sale modal keeps one generated key in its useState initializer for retri
   assert.match(source, /const \[idempotencyKey\] = useState\(\(\) => createSaleIdempotencyKey\(\)\)/)
   assert.match(source, /api\.recordSale\(data\)/)
   assert.match(source, /idempotency_key: idempotencyKey/)
-  assert.match(source, /<Button type="button" className="secondary" onClick=\{onClose\}>Cancel<\/Button>/)
+  assert.match(source, /<Button\s+type="button"\s+className="secondary"\s+onClick=\{onClose\}>\s*Cancel\s*<\/Button>/)
 })
 
 test('a sale key fails safely when secure UUID generation is unavailable', () => {
@@ -52,8 +52,10 @@ test('all primary data rows share the inspection marker while action semantics r
 test('purchase-order actions keep Manage first and label the stable actions column', () => {
   const source = readFileSync(new URL('../src/pages/OperationalPages.jsx', import.meta.url), 'utf8')
   assert.match(source, /<th className="row-actions">Actions<\/th>/)
-  assert.match(source, /row-action-group"><button className="link-button row-action-manage"[\s\S]*?>Manage<\/button>\{next && <button className="link-button row-action-workflow"/)
-  assert.match(source, /DRAFT: \['APPROVED', 'Approve order'\]/)
+  const manageIndex = source.indexOf('row-action-manage')
+  const workflowIndex = source.indexOf('row-action-workflow')
+  assert.ok(manageIndex >= 0 && workflowIndex > manageIndex)
+  assert.match(source, /DRAFT: \["APPROVED", "Approve order"\]/)
 })
 
 test('dashboard retains semantic KPI classes and the workspace has a recovery boundary', () => {

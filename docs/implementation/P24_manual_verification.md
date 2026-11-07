@@ -4,6 +4,39 @@
 
 Đợt này không seed, reset, migration, hay thay đổi dữ liệu P22/MySQL. Các thay đổi UI chỉ dùng dữ liệu API hiện có. Browser walkthrough dưới đây là bằng chứng bắt buộc; lint/build không thay thế screenshot hoặc thao tác thực tế.
 
+## P24-08 — Purchase Order operational workspace — MANUAL VERIFICATION REQUIRED
+
+Dot nay chi thay doi React/CSS va doc cac API hien co. Khong approve, receive, cancel, tao PO, seed, reset, hay sua MySQL/P22 trong luc kiem thu giao dien.
+
+### Q.1 Kiem tra bang Purchase Orders (chi doc)
+
+- **Trang:** Purchase Orders. Tim `SIM_M5_CA1_FOODS_V1-PARTIAL`.
+- **Ky vong:** hang hien PO number, supplier name + code neu co, status **In transit**, Fulfillment `6 / 8 received`, `2 remaining`, ngay expected arrival (hoac `Not scheduled`), so line va Actions theo thu tu **Manage** roi workflow action neu co.
+- **PASS:** Fulfillment lay tong tu PO items, khong tao cot so qua hep; hover/focus va Manage/workflow cu van hoat dong. ResultCount la mot summary surface goc 11px, khong phai pill status badge.
+- **Evidence:** screenshot bang da loc va ResultCount; khong click workflow action.
+
+### Q.2 Controlled partial receipt — baseline truoc mutation
+
+- **Trang/Thao tac:** o PO `SIM_M5_CA1_FOODS_V1-PARTIAL`, click **Manage**. Chi quan sat, sau do **Close**.
+- **Ky vong UI truoc mutation:** Product hien `Food Item 2-006` va `FOODS_2_006`, status **In transit**, Ordered **8**, Received **6**, Remaining **2**. Inventory context hien On-hand **9**, Incoming **2**, Position **11**. Truong **Receive now** co label ro rang, max **2**, va dong giai thich receipt.
+- **PASS:** khong co `Product #22`, modal khong can horizontal scroll o desktop cho PO mot line; Escape, click outside, focus keyboard va Close van hoat dong. Khong co API mutation khi chi mo/dong modal.
+- **Evidence:** screenshot modal desktop, screenshot mobile hep neu co, va Network khong co `POST /receive`.
+
+### Q.3 Controlled receipt — chi thuc hien sau khi luu baseline Q.2
+
+- **Canh bao:** chi owner thuc hien mot lan sau khi da luu screenshot/database baseline; Codex khong thuc hien buoc nay.
+- **Thao tac:** giu **Receive now = 2**, click **Confirm receipt**, xac nhan dialog.
+- **Expected UI/DB sau thanh cong:** status **RECEIVED**; Ordered **8**, Received **8**, Remaining **0**; On-hand **11**, Incoming **0**, Position **11**; them dung mot stock transaction **RECEIPT** quantity **2**. Receipt controls va Cancel khong con hien, completed fulfillment state hien thi.
+- **FAIL:** position tang thanh 13, receipt bi ghi hai lan, quantity vuot 2, hoac state/stock khong dung. Dung va ghi lai evidence; khong reset scenario de che loi.
+- **Evidence:** screenshot truoc/sau, response/network, Transaction History va database snapshot sau mutation.
+
+### Q.4 Linked recommendation va responsive states (chi doc)
+
+- **Trang:** mo `SIM_M5_CA1_FOODS_V1-LINKED-DRAFT` bang **Manage**.
+- **Ky vong:** overview hien `Linked recommendation #<id>` voi status/approved quantity neu API da tai; DRAFT chi hien Save line/Remove, khong hien receipt control. PO RECEIVED hien completed state va khong hien receipt input.
+- **Responsive/a11y:** kiem tra 1280px, 760px va 480px: metadata grid stack an toan, line item thanh card doc duoc, action reachable, dialog nam trong viewport. Bat Reduced Motion: thong tin/progress van hien, khong co motion khong can thiet.
+- **Evidence/PASS:** screenshot linked draft, completed PO neu da co san, va mot viewport hep. Khong danh dau browser PASS neu chua co cac anh nay.
+
 ### Avatar sau logout/login
 
 - **Baseline:** dùng chính tài khoản Manager đã có avatar; không ghi email, password, cookie hoặc tên file upload vào evidence.
