@@ -4,6 +4,8 @@
 
 - Refined Products and Suppliers operational presentation: unit-of-measure and live on-hand stock are now distinct, search count is clear and limited-aware, and two-column supplier content wraps safely.
 - Added P24-02 current-MySQL reconciliation evidence, forecast totals, workflow-to-test mapping, and an actor-attribution finding for manual verification.
+- Expanded the Vietnamese P24 manual protocol with eight-page read-only checks, current table counts, scenario PO/forecast baselines, source-to-DB traceability, mutation safety rules, and explicit NOT VERIFIED browser states.
+- Re-ran the valid complete backend invocation (`.venv\\Scripts\\python.exe -m pytest`: 79 passed), six frontend tests, lint, and production build; the Vite chunk-size advisory remains non-blocking.
 
 ## 2026-11-07
 
@@ -37,7 +39,7 @@ All notable project changes are recorded here chronologically.
 
 ## 2026-11-01 — P20 roadmap reconciliation
 
-- Reclassified the post-P17 roadmap without altering P0–P17 history: P18 is Authentication and UI refinement (**PENDING_VERIFICATION**), P19 is the Inventory Control Room visual experiment V1/V2 (**PENDING_VERIFICATION**), and P20 Functional audit is **DONE**.
+- Reclassified the post-P17 roadmap without altering P0–P17 history: P18 is Authentication and UI refinement (**IN_PROGRESS**, manual visual verification outstanding), P19 is the Inventory Control Room visual experiment V1/V2 (**IN_PROGRESS**, manual visual verification outstanding), and P20 Functional audit is **DONE**.
 - Corrected the phase ordering after audit review: P21 is **PLANNED** Business Integrity & Workflow Fixes, P22 is **PLANNED** M5-Grounded Supermarket Simulation, P23 is **PLANNED** XGBoost V2 Research, P24 is **PLANNED** End-to-End Testing & Evaluation, and P25 is **PLANNED** Thesis Report & Defense.
 - Recorded the P22 provenance architecture: real M5 historical sales/calendar/prices plus traceable product-to-M5-SKU mapping; separately marked synthetic inventory/suppliers/POs; no arbitrary-new-SKU forecast claim; POS-ingestion compatibility; and retraining for a different supermarket. Original XGBOOST_V1 evaluation evidence remains immutable.
 

@@ -175,3 +175,175 @@ Mỗi lần mutation phải ghi lại baseline mới trên UI/database trước 
 | UI loading/empty/error/retry | cached operational data stays mounted | frontend workflow/search tests |
 
 Automated tests use isolated SQLite/disposable records and never mutate the P22 MySQL scenario. Browser workflows remain unverified until the owner captures the prescribed evidence.
+
+## F. Quy ước bằng chứng — phải đọc trước khi bấm nút
+
+- **P22 ORIGINAL BASELINE** là trạng thái scenario ngay sau khi P22 được áp dụng. Nó là chứng cứ lịch sử, **không** là dữ liệu để ghi đè hoặc “dọn sạch”.
+- **CURRENT MYSQL SNAPSHOT** là kết quả truy vấn chỉ đọc lúc 2026-11-07, sau các công việc P24-01/P24-02. Những con số này có thể thay đổi sau một kiểm thử thủ công hợp lệ.
+- **MANUAL TEST MUTATION** là thay đổi có chủ ý do người kiểm thử thực hiện. Trước mỗi mutation phải ghi baseline mới (giờ chụp, ID, số lượng, trạng thái); sau đó lưu ảnh và đối chiếu database. Không dùng baseline cũ để kết luận sau mutation.
+- Các mục có nhãn **MANUAL VERIFICATION REQUIRED** chưa có bằng chứng browser trong môi trường Codex. Chúng không phải PASS và không được dùng làm khẳng định demo.
+
+## G. Môi trường, an toàn và khởi động
+
+### G.1 Nhận diện môi trường đúng
+
+| Mục | Giá trị cần xác nhận |
+| --- | --- |
+| Branch | `experiment/inventory-control-room` |
+| HEAD trước P24-02 | `8572592` (`fix(products): retain search focus during query updates`) |
+| HEAD P24-02 hiện có khi viết hướng dẫn | `129c96f` (`fix(ui): reconcile catalog stock and supplier layout`) |
+| Database | local MySQL `smart_inventory_market` (không ghi mật khẩu/URL vào ảnh hoặc tài liệu) |
+| Scenario | `SIM_M5_CA1_FOODS_V1`, ID 1, store `CA_1`, 36 SKU |
+| Selection hash | `2284aced3531888a0d4b38cd6a7216fcd2c6e1aaae3773b6456c168e6ddc9e95` |
+| Test account | đăng nhập tài khoản local đang active có role `MANAGER`; chỉ xác nhận display name/role trên UI, không chụp hay ghi email/mật khẩu/token |
+
+Khởi động trong hai terminal riêng, từ repository root:
+
+```powershell
+.\.venv\Scripts\uvicorn.exe backend.app.main:app --reload
+Set-Location frontend
+npm run dev
+```
+
+Trước khi kiểm thử, mở UI, kiểm tra tài khoản đang hiển thị `MANAGER`, rồi xác nhận scenario có 36 sản phẩm M5 và forecast run 18. Nếu bất kỳ dấu hiệu nào khác, dừng lại: có thể đang nối nhầm database hoặc API. Không chạy `setup_m5_supermarket_scenario.py --apply`, không reset/seed database, không sửa raw M5, forecast/model artifact hay P22 records để “khôi phục” trạng thái.
+
+### G.2 CURRENT MYSQL SNAPSHOT — đối soát chỉ đọc
+
+| Bảng/phạm vi | Count hiện tại | Ghi chú |
+| --- | ---: | --- |
+| `products` / `demo_product_sources` scenario | 36 / 36 | tất cả source kind `OBSERVED_M5` |
+| `sales_daily` | 68,868 | 2011-01-29 đến 2016-04-24; không phải giao dịch POS 2026 |
+| `forecast_runs` / `forecast_values` toàn DB | 11 / 1,456 | không xóa các run ngoài scenario |
+| scenario forecast run 18 / values | 1 / 1,008 | 36 SKU × 28 ngày |
+| `inventory` | 36 | một row cho mỗi scenario product hiện tại |
+| `suppliers` / `supplier_products` | 5 / 41 | tất cả 5 supplier hiện active |
+| `reorder_recommendations` | 15 | NEW 4, ACCEPTED 2, MODIFIED 2, EXPIRED 7 |
+| `purchase_orders` / `purchase_order_items` | 5 / 5 | 4 PO có marker scenario; không suy ra PO thứ năm là P22 nếu không có marker |
+| `stock_transactions` / `operational_sales` | 42 / 0 | chưa có manual sale mới trong snapshot |
+
+Actor audit hiện tại: `ADJUSTMENT_IN` có 29 actor khác null và 5 actor null; `ADJUSTMENT_OUT` có 5 khác null; `RECEIPT` có 3 khác null; chưa có `SALE`. Năm row null là lịch sử/pre-existing, không được sửa lại. Mọi `SALE`, adjustment hoặc receipt mới phải có `created_by_user_id` của Manager đã đăng nhập; nếu null, ghi **FAIL** và mở defect riêng.
+
+## H. Xác minh read-only trên tám trang
+
+Mỗi case dưới đây là **MANUAL VERIFICATION REQUIRED** cho đến khi có ảnh/browser evidence. Trên từng trang: (1) tải lại bình thường, (2) dùng Tab/Shift+Tab để nhìn focus, (3) thử sidebar expanded/collapsed, (4) thu viewport desktop hẹp và mobile-like, (5) ghi nhận icon, badge, độ tương phản và không có horizontal overflow. Chỉ dùng DevTools Offline/chặn request trên bản local để thử lỗi; không gửi mutation khi network bị chặn.
+
+| Trang | Data/API đối chiếu | Thao tác read-only và kết quả cần có |
+| --- | --- | --- |
+| Dashboard | inventory, decisions, recommendations, orders | Chỉ số/risk/PO phải phản ánh snapshot, không mock số liệu; loading/error/retry không che vĩnh viễn workspace. |
+| Products | `/api/products`, `/api/inventory`, `/api/categories` | Xem H.1; Unit of Measure và On-hand Stock là hai dữ liệu khác nhau. |
+| Inventory | `/api/inventory`, `/api/stock-transactions` | `FOODS_2_005` phải cho 6 on-hand, 8 incoming, position 14 trước mutation; transaction list không được tự thay đổi khi chỉ xem. |
+| Suppliers | `/api/suppliers`, `/api/supplier-products` | Xem H.2; badge active, mapping và lead time không bị clip. |
+| Purchase Orders | `/api/purchase-orders` | Xem H.4; không mở receipt/transition khi chỉ đối soát. |
+| Sales | `/api/sales` | Filter lịch sử M5 chỉ đọc; import/record sale là mutation, tách ở I.1/I.2. |
+| Forecasts | `/api/forecasts/latest`, `/api/forecast-runs`, `/api/forecasts/eligibility` | Xem H.3; không Generate forecast mới trong bước read-only. |
+| Inventory Insights | `/api/inventory-decisions`, `/api/reorder-recommendations` | Xem H.3; badge risk và decision phải khớp data path thực tế. |
+
+**Loading/empty/error:** “empty” không an toàn để tạo trên persistent scenario, vì vậy chỉ chấp nhận empty do search không tồn tại (`NO-SUCH-SKU-P24`) hoặc fixture isolated. Khi request thật lỗi, UI phải hiển thị lỗi rõ ràng + Retry; lỗi không được trông như thành công. Ghi screenshot riêng cho normal, error/retry và responsive; không đánh PASS chỉ vì lint/build pass.
+
+### H.1 Products — focus, debounce, Unit of Measure và tồn kho
+
+- **Current baseline:** `FOODS_1_001` ID 4: unit `unit`, on-hand **0**; `FOODS_2_007` ID 23: unit `unit`, on-hand **12**; `FOODS_1_008` ID 13: on-hand **1**. Không có product không có inventory row ở snapshot này (36 products/36 inventory); vì vậy không tự tạo “untracked” product chỉ để đạt case.
+- **Thao tác:** vào Products; gõ liên tục `FOODS_1`, không dừng giữa các ký tự; tiếp theo gõ `Food Item 2-005`, rồi clear; cuối cùng gõ `NO-SUCH-SKU-P24`.
+- **Kỳ vọng:** input giữ focus/caret; debounce khoảng 300 ms, table trước còn mount với “Updating products…”; `FOODS_1` trả 12 SKU scenario; no-result là kết quả thành công, không phải lỗi. Badge hiển thị số kết quả nhìn thấy, không tự nhận là total toàn cục vì API limit 100. Header là **Unit of Measure**; giá trị `unit` không phải số lượng tồn. Cột **On-hand Stock** hiển thị `0`, không nhầm với missing; nếu API không có row phải nói `Not tracked`.
+- **Không được đổi:** `products.unit`, inventory, sales, PO, recommendation, transaction. **PASS:** các kết quả và baseline khớp; ảnh gồm focus sau `FOODS_1`, result count, zero stock, no-result. **FAIL:** chỉ gõ được một ký tự, full-page spinner/remount, kết quả cũ ghi đè, hoặc `unit` được mô tả là tồn kho.
+
+### H.2 Suppliers — không clipping
+
+- **Current baseline:** tất cả supplier đều active. `SIM_M5_CA1_FOODS_V1_SUP_01/02/03` có tên dài `Synthetic Supplier N — SIM_M5_CA1_FOODS_V1`, mỗi supplier 12 mappings; lead time mapping 3–7 ngày. `DEMO_SUPPLIER_A` có 3 mappings, 3–7 ngày; `DEMO_SUPPLIER_B` có 2 mappings, 4–6 ngày. Không có inactive supplier ở snapshot nên case inactive badge là **NOT APPLICABLE**, không bịa record.
+- **Thao tác:** kiểm tra `SIM_M5_CA1_FOODS_V1_SUP_02`, thu viewport, đổi sidebar expanded/collapsed và mobile-like; xem tên/code/status/mapping/lead time.
+- **Kỳ vọng:** text wrap, grid item `min-width: 0`, table wrapper scroll ngang chỉ khi cần; pill không overlap/clip, cột không nhảy. Không được đổi mapping/supplier. **Evidence:** ảnh desktop hẹp + mobile-like + một sidebar collapsed; **MANUAL VERIFICATION REQUIRED**.
+
+### H.3 Forecasts và Inventory Insights — nguồn số và công thức thực tế
+
+**CURRENT MYSQL SNAPSHOT forecast:** run **18**, model `XGBOOST_V1`, feature set `FEATURE_SET_V1`, version `selected_trainval_final_sha256_1b484f30`, history end/origin 2016-04-24, forecast 2016-04-25 đến 2016-05-22, horizon 28, mỗi SKU có 28 rows. Prediction persisted có min 0.0223, max 9.7609 nên không âm.
+
+| SKU (product ID) | 7 ngày | 14 ngày | 28 ngày | Current risk |
+| --- | ---: | ---: | ---: | --- |
+| FOODS_1_001 (4) | 5.8180 | 11.4284 | 21.0583 | STOCKOUT_RISK |
+| FOODS_1_008 (13) | 1.5868 | 4.0268 | 9.2323 | REORDER_NEEDED |
+| FOODS_2_005 (21) | 3.3465 | 6.3171 | 11.5672 | OVERSTOCK_RISK |
+| FOODS_2_006 (22) | 2.7252 | 5.0193 | 9.5944 | OVERSTOCK_RISK |
+| FOODS_2_007 (23) | 4.2341 | 8.5596 | 17.7864 | HEALTHY |
+| FOODS_3_012 (39) | 16.8213 | 34.6650 | 71.1064 | HEALTHY |
+
+Đối chiếu 7/14/28 là tổng `predicted_demand` của horizon day 1–7/1–14/1–28 từ `forecast_values`, không phải số tự nhập trên UI. Dữ liệu quan sát trước origin là M5 2011–2016; phần prediction sau 2016-04-24 là demo dự báo lịch sử M5, **không** phải lời dự báo nhu cầu thực tế tháng 11-2026. Câu nói ngắn khi bảo vệ: “Hệ thống minh họa chuỗi quyết định trên nguồn M5 đã truy xuất được; khi triển khai cho siêu thị mới, cần dữ liệu POS và huấn luyện/đánh giá lại.”
+
+Decision engine `InventoryDecisionService.analyze` dùng: `incoming =` PO qualifying từ repository; `position = on_hand + incoming`; expected lead demand = tổng các prediction ngày 1 đến lead time; `safety_stock = ceil(1.645 × std(28 observed daily sales) × sqrt(lead_time))`; `reorder_point = ceil(expected_lead + safety_stock)`; `target_stock = ceil(sum(days 1..lead_time+1) + safety_stock)`. Risk: `position < expected_lead` = STOCKOUT_RISK; `position <= reorder_point` = REORDER_NEEDED; `position > target_stock + day-1 prediction` = OVERSTOCK_RISK; còn lại HEALTHY. `recommended_quantity = ceil(max(0, target_stock - position))` chỉ khi position <= reorder point.
+
+Do đó vẫn có thể **có on-hand dương mà stockout risk**: position hiện tại có thể thấp hơn forecast demand trong lead time trước khi hàng mới về. Đối chiếu bắt buộc cho mỗi SKU: `inventory_position = on_hand + incoming`; ví dụ FOODS_2_005: 6 + 8 = 14; FOODS_2_006: 9 + 2 = 11.
+
+### H.4 Purchase Orders — chỉ xem trước khi mutation
+
+| PO ID / number | Supplier | Status | Dòng hàng ordered/received/remaining | Mốc hiện tại |
+| --- | --- | --- | --- | --- |
+| 4 / `SIM_M5_CA1_FOODS_V1-INCOMING` | `...SUP_02` | IN_TRANSIT | FOODS_2_005 8/0/8 | order 2026-11-06, ETA 2026-11-11 |
+| 5 / `SIM_M5_CA1_FOODS_V1-PARTIAL` | `...SUP_03` | IN_TRANSIT | FOODS_2_006 8/6/2 | order 2026-11-06, ETA 2026-11-11 |
+| 6 / `SIM_M5_CA1_FOODS_V1-COMPLETE` | `...SUP_01` | RECEIVED | FOODS_2_007 6/6/0 | received 2026-11-06 10:30:56 |
+| 7 / `SIM_M5_CA1_FOODS_V1-LINKED-DRAFT` | `...SUP_02` | DRAFT | FOODS_1_002 6/0/6 | source recommendation ID 6; no order/ETA yet |
+
+`IN_TRANSIT` lines contribute to Incoming Stock; DRAFT and RECEIVED do not. Thus FOODS_2_005 has incoming 8 and FOODS_2_006 has incoming 2. Read-only check opens details then closes without transition/receipt. Linked draft confirms recommendation ID 6 (`ACCEPTED`, approved 6) points to PO 7. A draft never increases on-hand.
+
+## I. Controlled mutation protocol — preserve P22 evidence
+
+Không chạy các case này trên P22 rows khi một fixture/disposable record có thể dùng. Mỗi case bắt đầu bằng ảnh + truy vấn baseline, có một dòng log “người thực hiện / thời gian / endpoint / request idempotency”, và kết thúc bằng ảnh UI + kiểm tra record/actor. Nếu không có disposable test SKU/PO/recommendation trong UI, **dừng và ghi MANUAL VERIFICATION REQUIRED** thay vì đổi scenario gốc.
+
+### I.1 Operational sale và idempotency
+
+- **Preferred target:** tạo/được chỉ định SKU test disposable có inventory, không dùng FOODS_3_012 trừ khi owner cho phép mutation P22. Baseline phải ghi product ID, on-hand, incoming, position, `sales_daily`/`operational_sales`/`stock_transactions` count liên quan và risk/recommendation.
+- **Thao tác thật:** Sales → Record sale, quantity 1 không vượt on-hand, source duy nhất `P24-MANUAL-SALE-YYYYMMDD`, ghi idempotency key của request. Bấm một lần, đợi kết quả. Chỉ nếu UI/API hiện cho reuse request, resend chính request/key đó một lần.
+- **Expected DB:** đúng một `operational_sales`, một `sales_daily` daily aggregate cập nhật/tạo, đúng một `stock_transactions` `SALE` quantity 1 có actor Manager. On-hand và position giảm 1; incoming không đổi; không âm; SKU không liên quan, raw M5 history, forecast rows, PO không đổi. Same key + same payload trả kết quả ban đầu; same key + khác payload bị reject, không double-sell.
+- **PASS/FAIL:** PASS chỉ với before/after truy vấn + ảnh Sales/Inventory/transaction; thiếu actor, hai SALE rows hoặc negative stock là FAIL. Cleanup: không “xóa” sale evidence; ghi lại ID/giá trị cuối, chỉ rollback bằng adjustment có audit nếu owner phê duyệt.
+
+### I.2 Historical CSV import
+
+Sử dụng CSV fixture riêng cho disposable product/date, không import lại raw M5. Ghi `inventory.on_hand` trước/sau. Import chỉ tạo/cập nhật `sales_daily`, không tạo `SALE` transaction/operational sale và không giảm on-hand. Lý do: historical sale là quan sát quá khứ phục vụ analytics/forecast; operational sale là sự kiện vật lý hôm nay nên mới thay đổi kho. Nếu UI không có disposable product, không import vào scenario: **MANUAL VERIFICATION REQUIRED**.
+
+### I.3 Stock adjustment
+
+Trên product disposable, ghi baseline on-hand/incoming/position + transaction count. Thử adjustment IN hợp lệ, sau đó OUT không vượt tồn; mỗi lần phải có reason, actor Manager và một transaction (`ADJUSTMENT_IN` hoặc `ADJUSTMENT_OUT`). Position thay đổi đúng cùng lượng vì incoming không đổi. Quantity malformed, operation không hỗ trợ hoặc OUT khiến on-hand âm phải bị reject và không tạo row. Không dùng P22 product để thử điều chỉnh chỉ nhằm kiểm tra form.
+
+### I.4 Recommendation review và linked draft PO
+
+Chỉ dùng NEW recommendation disposable. Ghi ID, status NEW, recommended quantity, product, supplier và current linked PO = none. Test một action đang có (ACCEPT dùng đúng suggested quantity, MODIFY cần quantity, REJECT không quantity). Kỳ vọng `reviewed_by_user_id`/timestamp được ghi theo server actor. Nếu ACCEPT/MODIFY được chuyển thành draft PO: endpoint `/api/reorder-recommendations/{id}/purchase-order` phải tạo đúng một PO DRAFT liên kết, supplier/line quantity đúng approved quantity; retry không tạo PO thứ hai do unique link. Tạo draft không tăng on-hand/incoming. Không review NEW scenario IDs 14–17 nếu chưa có sự đồng ý vì chúng là evidence P22.
+
+### I.5 Purchase order state/receipt
+
+Tạo disposable DRAFT PO + line riêng. Test draft edit, allowed transition, invalid transition rejection, partial receipt, final receipt và over-receipt rejection. Với partial amount `q` trên line đang IN_TRANSIT: `received_after = received_before + q`; `remaining = ordered - received_after`; on-hand tăng q; incoming giảm q; **position giữ nguyên** nếu không có mutation khác; một `RECEIPT` transaction quantity q có actor Manager. Khi remaining = 0, PO RECEIVED. Cấm replay receipt; retry/double click không được cộng hai lần. Không dùng PO 5 P22 mặc định; nó được giữ như read-only reference 8/6/2.
+
+### I.6 Authentication, authorization, error/retry
+
+Kiểm tra Manager login hợp lệ, login sai bị từ chối không lộ credential, protected route/API từ session không hợp lệ bị từ chối, và UI phản ánh role hiện có. Không thêm behavior phân quyền mới trong P24. Với failure giả lập an toàn: check lỗi rõ ràng, Retry, form value còn khi thích hợp, request mutation failed không toast thành công và double click/retry không tạo duplicate. Riêng Products lặp lại H.1 để xác nhận failure không remount input.
+
+## J. Functional traceability audit (source → MySQL)
+
+| Workflow | UI/API | Route → service | Bảng/refresh |
+| --- | --- | --- | --- |
+| Product search | `CatalogPages.jsx` → `api.products` | `api/business.py:list_products` → `BusinessService.products` | `products`; React Query key `['products', search]`, 300 ms debounce/previous table |
+| Inventory lookup | `CatalogPages.jsx`/Dashboard → `api.inventory` | `list_inventory` → `BusinessService.inventory_views` | `inventory`, PO incoming view; queries invalidate after adjustment/receipt |
+| Operational sale | `OperationalPages.jsx:SalesPage` → `api.recordSale` | `sales_forecasts.py:record_sale` → `SalesService.record_sale` | `operational_sales`, `sales_daily`, `stock_transactions`, `inventory`; refresh sales/inventory/transactions/decisions |
+| Historical import | `SalesImportDialog` → `api.importSales` | `import_sales` → `SalesService.import_csv` | `sales_daily` only; refresh sales/forecasts |
+| Adjustment | `InventoryPage` → `api.adjust` | `create_adjustment` → `BusinessService.adjustment` | `inventory`, `stock_transactions`; refresh inventory/transactions/decisions |
+| Supplier mapping | `SuppliersPage` → `api.createSupplierProduct` | `create_supplier_product` → `BusinessService.supplier_product_create` | `supplier_products`; refresh mappings/decisions |
+| Forecast retrieval | `ForecastsPage` → `api.latestForecast` | `latest_forecast` → `ForecastService.latest` / `_as_response` | `forecast_runs`, `forecast_values`; no inference on read |
+| Insight calculation | `DecisionsPage` → `api.decisions` | `inventory_decisions` → `InventoryDecisionService.analyze` | products, inventory, supplier_products, forecast values, qualifying POs; read-only calculation |
+| Recommendation review | `DecisionsPage` → `api.reviewRecommendation` | `review_recommendation` → `InventoryDecisionService.review` | `reorder_recommendations`; actor from server session |
+| Linked draft | recommendation dialog → `api.createPurchaseOrderFromRecommendation` | `create_purchase_order_from_recommendation` → `BusinessService.recommendation_purchase_order_create` | `purchase_orders`, items; unique recommendation link |
+| PO receipt | `OperationalPages.jsx:PurchaseOrderDetail` → `api.receiveOrder` | `receive_purchase_order` → `BusinessService.receive_purchase_order` | PO/items, inventory, `stock_transactions`; refresh orders/inventory/transactions |
+
+## K. Manual evidence checklist and current status
+
+For every completed case, attach: route/viewport, timestamp, screenshot before/after, API response or non-sensitive DB query output, IDs affected, expected/actual values, PASS/FAIL. Redact email, cookie, CSRF token, password and connection strings. The following items are currently **NOT VERIFIED in a browser**: all eight normal route walkthroughs; responsive/mobile visual results; sidebar/focus visual checks; loading/error/retry interaction; search focus during live request; any new authenticated actor; sale/import/adjustment/review/PO mutation flow; and receipt replay protection.
+
+Automated evidence is distinct: backend tests use isolated SQLite/disposable fixtures, while frontend search tests cover debounce/search parameters/retained results. Automated coverage is not a substitute for the browser acceptance items above.
+
+### K.1 Automated verification at this documentation checkpoint
+
+| Command | Result |
+| --- | --- |
+| `.\\.venv\\Scripts\\python.exe -m pytest` | **79 passed**, 2 third-party `starlette.testclient` deprecation warnings |
+| `frontend: npm test` | **6 passed** |
+| `frontend: npm run lint` | **passed** |
+| `frontend: npm run build` | **passed**; Vite reports one advisory that the minified JS chunk is 783.39 kB (not a failure) |
+| `git diff --check` | must pass again immediately before commit |
+
+The bare `pytest` executable is **not** the supported invocation on this workstation: it failed collection with four `ModuleNotFoundError: backend` errors because its import context omitted the repository root. Use the virtual-environment module command shown above; it is the valid complete-suite result.

@@ -8,8 +8,8 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting and recorded a direct, non-sensitive MySQL snapshot/manual acceptance guide.
-- **Next Phase:** perform the browser walkthrough using the P24 guide, recording pre-mutation baselines and screenshot evidence.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting; P24-02 separated unit of measure from live stock display, made Supplier layout resilient, reconciled current MySQL, and expanded the Vietnamese manual acceptance guide.
+- **Next Phase:** perform the browser walkthrough using the P24 guide, recording a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
@@ -94,8 +94,8 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P15 Sales ingestion + forecasting API | 🟢 **DONE** |
 | P16 Inventory decision engine | 🟢 **DONE** |
 | P17 React dashboard + integration | 🟢 **DONE** |
-| P18 Authentication and UI refinement | 🟡 **PENDING_VERIFICATION** |
-| P19 Inventory Control Room visual experiment V1/V2 | 🟡 **PENDING_VERIFICATION** |
+| P18 Authentication and UI refinement | 🟡 **IN_PROGRESS** (manual visual verification outstanding) |
+| P19 Inventory Control Room visual experiment V1/V2 | 🟡 **IN_PROGRESS** (manual visual verification outstanding) |
 | P20 Functional audit | 🟢 **DONE** |
 | P21 Business Integrity & Workflow Fixes | 🟢 **DONE** |
 | P22 M5-Grounded Supermarket Simulation | 🟢 **DONE** |
@@ -217,11 +217,11 @@ The application now has real cookie-session authentication: public registration 
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-021` — Business-integrity workflows complete: authenticated audit attribution, durable sale idempotency, one reviewed-recommendation-to-draft-PO conversion, PO controls, forecast eligibility, and query recovery are implemented and verified without touching M5/model evidence. P22 scaffolding and dry-run are present but scenario application awaits a real manager/admin.
+`CHECKPOINT-024A` — P24 has a current, read-only MySQL reconciliation and a Vietnamese browser/manual acceptance protocol. It preserves the P22 scenario and identifies exact read-only checks plus isolated mutation tests. Browser/live evidence remains outstanding; P24 is not DONE.
 
 ## Next Exact Step
 
-`NEXT-022A` — Provision or promote one local manager/admin using the password-prompting utility, then run the P22 dry-run and explicit `--apply`, verify its persisted historical forecast/engine scenarios and idempotent rerun. Do not alter XGBOOST_V1 or use its frozen model for arbitrary new SKUs.
+`NEXT-024B` — With an active local Manager, follow `docs/implementation/P24_manual_verification.md`: capture all eight browser read paths first, then use only disposable fixtures for controlled sale/import/adjustment/recommendation/PO mutations. Record actual before/after evidence; do not reset or reseed P22.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 

@@ -18,9 +18,9 @@ Engine ưu tiên nhà cung cấp preferred; nếu chỉ có một nhà cung cấ
 
 ## Giai đoạn hiện tại / Giai đoạn tiếp theo / Vướng mắc đã biết
 
-- **Giai đoạn hiện tại:** `P24 — Kiểm thử và đánh giá đầu-cuối` là **IN_PROGRESS**. Đã có snapshot MySQL chỉ đọc và hướng dẫn manual; chưa có browser evidence.
-- **Giai đoạn tiếp theo:** thực hiện walkthrough browser/live-workflow, chụp ảnh và ghi baseline trước mỗi mutation.
-- **Vướng mắc đã biết:** P22 dừng an toàn vì MySQL local chưa có tài khoản `MANAGER`/`ADMIN` active; script không tự tạo hay mạo danh người dùng. P18/P19 vẫn cần ảnh/chạy thử thủ công, P24 cần evidence browser/workflow. Model M5 hiện tại không thể dự báo SKU siêu thị mới tùy ý; một siêu thị mới phải huấn luyện/đánh giá lại bằng POS, danh mục, lịch và giá của chính siêu thị đó.
+- **Giai đoạn hiện tại:** `P24 — Kiểm thử và đánh giá đầu-cuối` là **IN_PROGRESS**. Đã có snapshot MySQL chỉ đọc, đối soát P24-02 và hướng dẫn manual chi tiết; chưa có browser evidence.
+- **Giai đoạn tiếp theo:** thực hiện walkthrough browser/live-workflow, chụp ảnh và ghi baseline mới trước mỗi mutation; ưu tiên fixture disposable thay vì dữ liệu P22.
+- **Vướng mắc đã biết:** P18/P19 vẫn cần ảnh/chạy thử thủ công, P24 cần evidence browser/workflow. Có năm stock transaction lịch sử P22 thiếu actor; giữ nguyên làm bằng chứng và xác minh actor server-bound cho mutation mới. Model M5 hiện tại không thể dự báo SKU siêu thị mới tùy ý; một siêu thị mới phải huấn luyện/đánh giá lại bằng POS, danh mục, lịch và giá của chính siêu thị đó.
 
 ## Đề tài
 
@@ -50,8 +50,8 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P15 — Sales + Forecast API** | 🟢 **DONE** | Đã có import CSV lịch sử bán hàng, ghi nhận bán hàng thực tế trừ tồn kho có audit, và API dự báo 7/14/28 ngày bằng XGBoost đã chốt. Chỉ SKU M5 tương thích mới được dự báo. |
 | **P16 — Inventory Decision Engine** | 🟢 **DONE** | Đã có engine tính rủi ro và số lượng đề xuất từ forecast, tồn kho, PO sắp về, lead time, safety stock; mọi đề xuất đều cần người duyệt. |
 | **P17 — React UI** | 🟢 **DONE** | Dashboard React đã hoàn thiện UX: tên gọi thân thiện, sidebar gọn, focus màu xanh, panel bo tròn, dữ liệu demo local thật và biểu đồ nối doanh số lịch sử với forecast XGBoost; không dùng TEST future demand. |
-| **P18 — Xác thực và tinh chỉnh UI** | 🟡 **PENDING_VERIFICATION** | Đã có xác thực phiên và các tinh chỉnh UI; lint/build không thay thế ảnh/chạy thử thủ công cần thiết. |
-| **P19 — Thử nghiệm trực quan Inventory Control Room V1/V2** | 🟡 **PENDING_VERIFICATION** | Dashboard thử nghiệm dùng dữ liệu API thật; cần evidence trực quan desktop/mobile trước khi mở rộng sang trang khác. |
+| **P18 — Xác thực và tinh chỉnh UI** | 🟡 **IN_PROGRESS** | Đã có xác thực phiên và các tinh chỉnh UI; lint/build không thay thế ảnh/chạy thử thủ công cần thiết. |
+| **P19 — Thử nghiệm trực quan Inventory Control Room V1/V2** | 🟡 **IN_PROGRESS** | Dashboard thử nghiệm dùng dữ liệu API thật; cần evidence trực quan desktop/mobile trước khi mở rộng sang trang khác. |
 | **P20 — Kiểm tra chức năng** | 🟢 **DONE** | Đã kiểm tra source, test, MySQL chỉ đọc và build; ghi rõ những khoảng trống cần hoàn thiện. |
 | **P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ** | 🟢 **DONE** | Actor audit lấy từ session server; sale có idempotency key duy nhất; đề xuất đã duyệt tạo đúng một PO nháp liên kết; UI có sửa draft/nhận một phần/hủy; forecast phân biệt SKU M5 hợp lệ; tám trang có retry khi query lỗi. |
 | **P22 — Mô phỏng siêu thị dựa trên M5** | 🟢 **DONE** | Apply scenario 36 SKU M5 đã tạo mapping, 68.868 dòng sales quan sát, forecast XGBoost V1 đã lưu, tồn kho/PO synthetic có provenance và rerun idempotent. |
