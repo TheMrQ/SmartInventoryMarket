@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-11-07 — Record Sale rendered a blank workspace — RESOLVED IN CODE, BROWSER VERIFICATION PENDING
+
+**Symptom:** Selecting Sales → Record sale replaced the protected workspace with a blank white page before a modal appeared.
+
+**Cause:** `SaleModal` initializes its one idempotency key while rendering. The helper extracted `globalThis.crypto.randomUUID` into a standalone function and invoked it without its `Crypto` receiver. The runtime reproduces the error: detached invocation throws `TypeError: Value of "this" must be of type Crypto`, while `globalThis.crypto.randomUUID()` succeeds.
+
+**Resolution:** The helper now retains a supplied `Crypto` object and calls `cryptoProvider.randomUUID()` with the required receiver. The existing `useState` initializer still creates exactly one stable key for an open modal; the existing `api.recordSale` submission and backend idempotency workflow are unchanged. A protected-workspace error boundary now gives an end user a concise reload surface rather than a blank screen for a future unexpected render failure.
+
+**Verification:** Frontend regression tests exercise the default Crypto path, receiver-aware injection, stable modal initializer source, request wiring, cancel control, and interaction semantics. Full backend tests, lint, build, and final browser acceptance remain documented separately. No persistent sale was recorded while fixing this UI crash.
+
 ## 2026-11-07 — P24 reconciliation found five historical scenario stock rows without actor attribution — OPEN FOR P24 EVIDENCE
 
 **Finding:** The current MySQL scenario has 37 stock transactions attributed to user ID 4 and five with a null actor, while all four reviewed recommendations are attributed to user ID 4.

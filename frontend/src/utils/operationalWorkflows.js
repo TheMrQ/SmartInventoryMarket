@@ -1,6 +1,7 @@
-export function createSaleIdempotencyKey(randomUUID = globalThis.crypto?.randomUUID) {
-  if (typeof randomUUID !== 'function') throw new Error('Secure idempotency-key generation is unavailable.')
-  return randomUUID()
+export function createSaleIdempotencyKey(cryptoProvider = globalThis.crypto) {
+  if (typeof cryptoProvider === 'function') return cryptoProvider()
+  if (typeof cryptoProvider?.randomUUID !== 'function') throw new Error('Secure idempotency-key generation is unavailable.')
+  return cryptoProvider.randomUUID()
 }
 
 export function canGenerateForecast(productId, eligibility) {

@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+- Repaired the Record Sale render crash by retaining the Web Crypto receiver for `randomUUID`, added a protected-workspace recovery boundary, and introduced scoped actionable-row, scan-row, and card interaction classes. Existing sale API/service/idempotency behavior and all P22/MySQL data remain unchanged; browser acceptance evidence is still required.
 - Polished P24-04d Dashboard snapshot icon frames and semantic metric labeling, plus scoped Supplier Directory/Product Mappings card and row feedback with reduced-motion coverage. This React/CSS-only change leaves APIs, business logic, and P22/MySQL data untouched; browser evidence remains required.
 - Refined P24-04 page-header alignment, Supplier full-width workspace composition, grouped data-filter toolbars, and restrained route/tab/card motion without changing application data or business rules.
 - Added P24-03 client-side Inventory, Supplier/mapping, and Purchase Order discovery controls, restrained native route/tab motion, shared toolbar primitives, and Vietnamese manual acceptance checks. No API contract, inventory formula, forecast, or P22 record changed.

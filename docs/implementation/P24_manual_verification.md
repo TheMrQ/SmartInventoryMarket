@@ -405,3 +405,24 @@ Kiểm tra desktop/1280/1024/900/550: icon header phải thẳng giữa title li
 - **Kỳ vọng UI:** chỉ hai workspace card lift rất nhẹ (khoảng 2px), viền/shadow rõ hơn, không scale các panel/table/modal khác. Supplier/mapping row chỉ đổi nền blue-neutral nhẹ và có left accent; row không scale. Với Reduced Motion, card không transform và chuyển động gần như tức thời.
 - **PASS:** card và row phản hồi khác nhau, filter/modal/mapping data không thay đổi, không có horizontal scrollbar/clipping. **FAIL:** table row scale, card ngoài Suppliers lift, card dịch khi bật Reduced Motion, hoặc bất kỳ bản ghi supplier/mapping nào bị sửa.
 - **Evidence:** screenshot hover card, hover row và Reduced Motion; giữ lại ảnh trước/sau filter để chứng minh đây là kiểm tra chỉ đọc.
+
+## O. P24-05 — Record Sale và interaction system — MANUAL VERIFICATION REQUIRED
+
+Đợt này sửa React/CSS và không tạo operational sale thật. **Không seed, reset, ghi, sửa MySQL/P22 hoặc dùng Record sale để thử trực tiếp trên scenario.** Kiểm thử mutation có kiểm soát vẫn thuộc mục I với fixture disposable và baseline mới.
+
+### O.1 Sales — mở/đóng Record Sale, chỉ kiểm tra UI
+
+- **Trang:** Sales. Chụp bảng Sales hiện có trước khi thao tác.
+- **Thao tác:** click **Record sale**; kiểm tra các field Product, Quantity, Sale date, Sell price (optional), Source; click **Cancel** hoặc nút đóng modal.
+- **Kỳ vọng UI:** modal xuất hiện bình thường, không blank white page/refresh; các field và hai nút Cancel/Record sale hiển thị; Cancel đóng modal và bảng Sales còn nguyên.
+- **PASS:** không có sale request/mutation sau Cancel, không có toast success, không có thay đổi Sales/Inventory/transaction rows. **FAIL:** blank page, lỗi render, modal thiếu field/nút, hoặc dữ liệu thay đổi sau Cancel.
+- **Evidence:** screenshot trước click, modal mở, và Sales sau Cancel. Khi có browser developer tools, lưu Network evidence rằng Cancel không gửi `POST /api/sales/record`.
+
+### O.2 Interaction language và Reduced Motion
+
+- **Actionable accent:** hover row có action/inspection rõ ràng: Products (Edit), Inventory (Adjust stock), Purchase Orders (Manage/workflow), Inventory Insights (View insight), Restock Recommendations (Review hoặc Create draft PO). Chỉ những row này mới có nền blue-soft và left inset accent blue; row không được scale.
+- **Scan-only:** hover Supplier, Product Mapping, Sales history và Transaction history. Chúng chỉ có nền scan blue-neutral, không left accent và không hàm ý click. Recommendation đã linked PO/không còn action cũng scan-only.
+- **Card/KPI:** hover bốn Dashboard KPI/snapshot và compact Dashboard action summaries; hover Supplier Directory/Product Mappings workspace. Card lift/elevation nhẹ, lân cận không dịch. Không yêu cầu hay chấp nhận scale modal, form, table row hoặc chart panel.
+- **KPI:** Products blue, Available green, Incoming cyan, Awaiting review amber; icon trong frame 40px và glyph Lucide 19px rõ, không thành dot/padding riêng.
+- **Reduced Motion:** bật `prefers-reduced-motion`; route/filter/tab movement, card/KPI scale/lift phải tắt hoặc gần như tức thời; hover màu nền có thể còn.
+- **Evidence/PASS:** chụp mỗi loại actionable và scan-only, một KPI, một Supplier workspace và Reduced Motion. Không đánh PASS khi chưa có screenshot browser.

@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Toaster, toast } from 'sonner'
 import { Shell } from './components/layout'
 import { Loading } from './components/ui'
+import { WorkspaceErrorBoundary } from './components/WorkspaceErrorBoundary'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
 import { InventoryPage, ProductsPage, SuppliersPage } from './pages/CatalogPages'
@@ -25,7 +26,7 @@ function ProtectedWorkspace() {
   if (me.isLoading) return <Loading />
   if (me.isError) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
   const logout = async () => { try { await api.logout() } finally { client.clear(); toast.success('Signed out'); navigate('/login', { replace: true }) } }
-  return <Shell collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={me.data} onLogout={logout}><Routes><Route path="/" element={<DashboardPage/>}/><Route path="/products" element={<ProductsPage/>}/><Route path="/inventory" element={<InventoryPage/>}/><Route path="/suppliers" element={<SuppliersPage/>}/><Route path="/purchase-orders" element={<PurchaseOrdersPage/>}/><Route path="/sales" element={<SalesPage/>}/><Route path="/forecasts" element={<ForecastsPage/>}/><Route path="/decisions" element={<DecisionsPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></Shell>
+  return <WorkspaceErrorBoundary><Shell collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={me.data} onLogout={logout}><Routes><Route path="/" element={<DashboardPage/>}/><Route path="/products" element={<ProductsPage/>}/><Route path="/inventory" element={<InventoryPage/>}/><Route path="/suppliers" element={<SuppliersPage/>}/><Route path="/purchase-orders" element={<PurchaseOrdersPage/>}/><Route path="/sales" element={<SalesPage/>}/><Route path="/forecasts" element={<ForecastsPage/>}/><Route path="/decisions" element={<DecisionsPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></Shell></WorkspaceErrorBoundary>
 }
 
 function ApplicationRouter() {

@@ -1,15 +1,56 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import { canGenerateForecast, createSaleIdempotencyKey, receiptLinesForSubmission } from '../src/utils/operationalWorkflows.js'
 import { hasBlockingQueryError } from '../src/utils/queryState.js'
 
-test('a sale modal can retain one caller-supplied idempotency key for retries', () => {
-  let calls = 0
-  const key = createSaleIdempotencyKey(() => `sale-${++calls}`)
-  assert.equal(key, 'sale-1')
-  assert.equal(key, 'sale-1')
-  assert.equal(calls, 1)
+test('secure sale key generation uses the default browser-style Crypto receiver', () => {
+  const key = createSaleIdempotencyKey()
+  assert.match(key, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+})
+
+test('secure sale key generation retains an injected Crypto receiver', () => {
+  const cryptoProvider = {
+    calls: 0,
+    randomUUID() {
+      assert.equal(this, cryptoProvider)
+      this.calls += 1
+      return `sale-${this.calls}`
+    },
+  }
+  assert.equal(createSaleIdempotencyKey(cryptoProvider), 'sale-1')
+  assert.equal(cryptoProvider.calls, 1)
+})
+
+test('a sale modal keeps one generated key in its useState initializer for retries', () => {
+  const source = readFileSync(new URL('../src/pages/OperationalPages.jsx', import.meta.url), 'utf8')
+  assert.match(source, /const \[idempotencyKey\] = useState\(\(\) => createSaleIdempotencyKey\(\)\)/)
+  assert.match(source, /api\.recordSale\(data\)/)
+  assert.match(source, /idempotency_key: idempotencyKey/)
+  assert.match(source, /<Button type="button" className="secondary" onClick=\{onClose\}>Cancel<\/Button>/)
+})
+
+test('a sale key fails safely when secure UUID generation is unavailable', () => {
+  assert.throws(() => createSaleIdempotencyKey({}), /Secure idempotency-key generation is unavailable/)
+})
+
+test('interactive rows distinguish actions from read-only scanning', () => {
+  const catalog = readFileSync(new URL('../src/pages/CatalogPages.jsx', import.meta.url), 'utf8')
+  const operational = readFileSync(new URL('../src/pages/OperationalPages.jsx', import.meta.url), 'utf8')
+  const decisions = readFileSync(new URL('../src/pages/DecisionsPage.jsx', import.meta.url), 'utf8')
+  assert.match(catalog, /interaction-row interaction-row-actionable/)
+  assert.match(catalog, /interaction-row interaction-row-scan/)
+  assert.match(operational, /interaction-row interaction-row-actionable/)
+  assert.match(operational, /interaction-row interaction-row-scan/)
+  assert.match(decisions, /decision-row interaction-row interaction-row-actionable/)
+})
+
+test('dashboard retains semantic KPI classes and the workspace has a recovery boundary', () => {
+  const dashboard = readFileSync(new URL('../src/pages/DashboardPage.jsx', import.meta.url), 'utf8')
+  const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+  assert.match(dashboard, /snapshot-\$\{key\}/)
+  assert.match(app, /<WorkspaceErrorBoundary><Shell/)
 })
 
 test('forecast generation is enabled only for the selected eligible product', () => {

@@ -133,6 +133,10 @@ The Dashboard entry shares its `Tooltip`, `NavLink`, and 19px centered `.nav-ico
 
 The Inventory Snapshot treats its Lucide glyph and visual frame as distinct elements: the semantic icon frame is a stable 40px grid container and the SVG remains an unpadded 19px glyph. Product, available, incoming, and review metrics use blue, green, cyan, and amber frames/labels respectively; the metric values remain navy for operational readability. This is a React/CSS-only presentation refinement: its live values, API sources, and Dashboard summary interaction are unchanged. Browser visual acceptance remains required in P24.
 
+## P24-05 interaction system and recovery boundary
+
+The Dashboard preserves its dedicated Snapshot/KPI hover treatment while large chart panels remain stationary. Compact actionable summaries use the shared `interactive-card` feedback rather than a global panel transform. The protected workspace is wrapped in a small error boundary which presents a safe reload surface if an unexpected render exception escapes a route; diagnostic detail remains in the developer console and no internal stack is shown to managers. This safeguards presentation failures only and does not alter dashboard data, authentication, API contracts, or decision logic.
+
 ## P18 Sliding-Card Authentication Redesign
 
 The authentication presentation now replaces the circular 3D UI with one stable, horizontally split card (`min(960px, viewport - 48px)` by `min(590px, viewport - 132px)`). Login uses a left blue-gradient welcome panel and right white form; Register mirrors it. A single gradient overlay transitions from its source half to the full rounded card and then to the destination half. Form identity swaps only once the overlay covers the card, so no form content is horizontally stretched or exposed early. The transition state is advanced by the overlay width’s `transitionend` event; repeated switches are disabled while it is active, and reduced-motion or compact single-column layouts change sides directly.
