@@ -123,3 +123,9 @@ test('premium identity keeps target-period inventory demand explainable in the d
   assert.match(styles, /\.page-heading-inventory-insights \.page-heading-icon/)
   assert.match(styles, /@media \(prefers-reduced-motion:reduce\)/)
 })
+
+test('result counts remain compact data summaries rather than status pills', () => {
+  const styles = readFileSync(new URL('../src/premium.css', import.meta.url), 'utf8')
+  assert.match(styles, /\.result-count \{ border:1px solid #bfdbfe; border-radius:11px; background:#eff6ff/)
+  assert.doesNotMatch(styles, /\.result-count \{[^}]*border-radius:999px/)
+})

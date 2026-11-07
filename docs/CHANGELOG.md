@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+- Refined P24-07b shared result-count geometry to an 11px compact summary surface while preserving blue emphasis, live-region behavior, responsive wrapping, and the separate pill styling of semantic status badges. No API, backend, or database behavior changed.
 - Added P24-07's semantic premium operational visual system across the React workspace, preserving approved navigation, all business/API behavior, and P22 data. Inventory Insights now explains persisted target-period forecast demand (lead time plus the fixed review day) without changing any decision formula.
 - Fixed login/register identity payloads to return an existing safe avatar URL, so the `auth-me` cache renders an uploaded avatar immediately after a new sign-in rather than requiring a later `/me` refresh. No credentials, filename paths, migration, or P22 data are exposed or changed.
 - Fixed P24-06b avatar delivery in Vite development by proxying the generic `/uploads` prefix to FastAPI, preserving the existing generated-filename avatar design and production compatibility. Restored the expanded/mobile sidebar profile as one readable dark profile card, retained avatar Account navigation, and kept Logout distinct; collapsed desktop remains avatar-only with the My Account tooltip. No MySQL/P22 business data or account security policy changed.

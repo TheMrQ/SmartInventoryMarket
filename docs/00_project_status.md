@@ -8,7 +8,7 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-07 fixes safe avatar identity delivery on login, adds an application-wide premium presentation layer, and exposes existing target-period demand in the decision response for explanation only. All browser evidence remains outstanding.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-07b refines shared result-count surfaces into compact rounded data summaries rather than status pills; P24-07's avatar, presentation, and decision explainability work remains intact. All browser evidence remains outstanding.
 - **Next Phase:** perform the P24 browser walkthrough: verify avatar immediately after logout/login, inspect the eight-page visual layer and target-period decision explanation, then record a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
