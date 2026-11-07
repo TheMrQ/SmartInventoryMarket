@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { HelpCircle, Plus } from 'lucide-react'
+import { HelpCircle, Package, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '../api/client'
 import { Badge, Button, Empty, Loading, Modal, QueryError, Tooltip } from '../components/ui'
@@ -10,7 +10,7 @@ import { toneFor } from '../utils/status'
 import { normalizedProductSearch, PRODUCT_SEARCH_DEBOUNCE_MS, productSearchParams } from '../utils/productSearch'
 
 const tell = (error) => toast.error(error.message || 'Operation failed')
-function PageHeader({ title, text, action }) { return <header className="page-heading"><div><h2>{title}</h2><p>{text}</p></div>{action}</header> }
+function PageHeader({ title, text, action, icon: Icon }) { return <header className="page-heading"><div className="page-heading-copy">{Icon && <i className="page-heading-icon"><Icon size={19}/></i>}<div><h2>{title}</h2><p>{text}</p></div></div>{action}</header> }
 function ProductOption({ product }) { const item = displayProduct(product); return <option value={product.id}>{item.name} · {item.sku}</option> }
 
 export function ProductsPage() {
@@ -24,12 +24,15 @@ export function ProductsPage() {
   }, [searchInput])
   const products = useQuery({ queryKey: ['products', search], queryFn: () => api.products(productSearchParams(search)), placeholderData: keepPreviousData })
   const categories = useQuery({ queryKey: ['categories'], queryFn: api.categories })
+  const inventory = useQuery({ queryKey: ['inventory'], queryFn: api.inventory })
   const save = useMutation({ mutationFn: ({ id, data }) => id ? api.updateProduct(id, data) : api.createProduct(data), onSuccess: () => { client.invalidateQueries({ queryKey: ['products'] }); client.invalidateQueries({ queryKey: ['inventory'] }); toast.success('Product saved'); setEditor(null) }, onError: tell })
-  if ((products.isLoading && products.data === undefined) || categories.isLoading) return <Loading />
-  if (hasBlockingQueryError([products, categories])) return <QueryError queries={[products, categories]} />
+  if ((products.isLoading && products.data === undefined) || categories.isLoading || inventory.isLoading) return <Loading />
+  if (hasBlockingQueryError([products, categories, inventory])) return <QueryError queries={[products, categories, inventory]} />
   const updating = products.isFetching && products.data !== undefined
   const emptySearch = !updating && products.data?.length === 0
-  return <div className="stack"><PageHeader title="Products" text="Maintain the product catalog used across stock, sales, forecasts, and supplier workflows." action={<Button onClick={() => setEditor({})}><Plus size={16}/>New product</Button>}/><div className="toolbar"><label>Search<input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="SKU or product name" aria-label="Search products by SKU or name" /></label><span aria-live="polite">{updating ? 'Updating products…' : `${products.data?.length || 0} products`}</span></div><QueryError queries={[products]} title="Product search could not be updated" /><article className="panel table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Unit</th><th>Status</th><th /></tr></thead><tbody>{products.data?.map((product) => { const item = displayProduct(product); return <tr key={product.id}><td><strong>{item.name}</strong><small>{item.sku}</small></td><td>{categories.data?.find((category) => category.id === product.category_id)?.name || '—'}</td><td>{product.unit}</td><td><Badge tone={product.is_active ? 'success' : 'neutral'}>{displayStatus(product.is_active ? 'ACTIVE' : 'INACTIVE')}</Badge></td><td><button className="link-button" onClick={() => setEditor(product)}>Edit</button></td></tr> })}</tbody></table>{emptySearch && <Empty title="No products found">Try a different SKU or product name.</Empty>}</article>{editor && <ProductModal product={editor} categories={categories.data} onClose={() => setEditor(null)} onSave={(data) => save.mutate({ id: editor.id, data })} loading={save.isPending}/>}</div>
+  const inventoryByProduct = new Map((inventory.data || []).map((row) => [row.product_id, row]))
+  const visibleLabel = search ? `${products.data?.length || 0} matching results` : `${products.data?.length || 0} visible products`
+  return <div className="stack"><PageHeader icon={Package} title="Products" text="Maintain the product catalog used across stock, sales, forecasts, and supplier workflows." action={<Button onClick={() => setEditor({})}><Plus size={16}/>New product</Button>}/><div className="toolbar"><label>Search<input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="SKU or product name" aria-label="Search products by SKU or name" /></label><span className="result-count" aria-live="polite"><b>{updating ? 'Updating' : visibleLabel}</b><small>{updating ? 'Keeping current results visible' : 'API shows up to 100 records'}</small></span></div><QueryError queries={[products]} title="Product search could not be updated" /><article className="panel table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Unit of Measure</th><th>On-hand Stock</th><th>Status</th><th /></tr></thead><tbody>{products.data?.map((product) => { const item = displayProduct(product); const stock = inventoryByProduct.get(product.id); return <tr key={product.id}><td><strong>{item.name}</strong><small>{item.sku}</small></td><td>{categories.data?.find((category) => category.id === product.category_id)?.name || '—'}</td><td>{product.unit || '—'}</td><td><strong className={stock ? 'stock-value' : 'stock-value stock-unknown'}>{stock ? formatUnits(stock.on_hand) : 'Not tracked'}</strong></td><td><Badge tone={product.is_active ? 'success' : 'neutral'}>{displayStatus(product.is_active ? 'ACTIVE' : 'INACTIVE')}</Badge></td><td><button className="link-button" onClick={() => setEditor(product)}>Edit</button></td></tr> })}</tbody></table>{emptySearch && <Empty title="No products found">Try a different SKU or product name.</Empty>}</article>{editor && <ProductModal product={editor} categories={categories.data} onClose={() => setEditor(null)} onSave={(data) => save.mutate({ id: editor.id, data })} loading={save.isPending}/>}</div>
 }
 
 function ProductModal({ product, categories, onClose, onSave, loading }) {

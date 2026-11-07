@@ -10,7 +10,7 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 - **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting and recorded a direct, non-sensitive MySQL snapshot/manual acceptance guide.
 - **Next Phase:** perform the browser walkthrough using the P24 guide, recording pre-mutation baselines and screenshot evidence.
-- **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
+- **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
 

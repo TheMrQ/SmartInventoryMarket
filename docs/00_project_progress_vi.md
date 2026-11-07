@@ -56,7 +56,7 @@ Hiểu đơn giản: xây dựng hệ thống quản lý tồn kho cho siêu th�
 | **P21 — Sửa tính toàn vẹn và quy trình nghiệp vụ** | 🟢 **DONE** | Actor audit lấy từ session server; sale có idempotency key duy nhất; đề xuất đã duyệt tạo đúng một PO nháp liên kết; UI có sửa draft/nhận một phần/hủy; forecast phân biệt SKU M5 hợp lệ; tám trang có retry khi query lỗi. |
 | **P22 — Mô phỏng siêu thị dựa trên M5** | 🟢 **DONE** | Apply scenario 36 SKU M5 đã tạo mapping, 68.868 dòng sales quan sát, forecast XGBoost V1 đã lưu, tồn kho/PO synthetic có provenance và rerun idempotent. |
 | **P23 — Nghiên cứu XGBoost V2** | 🟢 **DONE** | V2 chạy tách biệt trên validation `d_1886`–`d_1913`; WAPE/MAE tốt hơn V1 nhưng RMSE không tốt hơn nên V1 vẫn là model mặc định. Không dùng lại TEST V1. |
-| **P24 — Kiểm thử và đánh giá đầu-cuối** | 🟡 **IN_PROGRESS** | Đã sửa focus tìm kiếm Products và tạo snapshot/hướng dẫn manual từ MySQL; còn browser evidence và workflow mutation có kiểm soát. |
+| **P24 — Kiểm thử và đánh giá đầu-cuối** | 🟡 **IN_PROGRESS** | Đã sửa focus/search, tách đơn vị đo với tồn kho thực, sửa overflow Suppliers và đối soát MySQL live; còn browser evidence và workflow mutation có kiểm soát. |
 | **P25 — Báo cáo luận văn và bảo vệ** | ⚪ **PLANNED** | Tổng hợp methodology, ERD, kết quả, giới hạn, ảnh demo và bằng chứng tái lập. |
 
 ## Kết quả P12 dễ hiểu

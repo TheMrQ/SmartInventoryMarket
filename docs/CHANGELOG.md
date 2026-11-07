@@ -2,6 +2,11 @@
 
 ## 2026-11-07
 
+- Refined Products and Suppliers operational presentation: unit-of-measure and live on-hand stock are now distinct, search count is clear and limited-aware, and two-column supplier content wraps safely.
+- Added P24-02 current-MySQL reconciliation evidence, forecast totals, workflow-to-test mapping, and an actor-attribution finding for manual verification.
+
+## 2026-11-07
+
 - Fixed Products search remounting by debouncing search requests, retaining previous results during fetches, and adding accessible updating/no-result/error states.
 - Added the P24 read-only MySQL snapshot and Vietnamese manual browser acceptance guide; P24 remains in progress pending human evidence.
 

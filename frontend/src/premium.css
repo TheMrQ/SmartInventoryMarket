@@ -126,6 +126,39 @@ tbody tr:hover { background: #f8fbff; }
 }
 .callout { border-radius: var(--radius-md); }
 
+/* P24 operational pages: preserve data density without allowing grid children to force horizontal clipping. */
+.two-grid > .panel,
+.two-grid > .table-wrap,
+.mini-list > div > div { min-width: 0; }
+
+.two-grid .table-wrap { max-width: 100%; }
+.two-grid .table-wrap table { min-width: 0; }
+.two-grid .table-wrap th,
+.two-grid .table-wrap td { overflow-wrap: anywhere; }
+.two-grid .mini-list > div { align-items: flex-start; }
+.two-grid .mini-list strong,
+.two-grid .mini-list span { overflow-wrap: anywhere; }
+
+.page-heading-copy { display: flex; align-items: flex-start; gap: 11px; min-width: 0; }
+.page-heading-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 36px; border-radius: 10px; background: #eff6ff; color: #2563eb; }
+.result-count { display: grid; justify-items: end; gap: 2px; padding: 7px 10px; border: 1px solid #bfdbfe; border-radius: 10px; background: #eff6ff; color: #1d4ed8; font-variant-numeric: tabular-nums; }
+.result-count b { font-size: 13px; font-weight: 760; }
+.result-count small { color: #4f6f9d; font-size: 11px; }
+.stock-value { color: #172033; font-variant-numeric: tabular-nums; }
+.stock-value.stock-unknown { color: #64748b; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .two-grid .table-wrap { overflow-x: auto; }
+  .two-grid .table-wrap table { min-width: 560px; }
+}
+
+@media (max-width: 550px) {
+  .page-heading-copy { gap: 9px; }
+  .page-heading-icon { width: 33px; height: 33px; flex-basis: 33px; }
+  .toolbar { align-items: stretch; flex-direction: column; }
+  .result-count { justify-items: start; }
+}
+
 /* The insight modal is a nested panel, so it must not inherit the page-panel negative header margins. */
 .decision-detail .decision-chart {
   margin-top: 18px;

@@ -1,5 +1,11 @@
 # Troubleshooting and Recovery
 
+## 2026-11-07 — P24 reconciliation found five historical scenario stock rows without actor attribution — OPEN FOR P24 EVIDENCE
+
+**Finding:** The current MySQL scenario has 37 stock transactions attributed to user ID 4 and five with a null actor, while all four reviewed recommendations are attributed to user ID 4.
+
+**Containment:** P24-02 is read-only and does not rewrite historical audit evidence. New manual sale/receipt actions must be checked for server-bound actor attribution; any failure becomes a separate integrity fix rather than a data cleanup.
+
 ## 2026-11-07 — Products search lost focus after one character — RESOLVED, BROWSER VERIFICATION PENDING
 
 **Symptom:** Typing changed the query key immediately. While the new request loaded, `ProductsPage` returned a full-page loading component, unmounting the focused search input.

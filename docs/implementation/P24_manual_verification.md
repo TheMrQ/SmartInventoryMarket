@@ -140,3 +140,38 @@ Mỗi lần mutation phải ghi lại baseline mới trên UI/database trước 
 - **Đã xác minh:** mục A là snapshot MySQL chỉ đọc tại thời điểm ghi tài liệu.
 - **Kỳ vọng sau hành động:** các biến đổi số học ở mục 5–6; phải đối chiếu lại sau thao tác, không dùng snapshot cũ thay cho kết quả mới.
 - **Chưa xác minh browser:** toàn bộ thao tác UI, focus, API error handling, modal, receipt và sale phải do người dùng thực hiện/capture trong P24.
+
+## D. P24-02 — Live reconciliation bổ sung (chỉ đọc, 2026-11-07)
+
+Đây là kết quả truy vấn **current MySQL**, không suy luận lại từ snapshot P22 cũ.
+
+- Đủ 36 `demo_product_sources`; cả 36 `products.unit` hiện là `unit`. Đây là **đơn vị đo**, không phải tồn kho. Bảng Products hiện hiển thị riêng `Unit of Measure` và `On-hand Stock` từ API inventory.
+- Forecast run 18 có đúng 28 persisted rows cho mỗi SKU scenario. Tổng 7/14/28 ngày của sáu SKU đại diện:
+
+| SKU | Risk hiện tại | On-hand + incoming = position | 7 ngày | 14 ngày | 28 ngày |
+| --- | --- | --- | ---: | ---: | ---: |
+| FOODS_1_001 | STOCKOUT_RISK | 0 + 0 = 0 | 5.8180 | 11.4284 | 21.0583 |
+| FOODS_1_008 | REORDER_NEEDED | 1 + 0 = 1 | 1.5868 | 4.0268 | 9.2323 |
+| FOODS_2_005 | OVERSTOCK_RISK | 6 + 8 = 14 | 3.3465 | 6.3171 | 11.5672 |
+| FOODS_2_006 | OVERSTOCK_RISK | 9 + 2 = 11 | 2.7252 | 5.0193 | 9.5944 |
+| FOODS_2_007 | HEALTHY | 12 + 0 = 12 | 4.2341 | 8.5596 | 17.7864 |
+| FOODS_3_012 | HEALTHY | 17 + 0 = 17 | 16.8213 | 34.6650 | 71.1064 |
+
+- PO lines/receipts vẫn khớp snapshot: incoming FOODS_2_005 8/0/8; partial FOODS_2_006 8/6/2; complete FOODS_2_007 6/6/0; linked draft FOODS_1_002 6/0/6.
+- **Audit finding, not a repair:** 37 scenario stock transactions có `created_by_user_id=4`, nhưng 5 transaction có actor null; cả 4 reviewed recommendations có actor 4. Không sửa dữ liệu scenario trong P24-02. Khi browser/P24 kiểm thử receipt/sale mới, phải xác nhận actor server-bound khác null cho record mới.
+
+## E. Bản đồ workflow đã kiểm thử tự động
+
+| UI/API | Service/DB expectation | Isolated automated evidence |
+| --- | --- | --- |
+| Login/logout và protected writes | session, CSRF, role check | backend auth/session tests |
+| Products / Suppliers | catalog + mapping persisted, không đổi stock | `test_business_api.py` |
+| Adjustment | on-hand đổi một lần và `stock_transactions` audit | `test_business_api.py`, `test_inventory_decisions.py` |
+| Record sale / retry | on-hand giảm một lần; key idempotency không double-sell | `test_sales_forecasts_api.py` |
+| Historical CSV import | cập nhật `sales_daily`, không giảm stock | `test_sales_forecasts_api.py` |
+| Forecasts | only eligible M5 SKU; 7/14/28 outputs | `test_sales_forecasts_api.py` |
+| Recommendation / linked PO | review state, exactly one linked draft | `test_inventory_decisions.py`, `test_business_api.py` |
+| Draft edit, transition, receipt | allowed state transitions only; partial receipt changes stock/incoming | `test_business_api.py` |
+| UI loading/empty/error/retry | cached operational data stays mounted | frontend workflow/search tests |
+
+Automated tests use isolated SQLite/disposable records and never mutate the P22 MySQL scenario. Browser workflows remain unverified until the owner captures the prescribed evidence.
