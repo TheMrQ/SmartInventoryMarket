@@ -24,6 +24,13 @@
 - **Kỳ vọng UI/DB:** session A còn hợp lệ; session B bị yêu cầu đăng nhập; mật khẩu cũ bị từ chối, mật khẩu mới được chấp nhận. Chỉ `users.password_hash` đổi; `auth_sessions` khác có `revoked_at`, session hiện tại không bị revoke. Form clear sau success; không có password/secret trong UI, URL, toast hoặc log.
 - **PASS/Evidence:** screenshot Account success và session-B redirect/error, che toàn bộ password input. FAIL nếu session hiện tại logout, session khác vẫn hợp lệ, hoặc mật khẩu cũ dùng được.
 
+### P24-06b Avatar delivery và sidebar profile card
+
+- **Upload/persistence:** chọn một JPEG/PNG/WEBP hợp lệ dưới 3 MB. Sau toast thành công, xác nhận ngay **cùng ảnh** xuất hiện trên Account và sidebar, không logout/reload; sau đó refresh browser và xác nhận vẫn thấy ảnh. Bấm **Remove** và xác nhận `avatar_url` về null cùng fallback initials/UserRound ở cả hai vị trí.
+- **Expanded/mobile card:** với sidebar mở, xác nhận avatar, Display Name, Manager role và Logout nằm trong một surface navy đủ rộng, không phải name pill nhỏ hoặc Logout tách rời. Avatar/name/role/account portion mở `/account`; Logout chỉ logout, không điều hướng Account. Lặp lại ở mobile drawer.
+- **Collapsed desktop:** chỉ còn avatar; không tail/logout bị clip. Hover/focus hiện tooltip **My Account**; click avatar mở `/account`.
+- **Evidence/PASS:** chụp sau upload ở Account + expanded sidebar, sau refresh, sau Remove fallback, profile card mobile và collapsed tooltip/navigation. FAIL nếu ảnh không xuất hiện ngay, refresh mất ảnh, click Logout vào Account, hoặc `/uploads` URL bị 404 trên Vite dev server.
+
 Trạng thái: `IN_PROGRESS` — tài liệu này là hướng dẫn kiểm thử browser; không phải bằng chứng browser đã hoàn tất.
 
 ## A. Snapshot cơ sở dữ liệu đã xác minh (chỉ đọc)

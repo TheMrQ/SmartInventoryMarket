@@ -298,6 +298,18 @@ Treat the utility as optional/local-demo setup only. Keep raw M5 files, model ar
 
 ## Problem Record Template
 
+## 2026-11-07 — P24-06 avatar uploads persisted but did not render in Vite development — RESOLVED
+
+**Symptom:** A successful avatar upload returned a non-null `/uploads/avatars/<generated-name>` reference, but the Account page and sidebar continued to show initials during local Vite development.
+
+**Root cause:** FastAPI correctly mounted `/uploads`, but the Vite development server proxied only `/api` and `/health`. The browser therefore requested the relative asset from Vite, which had no matching static route.
+
+**Resolution:** Added the generic `/uploads` → `http://127.0.0.1:8000` Vite proxy route. No filename is hardcoded; the existing generated filename, ignored application-owned storage, relative safe API response, and production base-URL behavior remain unchanged. The expanded sidebar profile was also restored as one cohesive card, while Logout remains a separate non-navigating control.
+
+**Verification:** Frontend source coverage asserts the proxy, avatar image URL rendering, shared `auth-me` update, sidebar avatar use, Account navigation, and separate Logout. Backend auth tests, frontend tests/lint/build, and `git diff --check` pass. Browser screenshots remain a required manual P24 evidence item.
+
+**Prevention:** Whenever FastAPI serves a relative application asset that the React app displays in development, add its generic route prefix to Vite's proxy configuration and test the complete generated URL path rather than one temporary filename.
+
 ## 2026-09-21 — Ablation-summary WAPE mapping corrected
 
 Symptom:

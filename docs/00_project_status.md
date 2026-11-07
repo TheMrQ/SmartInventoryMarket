@@ -8,7 +8,7 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 through P24-05b completed the documented search, reconciliation, visual, and interaction refinements. P24-06 adds protected self-service Account settings: safe display-name update, managed raster avatar, and current-session-preserving password change that revokes other sessions. All browser evidence remains outstanding.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 through P24-05b completed the documented search, reconciliation, visual, and interaction refinements. P24-06 adds protected self-service Account settings; P24-06b restores Vite delivery of backend `/uploads` assets and the substantial sidebar profile card. All browser evidence remains outstanding.
 - **Next Phase:** perform the browser walkthrough using the P24 guide, including the new Account profile/avatar/password checks, then record a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
@@ -217,11 +217,11 @@ The application now has real cookie-session authentication: public registration 
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-024B` — P24 includes a protected Account route and an additive, local-MySQL-verified `c7e3a8d1f4b6` avatar-reference migration. It preserves P22 scenario records: only a nullable user metadata column was added. The Vietnamese manual protocol covers profile, avatar, password, session-revocation, and responsive/sidebar checks. Browser/live evidence remains outstanding; P24 is not DONE.
+`CHECKPOINT-024C` — P24-06b corrects the development-only `/uploads` proxy route, so persisted generated avatar URLs resolve through FastAPI without changing the avatar schema or P22 data. The expanded sidebar again has one cohesive profile card; collapsed desktop retains only its Account avatar and tooltip. Browser/live evidence remains outstanding; P24 is not DONE.
 
 ## Next Exact Step
 
-`NEXT-024C` — With an active local Manager, follow `docs/implementation/P24_manual_verification.md`: first capture the Account checks (including a disposable avatar and password/session proof), then capture all eight browser read paths and use only disposable fixtures for controlled sale/import/adjustment/recommendation/PO mutations. Record actual before/after evidence; do not reset or reseed P22.
+`NEXT-024D` — With an active local Manager, perform the P24 Account avatar walkthrough: upload a valid raster image, verify immediate Account/sidebar display and refresh persistence, remove it, then verify the expanded card and collapsed/mobile navigation. Capture the required browser evidence before any controlled business mutation tests.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 

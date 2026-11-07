@@ -77,7 +77,7 @@ Protected application routes now restore a real session through `GET /api/auth/m
 
 ## P24-06 Account settings
 
-The authenticated workspace now includes a protected `/account` route. The sidebar profile opens it with an accessible collapsed-rail tooltip, while Logout remains a distinct control. The page uses the existing navy/blue operational language for one identity surface and two focused panels: Profile Information and Security. It reads/writes only the session-safe Account API, refreshes the shared `auth-me` React Query cache after a successful profile/avatar mutation, and gives explicit loading/error feedback rather than replacing the workspace. Browser acceptance is still required for responsive and visual behavior.
+The authenticated workspace now includes a protected `/account` route. The sidebar profile opens it with an accessible collapsed-rail tooltip, while Logout remains a distinct control. The page uses the existing navy/blue operational language for one identity surface and two focused panels: Profile Information and Security. It reads/writes only the session-safe Account API, refreshes the shared `auth-me` React Query cache after a successful profile/avatar mutation, and gives explicit loading/error feedback rather than replacing the workspace. In Vite development, `/uploads` proxies to FastAPI alongside `/api` and `/health`, allowing the safe relative avatar URL to render immediately; production keeps the configured API-base/relative-asset behavior. Expanded desktop and mobile use one substantial profile card; desktop collapse intentionally retains only the clickable avatar and portalled **My Account** tooltip. Browser acceptance is still required for responsive and visual behavior.
 
 ## P18 Authentication UX Hotfix
 

@@ -137,14 +137,21 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0;
-  min-height: 52px;
+  gap: 9px;
+  min-height: 66px;
   margin: 0 12px 16px;
+  padding: 8px;
+  border: 1px solid rgb(148 163 184 / 20%);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgb(30 48 77 / 98%), rgb(20 34 57 / 98%));
   color: #eaf1ff;
   flex: 0 0 auto;
   overflow: visible;
+  box-shadow: 0 10px 22px rgb(2 6 23 / 20%);
   transition: width var(--duration-base, 200ms) var(--ease-standard, ease),
-    margin var(--duration-base, 200ms) var(--ease-standard, ease);
+    margin var(--duration-base, 200ms) var(--ease-standard, ease),
+    background-color var(--duration-fast, 160ms) ease, border-color var(--duration-fast, 160ms) ease,
+    box-shadow var(--duration-fast, 160ms) ease;
 }
 
 .profile-account-link {
@@ -152,8 +159,17 @@
   min-width: 0;
   flex: 1 1 auto;
   align-items: center;
+  gap: 10px;
+  border-radius: 12px;
   color: inherit;
   text-decoration: none;
+}
+
+.profile-account-link:hover .profile-name { color: #fff; }
+.profile-account-link:hover .profile-role { color: #c7ddff; }
+.sidebar-profile:hover {
+  border-color: rgb(96 165 250 / 35%);
+  box-shadow: 0 12px 25px rgb(2 6 23 / 26%);
 }
 
 .profile-account-link:focus-visible {
@@ -167,9 +183,9 @@
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 50px;
-  height: 50px;
-  flex: 0 0 50px;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
   border: 1px solid #dbeafe;
   border-radius: 50%;
   background: #fff;
@@ -179,8 +195,8 @@
 
 .profile-avatar .user-avatar {
   z-index: 1;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
 }
 
 .profile-tail {
@@ -188,13 +204,13 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  min-height: 44px;
+  min-height: 46px;
   flex: 1 1 auto;
-  margin-left: -15px;
-  padding: 7px 9px 7px 25px;
-  border-radius: 0 15px 15px 0;
-  background: #1e304d;
-  box-shadow: 0 7px 18px rgb(15 23 42 / 20%);
+  margin-left: 0;
+  padding: 3px 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   transition: flex-basis var(--duration-base, 200ms) var(--ease-standard, ease),
     padding var(--duration-base, 200ms) var(--ease-standard, ease), opacity var(--duration-fast, 160ms) ease;
 }
@@ -215,13 +231,13 @@
 
 .profile-name {
   color: #f8fbff;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
 .profile-role {
-  color: #9fb4d3;
-  font-size: 0.67rem;
+  color: #aac4e8;
+  font-size: 0.69rem;
 }
 
 .profile-logout {
@@ -230,7 +246,7 @@
   width: 30px;
   height: 30px;
   min-width: 30px;
-  margin-left: 8px;
+  margin-left: auto;
   padding: 0;
   border: 1px solid transparent;
   border-radius: 9px;
@@ -253,13 +269,20 @@
 
 .collapsed .sidebar-profile {
   width: 50px;
+  min-height: 50px;
   margin-right: auto;
   margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
   justify-content: center;
 }
 
 .collapsed .profile-account-link { flex: 0 0 50px; }
 .collapsed .sidebar-profile > .tooltip { display: flex; }
+.collapsed .profile-logout { display: none; }
 
 .collapsed .profile-tail {
   min-width: 0;
@@ -416,10 +439,18 @@
   .sidebar-profile,
   .collapsed .sidebar-profile {
     width: auto;
+    min-height: 66px;
     margin-right: 12px;
     margin-left: 12px;
+    padding: 8px;
+    border: 1px solid rgb(148 163 184 / 20%);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgb(30 48 77 / 98%), rgb(20 34 57 / 98%));
+    box-shadow: 0 10px 22px rgb(2 6 23 / 20%);
     justify-content: flex-start;
   }
+
+  .collapsed .profile-account-link { flex: 1 1 auto; }
 
   .collapsed .profile-tail {
     min-width: 0;
@@ -431,5 +462,5 @@
     pointer-events: auto;
   }
 
-  .collapsed .profile-logout { display: none; }
+  .collapsed .profile-logout { display: grid; }
 }

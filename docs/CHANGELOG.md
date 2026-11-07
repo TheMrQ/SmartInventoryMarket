@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+- Fixed P24-06b avatar delivery in Vite development by proxying the generic `/uploads` prefix to FastAPI, preserving the existing generated-filename avatar design and production compatibility. Restored the expanded/mobile sidebar profile as one readable dark profile card, retained avatar Account navigation, and kept Logout distinct; collapsed desktop remains avatar-only with the My Account tooltip. No MySQL/P22 business data or account security policy changed.
 - Added P24-06 protected Account settings: self-only display-name update, generated-filename JPEG/PNG/WEBP avatar management in ignored runtime storage, and password change with safe current-password verification. The current session remains usable while other active sessions are revoked. Role, account activity, password hashes, raw session tokens, and filesystem paths remain non-editable/non-public.
 - Added the additive nullable `users.avatar_filename` Alembic migration (`c7e3a8d1f4b6`) and verified local MySQL `current`, `heads`, and `check` at that head without resetting or modifying P22 scenario records. Added focused backend auth/account tests and frontend route/API-source coverage; browser acceptance is still required.
 - Unified P24-05b row-inspection feedback across every primary data table and reordered Purchase Order actions to stable Manage-first groups with an explicit Actions header. This UI-only change does not alter PO transitions, API behavior, or P22/MySQL data.
