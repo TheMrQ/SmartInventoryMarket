@@ -118,7 +118,7 @@ test('premium identity keeps target-period inventory demand explainable in the d
   const styles = readFileSync(new URL('../src/premium.css', import.meta.url), 'utf8')
   assert.match(decisions, /decision\.target_period_days/)
   assert.match(decisions, /decision\.expected_target_period_demand/)
-  assert.match(decisions, /lead time \+ one-day review/)
+  assert.match(decisions, /lead time \+\s*one-day review/)
   assert.match(catalog, /page-heading-\$\{semanticName\}/)
   assert.match(operational, /page-heading-\$\{semanticName\}/)
   assert.match(styles, /--canvas-premium: #f6f8fc/)

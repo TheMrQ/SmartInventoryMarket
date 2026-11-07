@@ -22,13 +22,11 @@ Dot nay chi thay doi React/CSS va doc cac API hien co. Khong approve, receive, c
 - **PASS:** khong co `Product #22`, modal khong can horizontal scroll o desktop cho PO mot line; Escape, click outside, focus keyboard va Close van hoat dong. Khong co API mutation khi chi mo/dong modal.
 - **Evidence:** screenshot modal desktop, screenshot mobile hep neu co, va Network khong co `POST /receive`.
 
-### Q.3 Controlled receipt — chi thuc hien sau khi luu baseline Q.2
+### Q.3 Controlled receipt — COMPLETED MANUALLY
 
-- **Canh bao:** chi owner thuc hien mot lan sau khi da luu screenshot/database baseline; Codex khong thuc hien buoc nay.
-- **Thao tac:** giu **Receive now = 2**, click **Confirm receipt**, xac nhan dialog.
-- **Expected UI/DB sau thanh cong:** status **RECEIVED**; Ordered **8**, Received **8**, Remaining **0**; On-hand **11**, Incoming **0**, Position **11**; them dung mot stock transaction **RECEIPT** quantity **2**. Receipt controls va Cancel khong con hien, completed fulfillment state hien thi.
-- **FAIL:** position tang thanh 13, receipt bi ghi hai lan, quantity vuot 2, hoac state/stock khong dung. Dung va ghi lai evidence; khong reset scenario de che loi.
-- **Evidence:** screenshot truoc/sau, response/network, Transaction History va database snapshot sau mutation.
+- **Status:** owner da da thuc hien dung mot lan controlled receipt 2 units. Khong repeat, reset, hay restore baseline partial.
+- **Current expected UI/DB:** status **RECEIVED**; Ordered **8**, Received **8**, Remaining **0**; On-hand **11**, Incoming **0**, Position **11**; dung mot stock transaction **RECEIPT** quantity **2**. Receipt controls va Cancel khong hien, completed fulfillment state hien thi.
+- **Evidence:** giu screenshot/network/database evidence cua thao tac da hoan thanh. Moi test confirmation moi phai dung fixture/mock hoac cancel truoc final confirmation.
 
 ### Q.4 Linked recommendation va responsive states (chi doc)
 
@@ -36,6 +34,24 @@ Dot nay chi thay doi React/CSS va doc cac API hien co. Khong approve, receive, c
 - **Ky vong:** overview hien `Linked recommendation #<id>` voi status/approved quantity neu API da tai; DRAFT chi hien Save line/Remove, khong hien receipt control. PO RECEIVED hien completed state va khong hien receipt input.
 - **Responsive/a11y:** kiem tra 1280px, 760px va 480px: metadata grid stack an toan, line item thanh card doc duoc, action reachable, dialog nam trong viewport. Bat Reduced Motion: thong tin/progress van hien, khong co motion khong can thiet.
 - **Evidence/PASS:** screenshot linked draft, completed PO neu da co san, va mot viewport hep. Khong danh dau browser PASS neu chua co cac anh nay.
+
+## P24-08b — Confirmation dialog va timestamp local — MANUAL VERIFICATION REQUIRED
+
+Baseline da thay doi hop le sau controlled receipt cua owner. **Khong** receive lai, reset, seed, hay khoi phuc PO `SIM_M5_CA1_FOODS_V1-PARTIAL`. PO nay phai la **RECEIVED**, Ordered **8**, Received **8**, Remaining **0**, On-hand **11**, Incoming **0**, Position **11**.
+
+### P24-08b.1 Confirmation dialog (khong mutation)
+
+- **Trang:** Purchase Orders. Mo mot DRAFT PO de thu **Remove**, va mot PO co the cancel de thu **Cancel purchase order**; dong dialog bang Cancel/Keep action hoac Escape. Khong xac nhan action destructive trong buoc nay.
+- **Ky vong:** khong co browser dialog `localhost:5173 says`. Thay vao do la app dialog co backdrop, icon, title, mo ta ro rang, secondary Keep/Cancel va danger action. Escape/backdrop huy dialog; focus keyboard hien ro; Reduced Motion khong co motion thua.
+- **Receipt:** neu co PO IN_TRANSIT khac an toan cho manual test, click **Confirm receipt** chi mo dialog. Dialog phai liet ke so units, product/SKU neu co, va giai thich on-hand tang/incoming giam/audited transaction. Click Cancel khong gui `POST /receive`.
+- **Evidence/PASS:** screenshot moi loai dialog va Network cho Cancel. Khong danh PASS neu co native confirm hoac API mutation truoc final Confirm.
+
+### P24-08b.2 Timestamp local va date-only
+
+- **Trang:** Inventory → Transaction History. Tim receipt vua co cua `FOODS_2_006`.
+- **Ky vong:** neu stored value la gan `2026-11-07 15:02:23 UTC`, browser o Asia/Ho_Chi_Minh hien gan `Nov 7, 2026, 10:02 PM` theo locale browser. Khong cong them 7 gio trong UI; timezone browser quyet dinh ket qua.
+- **Kiem tra them:** PO Manage cho Received at, Inventory Updated, va Restock Recommendation expiry (neu co) deu dung local browser time. Sale date, order date, expected arrival, va forecast date van la calendar date, khong bi dich ngay.
+- **Evidence/PASS:** screenshot Transaction History va Received at, kem browser timezone/locale neu co. **FAIL:** receipt hien 3:02 PM o Vietnam, date-only bi dich ngay, hoac invalid value lam crash UI.
 
 ### Avatar sau logout/login
 

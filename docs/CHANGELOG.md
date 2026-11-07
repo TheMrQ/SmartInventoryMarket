@@ -2,6 +2,8 @@
 
 ## 2026-11-07
 
+- Replaced Purchase Order browser-native receipt/cancellation/draft-line confirmations with one pending-safe application dialog, and centralized UTC-naive application datetime parsing for browser-local display. Transaction, inventory-update, PO-receipt, and recommendation-expiry renders now share the explicit contract while date-only business dates remain unchanged. No backend, schema, stored timestamp, or P22 mutation occurred.
+
 - Redesigned the P24 Purchase Orders operational workspace using only existing read APIs: the list now summarizes actual PO-line fulfillment, while Manage presents supplier/order/recommendation metadata, product identity, current inventory context, receipt impact, responsive line items, and status-specific actions. No API/schema/state-machine/inventory calculation change or persistent P22/MySQL mutation occurred. The last ResultCount `999px` override is now the shared 11px compact-summary geometry; browser acceptance remains required.
 
 - Completed P25-02 final hybrid intermittent-demand research: transparent Croston/SBA/TSB methods routed only pre-origin sparse series while unchanged V1 handled regular demand. The best TSB hybrid improved mean MAE/WAPE and sparse-demand MAE but regressed mean RMSE, so the preregistered rule rejects promotion. Final-TEST actuals, V1/default configuration, P22, and MySQL remain untouched; only aggregate research evidence is tracked.

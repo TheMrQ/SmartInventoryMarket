@@ -966,3 +966,17 @@ tbody tr:hover { background: #f8fbff; }
 @media (prefers-reduced-motion: reduce) {
   .po-fulfillment-cell,.po-progress,.po-fulfillment-cell b,.po-progress i { transition-duration: 1ms !important; }
 }
+
+/* Shared confirmation surface for consequential operational actions. */
+.modal.confirmation-dialog { width: min(440px, 100%); }
+.confirmation-dialog-body { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 13px; align-items: start; }
+.confirmation-dialog-icon { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff; color: #2563eb; }
+.confirmation-dialog-danger .confirmation-dialog-icon { border-color: #fecaca; background: #fff7f7; color: #b42318; }
+.confirmation-dialog-body p { margin: 2px 0 0; color: #475467; font-size: 13px; line-height: 1.55; }
+.confirmation-dialog-body > div { min-width: 0; }
+.confirmation-dialog-context { display: grid; gap: 2px; margin-top: 12px; padding: 10px 11px; border: 1px solid #e1e9f5; border-radius: 10px; background: #f8faff; }
+.confirmation-dialog-context strong { color: #243b64; font-size: 13px; }
+.confirmation-dialog-context small { color: #65738a; font-size: 11px; }
+.confirmation-dialog-note { margin-top: 10px !important; color: #526b91 !important; font-size: 12px !important; }
+.confirmation-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+@media (max-width: 480px) { .confirmation-dialog-actions { flex-direction: column-reverse; }.confirmation-dialog-actions .button { width: 100%; } }

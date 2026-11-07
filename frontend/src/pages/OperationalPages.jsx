@@ -14,6 +14,7 @@ import { DemandForecastChart } from "../components/DemandForecastChart";
 import {
   Badge,
   Button,
+  ConfirmationDialog,
   Empty,
   Loading,
   Modal,
@@ -27,6 +28,7 @@ import {
   displayProduct,
   displayStatus,
   formatForecast,
+  formatApplicationDateTime,
   formatShortDate,
 } from "../utils/presentation";
 import { toneFor } from "../utils/status";
@@ -364,6 +366,7 @@ function PurchaseOrderManageModal({
       ]),
     ),
   );
+  const [confirmation, setConfirmation] = useState(null);
   const refresh = () => {
     revalidate(client, ["orders", "inventory", "transactions", "decisions"]);
     onClose();
@@ -401,14 +404,35 @@ function PurchaseOrderManageModal({
     : null;
   const expectedArrival =
     order.raw_expected_arrival_date ?? order.expected_arrival_date;
-  const submitReceipt = () => {
+  const requestReceiptConfirmation = () => {
     try {
-      receive.mutate(receiptLinesForSubmission(order.items, receipts));
+      const items = receiptLinesForSubmission(order.items, receipts);
+      setConfirmation({ type: "receipt", items });
     } catch (error) {
       toast.error(error.message);
     }
   };
+  const selectedReceiptQuantity = confirmation?.type === "receipt"
+    ? confirmation.items.reduce((total, item) => total + item.quantity, 0)
+    : 0;
+  const confirmedLine = confirmation?.type === "remove-line" ? confirmation.item : null;
+  const confirmedProduct = confirmedLine
+    ? displayProduct(productsById.get(confirmedLine.product_id))
+    : null;
+  const confirmAction = () => {
+    if (confirmation?.type === "receipt") receive.mutate(confirmation.items);
+    if (confirmation?.type === "cancel") transition.mutate("CANCELLED");
+    if (confirmation?.type === "remove-line") removeLine.mutate(confirmation.item.id);
+  };
+  const confirmationPending = confirmation?.type === "receipt"
+    ? receive.isPending
+    : confirmation?.type === "cancel"
+      ? transition.isPending
+      : confirmation?.type === "remove-line"
+        ? removeLine.isPending
+        : false;
   return (
+    <>
     <Modal
       title="Purchase order"
       className="purchase-order-workspace"
@@ -455,12 +479,7 @@ function PurchaseOrderManageModal({
             {order.received_at && (
               <div>
                 <dt>Received at</dt>
-                <dd>
-                  {new Intl.DateTimeFormat(undefined, {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(new Date(order.received_at))}
-                </dd>
+                <dd>{formatApplicationDateTime(order.received_at)}</dd>
               </div>
             )}
             <div>
@@ -618,10 +637,7 @@ function PurchaseOrderManageModal({
                             </button>
                             <button
                               className="link-button po-remove-line"
-                              onClick={() => {
-                                if (window.confirm("Remove this draft line?"))
-                                  removeLine.mutate(item.id);
-                              }}
+                              onClick={() => setConfirmation({ type: "remove-line", item })}
                             >
                               Remove
                             </button>
@@ -682,14 +698,7 @@ function PurchaseOrderManageModal({
             </div>
             <Button
               loading={receive.isPending}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Confirm these receipt quantities? Stock will increase once.",
-                  )
-                )
-                  submitReceipt();
-              }}
+              onClick={requestReceiptConfirmation}
             >
               Confirm receipt
             </Button>
@@ -706,14 +715,7 @@ function PurchaseOrderManageModal({
             <Button
               className="secondary po-cancel-order"
               loading={transition.isPending}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Cancel this purchase order? This cannot be undone.",
-                  )
-                )
-                  transition.mutate("CANCELLED");
-              }}
+              onClick={() => setConfirmation({ type: "cancel" })}
             >
               Cancel purchase order
             </Button>
@@ -724,6 +726,20 @@ function PurchaseOrderManageModal({
         </footer>
       </div>
     </Modal>
+    {confirmation && <ConfirmationDialog
+      title={confirmation.type === "receipt" ? "Confirm receipt" : confirmation.type === "cancel" ? "Cancel purchase order?" : "Remove product from draft?"}
+      description={confirmation.type === "receipt" ? `You are about to receive ${selectedReceiptQuantity} unit${selectedReceiptQuantity === 1 ? "" : "s"} for this purchase order.` : confirmation.type === "cancel" ? "Cancellation cannot be undone through the current workflow." : "This product line will be removed from the draft purchase order."}
+      cancelLabel={confirmation.type === "cancel" ? "Keep order" : confirmation.type === "remove-line" ? "Keep line" : "Cancel"}
+      confirmLabel={confirmation.type === "receipt" ? "Confirm receipt" : confirmation.type === "cancel" ? "Cancel purchase order" : "Remove line"}
+      destructive={confirmation.type !== "receipt"}
+      pending={confirmationPending}
+      onCancel={() => setConfirmation(null)}
+      onConfirm={confirmAction}
+    >
+      {confirmation.type === "receipt" && <><div className="confirmation-dialog-context"><strong>{order.items.filter((item) => confirmation.items.some((receipt) => receipt.purchase_order_item_id === item.id)).map((item) => displayProduct(productsById.get(item.product_id)).name).join(", ")}</strong><small>{order.items.filter((item) => confirmation.items.some((receipt) => receipt.purchase_order_item_id === item.id)).map((item) => displayProduct(productsById.get(item.product_id)).sku).filter(Boolean).join(", ")}</small></div><p className="confirmation-dialog-note">Receiving these units increases on-hand stock and reduces the corresponding incoming quantity. The operation creates an audited stock transaction.</p></>}
+      {confirmation.type === "remove-line" && confirmedProduct && <div className="confirmation-dialog-context"><strong>{confirmedProduct.name}</strong><small>{confirmedProduct.sku || "SKU unavailable"}</small></div>}
+    </ConfirmationDialog>}
+    </>
   );
 }
 

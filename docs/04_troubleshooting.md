@@ -308,6 +308,16 @@ Treat the utility as optional/local-demo setup only. Keep raw M5 files, model ar
 
 ## Problem Record Template
 
+## 2026-11-07 — P24 transaction times displayed seven hours early in Vietnam — RESOLVED, BROWSER VERIFICATION PENDING
+
+**Symptom:** A receipt stored around `15:02 UTC` appeared as approximately `15:02` in a Vietnam browser rather than local `22:02`.
+
+**Root cause:** Application timestamps are deliberately stored as timezone-naive UTC. Their API strings therefore lack an offset; JavaScript parsed them as local wall-clock times through `new Date(value)`, silently losing the intended UTC-to-local conversion.
+
+**Resolution:** The frontend now parses known application datetime strings centrally as UTC when no offset is present, preserves explicit UTC/offset timestamps, and formats the resulting instant with the browser locale/timezone. Date-only business fields remain separate and are not converted. Transaction history, inventory update, PO receipt, and recommendation expiry displays now use the shared formatter. No stored timestamp was edited and no timezone is hardcoded.
+
+**Related UI recovery:** Purchase Order `window.confirm` dialogs for receipt, cancellation, and draft-line removal were replaced with one portal-backed application confirmation dialog. Receipt remains non-mutating until an explicit confirm click; pending state prevents duplicate submission. The manually completed controlled receipt remains RECEIVED and was not repeated.
+
 ## 2026-11-07 — P24 Purchase Order workspace exposed internal product IDs — RESOLVED, BROWSER VERIFICATION PENDING
 
 **Symptom:** The Manage dialog showed a raw `Product #<id>` and a sparse receipt form, leaving managers unable to inspect fulfillment, live inventory context, linked recommendation context, or the operational effect of receipt without cross-referencing other pages.

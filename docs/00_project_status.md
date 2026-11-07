@@ -16,7 +16,7 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ### P24-08 Purchase Order operational workspace
 
-P24 remains **IN_PROGRESS**. The React Purchase Orders page now composes existing read-only purchase-order, product, supplier, inventory, and reorder-recommendation responses into a fulfillment-aware list and responsive Manage workspace. It does not change the PO state machine, receipt validation, derived incoming rule, inventory calculation, schema, API contract, or P22 data. Manual browser evidence is still required before the controlled partial receipt: `SIM_M5_CA1_FOODS_V1-PARTIAL` / `FOODS_2_006` must first show IN_TRANSIT, ordered 8, received 6, remaining 2, on-hand 9, incoming 2, position 11. Only the owner may then perform the one controlled receipt of 2 and capture the expected RECEIVED/on-hand 11/incoming 0/position 11 evidence.
+P24 remains **IN_PROGRESS**. The React Purchase Orders page now composes existing read-only purchase-order, product, supplier, inventory, and reorder-recommendation responses into a fulfillment-aware list and responsive Manage workspace. It does not change the PO state machine, receipt validation, derived incoming rule, inventory calculation, schema, API contract, or P22 data. The controlled partial receipt was completed manually as part of P24 acceptance: `SIM_M5_CA1_FOODS_V1-PARTIAL` / `FOODS_2_006` is now RECEIVED with ordered 8, received 8, remaining 0, on-hand 11, incoming 0, and inventory position 11. Do not recreate or reverse it. P24-08b replaces PO browser-native confirmations with a shared application dialog and correctly presents UTC-naive application datetimes in the browser's local timezone; broader browser acceptance evidence remains outstanding.
 
 What we selected:
 

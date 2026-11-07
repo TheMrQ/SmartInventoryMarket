@@ -1,7 +1,9 @@
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { LoaderCircle, PackageOpen, Search, X } from 'lucide-react'
+import { AlertTriangle, LoaderCircle, PackageCheck, PackageOpen, Search, X } from 'lucide-react'
 import { WorkspaceContext } from './workspace-context'
+
+const modalStack = []
 
 export function Badge({ children, tone = 'neutral' }) { return <span className={`badge badge-${tone}`}>{children}</span> }
 export function Button({ children, loading, className = '', disabled, ...props }) { return <button className={`button ${className}`} disabled={loading || disabled} {...props}>{loading && <LoaderCircle size={15} className="spin" />}{children}</button> }
@@ -19,18 +21,42 @@ export function QueryError({ queries, title = 'Information could not be loaded' 
 }
 export function Modal({ title, onClose, children, className = '' }) {
   const { collapsed } = useContext(WorkspaceContext)
+  const [modalId] = useState(() => Symbol('modal'))
   useEffect(() => {
-    const closeOnEscape = (event) => { if (event.key === 'Escape') onClose() }
+    modalStack.push(modalId)
+    return () => {
+      const index = modalStack.lastIndexOf(modalId)
+      if (index >= 0) modalStack.splice(index, 1)
+    }
+  }, [modalId])
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape' && modalStack.at(-1) === modalId) onClose()
+    }
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [onClose])
+  }, [modalId, onClose])
   useEffect(() => {
     const workspace = document.querySelector('.app-shell')
     if (!workspace) return undefined
+    const activeCount = Number(workspace.dataset.modalInertCount || 0) + 1
+    workspace.dataset.modalInertCount = String(activeCount)
     workspace.inert = true
-    return () => { workspace.inert = false }
+    return () => {
+      const remaining = Math.max(0, Number(workspace.dataset.modalInertCount || 1) - 1)
+      if (remaining) {
+        workspace.dataset.modalInertCount = String(remaining)
+        return
+      }
+      delete workspace.dataset.modalInertCount
+      workspace.inert = false
+    }
   }, [])
   return createPortal(<div className={`modal-backdrop ${collapsed ? 'modal-backdrop-collapsed' : ''}`} role="presentation" onMouseDown={onClose}><section className={`modal ${className}`} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}><header><h2>{title}</h2><button className="icon-button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></header>{children}</section></div>, document.body)
+}
+export function ConfirmationDialog({ title, description, children, confirmLabel, cancelLabel = 'Cancel', onConfirm, onCancel, pending = false, destructive = false, icon: Icon = destructive ? AlertTriangle : PackageCheck }) {
+  const close = () => { if (!pending) onCancel() }
+  return <Modal title={title} className={`confirmation-dialog ${destructive ? 'confirmation-dialog-danger' : ''}`} onClose={close}><div className="confirmation-dialog-body"><i className="confirmation-dialog-icon" aria-hidden="true"><Icon size={21}/></i><div><p>{description}</p>{children}</div></div><footer className="confirmation-dialog-actions"><Button className="secondary" disabled={pending} onClick={close}>{cancelLabel}</Button><Button className={destructive ? 'danger' : ''} loading={pending} onClick={onConfirm}>{confirmLabel}</Button></footer></Modal>
 }
 export function Tooltip({ label, children, portal = false, disabled = false }) {
   const [open, setOpen] = useState(false)

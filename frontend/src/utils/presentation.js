@@ -55,3 +55,31 @@ export function formatShortDate(value) {
   if (!value) return '—'
   return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date(`${value}T00:00:00`))
 }
+
+// Application datetimes are stored and returned as UTC, including legacy values
+// without an offset. Date-only business fields intentionally do not use this parser.
+export function parseApplicationUtcDateTime(value) {
+  if (typeof value !== 'string' || !value.trim() || /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) return null
+  const normalized = value.trim().replace(' ', 'T')
+  const hasExplicitOffset = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized)
+  const parsed = new Date(hasExplicitOffset ? normalized : `${normalized}Z`)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+export function formatApplicationDateTime(value, options = {}) {
+  const parsed = parseApplicationUtcDateTime(value)
+  if (!parsed) return '—'
+  const { locale, ...formatOptions } = options
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    ...formatOptions,
+  }).format(parsed)
+}
+
+export function formatApplicationDate(value, options = {}) {
+  const parsed = parseApplicationUtcDateTime(value)
+  if (!parsed) return '—'
+  const { locale, ...formatOptions } = options
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', ...formatOptions }).format(parsed)
+}
