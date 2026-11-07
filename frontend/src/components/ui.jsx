@@ -10,7 +10,7 @@ export function Loading() { return <div className="loading"><span /><span /><spa
 export function SearchField({ value, onChange, label = 'Search', placeholder = 'Search', ariaLabel }) {
   return <label className="search-field"><span>{label}</span><span className="search-control"><Search size={16} aria-hidden="true"/><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} aria-label={ariaLabel || label}/>{value && <button type="button" className="search-clear" onClick={() => onChange('')} aria-label={`Clear ${label.toLowerCase()}`}><X size={14}/></button>}</span></label>
 }
-export function ResultCount({ count, label = 'results', detail }) { return <span className="result-count" aria-live="polite"><b>{count} {label}</b>{detail && <small>{detail}</small>}</span> }
+export function ResultCount({ count, label = 'results', detail }) { const text = count === 1 && !label.startsWith('matching ') && label.endsWith('s') ? label.slice(0, -1) : label; return <span className="result-count" aria-live="polite"><b>{count} {text}</b>{detail && <small>{detail}</small>}</span> }
 export function QueryError({ queries, title = 'Information could not be loaded' }) {
   const failed = queries.filter((query) => query.isError)
   if (!failed.length) return null

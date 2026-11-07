@@ -494,6 +494,12 @@ tbody tr:hover { background: #f8fbff; }
 .numeric-value,.metric-number { font-variant-numeric: tabular-nums; }
 .mapping-panel > .search-field { margin: 15px 0 3px; }
 .mapping-panel .mini-list { max-height: 520px; overflow: auto; padding-right: 2px; }
+.mapping-panel .mapping-create { float: right; margin-top: -40px; }
+.mapping-panel .search-field { clear: both; }
+.mapping-panel .mini-list { border-top: 1px solid #edf1f6; margin-top: 14px; }
+.mapping-panel .mini-list > div { padding: 15px 4px; }
+.result-count b { color: var(--blue-600); }
+.mapping-modal select { min-width: 0; }
 
 /* Native mount/unmount animation gives a tab change a small continuity cue. */
 .tabs + .toolbar,.tabs + .panel { animation: tab-panel-enter 215ms var(--ease-standard) both; }
