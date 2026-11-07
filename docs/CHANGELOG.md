@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+- Unified P24-05b row-inspection feedback across every primary data table and reordered Purchase Order actions to stable Manage-first groups with an explicit Actions header. This UI-only change does not alter PO transitions, API behavior, or P22/MySQL data.
 - Repaired the Record Sale render crash by retaining the Web Crypto receiver for `randomUUID`, added a protected-workspace recovery boundary, and introduced scoped actionable-row, scan-row, and card interaction classes. Existing sale API/service/idempotency behavior and all P22/MySQL data remain unchanged; browser acceptance evidence is still required.
 - Polished P24-04d Dashboard snapshot icon frames and semantic metric labeling, plus scoped Supplier Directory/Product Mappings card and row feedback with reduced-motion coverage. This React/CSS-only change leaves APIs, business logic, and P22/MySQL data untouched; browser evidence remains required.
 - Refined P24-04 page-header alignment, Supplier full-width workspace composition, grouped data-filter toolbars, and restrained route/tab/card motion without changing application data or business rules.

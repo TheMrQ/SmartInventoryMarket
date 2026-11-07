@@ -420,9 +420,19 @@ Kiểm tra desktop/1280/1024/900/550: icon header phải thẳng giữa title li
 
 ### O.2 Interaction language và Reduced Motion
 
-- **Actionable accent:** hover row có action/inspection rõ ràng: Products (Edit), Inventory (Adjust stock), Purchase Orders (Manage/workflow), Inventory Insights (View insight), Restock Recommendations (Review hoặc Create draft PO). Chỉ những row này mới có nền blue-soft và left inset accent blue; row không được scale.
-- **Scan-only:** hover Supplier, Product Mapping, Sales history và Transaction history. Chúng chỉ có nền scan blue-neutral, không left accent và không hàm ý click. Recommendation đã linked PO/không còn action cũng scan-only.
+- **Actionable accent:** hover row có action/inspection rõ ràng: Products (Edit), Inventory (Adjust stock), Purchase Orders (Manage/workflow), Inventory Insights (View insight), Restock Recommendations (Review hoặc Create draft PO). Row không được scale; action và focus keyboard phải rõ.
+- **Scan-only:** hover Supplier, Product Mapping, Sales history và Transaction history. Theo P24-05b, chúng cũng dùng nền blue-soft + left inset accent để nhận biết row đang xem, nhưng vẫn cursor mặc định/không có click handler. Recommendation đã linked PO/không còn action cũng scan-only.
 - **Card/KPI:** hover bốn Dashboard KPI/snapshot và compact Dashboard action summaries; hover Supplier Directory/Product Mappings workspace. Card lift/elevation nhẹ, lân cận không dịch. Không yêu cầu hay chấp nhận scale modal, form, table row hoặc chart panel.
 - **KPI:** Products blue, Available green, Incoming cyan, Awaiting review amber; icon trong frame 40px và glyph Lucide 19px rõ, không thành dot/padding riêng.
 - **Reduced Motion:** bật `prefers-reduced-motion`; route/filter/tab movement, card/KPI scale/lift phải tắt hoặc gần như tức thời; hover màu nền có thể còn.
 - **Evidence/PASS:** chụp mỗi loại actionable và scan-only, một KPI, một Supplier workspace và Reduced Motion. Không đánh PASS khi chưa có screenshot browser.
+
+## P. P24-05b — Unified row inspection và PO action order — MANUAL VERIFICATION REQUIRED
+
+Đợt này chỉ thay đổi React/CSS; **không approve/receive/cancel PO, không record sale, không seed/reset/sửa MySQL hoặc P22.**
+
+- **Primary tables:** hover một row ở Products, Inventory, Supplier Directory, Product Mappings, Purchase Orders, Sales history, Transaction History, Inventory Insights và Restock Recommendations. Mỗi row phải có cùng nền blue-soft và left inset marker blue; table không đổi width/không layout shift, row không scale.
+- **Semantics:** marker có nghĩa row đang được xem, không mặc định là clickable. Supplier/Mapping/Sales/Transaction History vẫn cursor mặc định, không có click handler mới. Actionable row chỉ giữ action sẵn có và focus keyboard rõ ràng.
+- **Purchase Orders:** dùng một DRAFT PO chỉ để xem. Header cuối là **Actions**. Thứ tự phải luôn **Manage** trước, sau đó **Approve order**; APPROVED/ORDERED tương ứng là Manage → Place order/Mark as in transit. Không click workflow action. Hai action nằm cùng hàng, gap đều, vẫn thấy rõ khi row hover.
+- **Reduced Motion:** bật preference; marker/nền vẫn hiện nhưng transition gần như tức thời và không có transform.
+- **Evidence/PASS:** screenshot ít nhất một read-only row, một actionable row, DRAFT Actions column, và Reduced Motion. Không kết luận PASS nếu chưa có browser screenshot.

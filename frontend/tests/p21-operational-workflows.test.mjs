@@ -35,15 +35,25 @@ test('a sale key fails safely when secure UUID generation is unavailable', () =>
   assert.throws(() => createSaleIdempotencyKey({}), /Secure idempotency-key generation is unavailable/)
 })
 
-test('interactive rows distinguish actions from read-only scanning', () => {
+test('all primary data rows share the inspection marker while action semantics remain explicit', () => {
   const catalog = readFileSync(new URL('../src/pages/CatalogPages.jsx', import.meta.url), 'utf8')
   const operational = readFileSync(new URL('../src/pages/OperationalPages.jsx', import.meta.url), 'utf8')
   const decisions = readFileSync(new URL('../src/pages/DecisionsPage.jsx', import.meta.url), 'utf8')
+  const styles = readFileSync(new URL('../src/premium.css', import.meta.url), 'utf8')
   assert.match(catalog, /interaction-row interaction-row-actionable/)
   assert.match(catalog, /interaction-row interaction-row-scan/)
   assert.match(operational, /interaction-row interaction-row-actionable/)
   assert.match(operational, /interaction-row interaction-row-scan/)
   assert.match(decisions, /decision-row interaction-row interaction-row-actionable/)
+  assert.match(styles, /\.interaction-row:hover \{ background: #f5f9ff; box-shadow: inset 3px 0 0 var\(--blue-500\); \}/)
+  assert.match(styles, /\.interaction-row-actionable \{ cursor: pointer; \}/)
+})
+
+test('purchase-order actions keep Manage first and label the stable actions column', () => {
+  const source = readFileSync(new URL('../src/pages/OperationalPages.jsx', import.meta.url), 'utf8')
+  assert.match(source, /<th className="row-actions">Actions<\/th>/)
+  assert.match(source, /row-action-group"><button className="link-button row-action-manage"[\s\S]*?>Manage<\/button>\{next && <button className="link-button row-action-workflow"/)
+  assert.match(source, /DRAFT: \['APPROVED', 'Approve order'\]/)
 })
 
 test('dashboard retains semantic KPI classes and the workspace has a recovery boundary', () => {

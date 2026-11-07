@@ -532,11 +532,17 @@ tbody tr:hover { background: #f8fbff; }
 .dashboard-control-room .snapshot-item:hover,
 .kpi:hover { transform: translateY(-2px) scale(1.01); box-shadow: var(--shadow-md); }
 
-/* P24 interaction language: a blue accent is reserved for a row with a genuine action or inspection path. */
+/* P24 interaction language: blue marks the row currently being inspected, not necessarily a click target. */
 .interaction-row { transition: background-color 180ms var(--ease-standard), box-shadow 180ms var(--ease-standard); }
-.interaction-row-scan:hover { background: #f5f9ff; }
+.interaction-row:hover { background: #f5f9ff; box-shadow: inset 3px 0 0 var(--blue-500); }
 .interaction-row-actionable { cursor: pointer; }
-.interaction-row-actionable:hover { background: #f5f9ff; box-shadow: inset 3px 0 0 var(--blue-500); }
+
+.row-actions { width: 1%; text-align: right; white-space: nowrap; }
+.row-action-group { display: inline-flex; align-items: center; justify-content: flex-end; gap: 9px; }
+.row-action-manage { border: 1px solid #d8e0ea; background: #fff; color: #475467; }
+.row-action-manage:hover { border-color: #bfdbfe; background: #f8fafc; color: #1d4ed8; }
+.row-action-workflow { background: #eff6ff; color: #1d4ed8; }
+.row-action-workflow:hover { background: #dbeafe; color: #1d4ed8; }
 
 .interactive-card { transition: transform 220ms var(--ease-standard), box-shadow 220ms var(--ease-standard), border-color 180ms ease; }
 .interactive-card:hover { transform: translateY(-2px) scale(1.008); border-color: #cbdcf1; box-shadow: var(--shadow-md); }
@@ -567,4 +573,5 @@ tbody tr:hover { background: #f8fbff; }
 @media (prefers-reduced-motion: reduce) {
   .page-transition,.tabs + .toolbar,.tabs + .panel { animation: none; transform: none; }
   .interactive-card:hover,.dashboard-control-room .snapshot-item:hover,.kpi:hover { transform: none; }
+  .interaction-row { transition-duration: .01ms; }
 }
