@@ -61,6 +61,14 @@ At later inference, the model will make a **recursive 28-step forecast**: predic
 
 `ml/features/builder.py` shares the feature calculations between vectorized training construction and the single-step inference API. The inference API accepts only explicit sales/price history, product metadata, categorical mappings, and the target calendar row. A caller must append prior predictions—not validation actuals—between recursive steps. Synthetic tests verify lag/rolling values, current-target and future mutation isolation, past-only prices, deterministic encoding, calendar mapping, recursive feature shape, and config validation.
 
+## P25-01 FEATURE_SET_V3 Rolling Research
+
+`FEATURE_SET_V3` is a separate P25 research contract in `configs/features/ml_features_v3.yaml`; it does **not** alter the frozen/deployed `FEATURE_SET_V1`. It expands past-only history to lags through 56 days and adds 28/56-day zero-demand rates, non-zero means plus explicit has-non-zero flags, 28-day median, capped days since last non-zero sale, and short/long rolling-mean trends. Training construction and recursive inference use the same feature functions in `ml/features/builder.py`.
+
+For a target at `t`, every V3 demand statistic ends at `t-1`; recursive inference appends only its preceding model prediction. An all-zero window's non-zero mean is represented by `0` and an explicit false flag, rather than a future-derived or silently ambiguous value. Isolated tests mutate later history and verify that the target-time V3 feature vector remains unchanged.
+
+The P25 four-fold rolling study rejected both V3 Poisson finalists: their mean WAPE was 70.366227% and 70.540783%, versus 67.620377% for a fair rolling-retrained V1 control. FEATURE_SET_V3 is therefore retained as research evidence only and is not exposed through the forecast API or selected-model configuration. See `docs/implementation/P25_xgboost_v3_research.md`.
+
 ## LIGHTGBM_V1 — Initial Global Recursive Validation (CHECKPOINT-008)
 
 `configs/models/lightgbm_v1.yaml` freezes the first intentionally untuned CPU configuration: Poisson objective, `gbdt`, 400 estimators, learning rate 0.05, 31 leaves, `min_child_samples=100`, `reg_lambda=0.1`, seed 42, deterministic column-wise training, and no random subsampling. `ml/models/lightgbm_model.py` fits exactly one global model, explicitly marks `item_code`, `dept_code`, calendar/SNAP, and event codes as categorical, and rejects non-finite or negative forecasts rather than silently clipping them.

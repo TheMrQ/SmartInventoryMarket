@@ -112,8 +112,30 @@ def load_feature_config(config_path: str | Path) -> dict[str, Any]:
         "price_policy": "past_only_forward_fill_within_item_store",
     }
     for key, value in expected_v2.items():
-        if config[key] != value:
+        if config["feature_set"] == "FEATURE_SET_V2" and config[key] != value:
             raise ValueError(f"FEATURE_SET_V2 requires {key}={value!r}.")
+    if config["feature_set"] == "FEATURE_SET_V2":
+        return config
+
+    expected_v3 = {
+        **expected_v2,
+        "feature_set": "FEATURE_SET_V3",
+        "intermittent_features": {
+            "zero_rate_windows": [28, 56],
+            "nonzero_mean_windows": [28, 56],
+            "median_windows": [28],
+            "days_since_last_nonzero_cap": 56,
+            "trend_pairs": [[7, 28], [28, 56]],
+            "all_zero_nonzero_mean_policy": "zero_with_explicit_has_nonzero_flag",
+        },
+    }
+    if config["feature_set"] != "FEATURE_SET_V3":
+        raise ValueError(f"Unsupported feature set: {config['feature_set']!r}.")
+    if "intermittent_features" not in config:
+        raise ValueError("FEATURE_SET_V3 requires intermittent_features.")
+    for key, value in expected_v3.items():
+        if config.get(key) != value:
+            raise ValueError(f"FEATURE_SET_V3 requires {key}={value!r}.")
     return config
 
 
@@ -200,6 +222,51 @@ def _sales_feature_arrays(
     return features
 
 
+def _intermittent_feature_arrays(
+    history_sales: np.ndarray, positions: np.ndarray, config: dict[str, Any]
+) -> dict[str, np.ndarray]:
+    """Build deterministic past-only intermittent-demand signals for V3.
+
+    A position is a target day, so every slice ends at ``position`` and cannot
+    include the target or a future sale.  Non-zero means use 0 when no sale was
+    observed in the requested window; a paired flag makes that policy explicit
+    instead of using an imputed hidden value.
+    """
+    definition = config.get("intermittent_features")
+    if not definition:
+        return {}
+    sales = _validate_history_positions(history_sales, positions, int(config["warmup_days"])).astype(np.float32, copy=False)
+    result: dict[str, np.ndarray] = {}
+    for window in definition["zero_rate_windows"]:
+        values = sales[:, positions[:, None] - window + np.arange(window)]
+        result[f"zero_demand_rate_{window}"] = (values == 0).mean(axis=2).astype(np.float32)
+    for window in definition["nonzero_mean_windows"]:
+        values = sales[:, positions[:, None] - window + np.arange(window)]
+        observed = values != 0
+        count = observed.sum(axis=2)
+        totals = np.where(observed, values, 0).sum(axis=2)
+        result[f"nonzero_demand_mean_{window}"] = np.divide(
+            totals, count, out=np.zeros_like(totals, dtype=np.float32), where=count > 0
+        ).astype(np.float32)
+        result[f"has_nonzero_demand_{window}"] = (count > 0).astype(np.int8)
+    for window in definition["median_windows"]:
+        values = sales[:, positions[:, None] - window + np.arange(window)]
+        result[f"rolling_median_{window}"] = np.median(values, axis=2).astype(np.float32)
+    cap = int(definition["days_since_last_nonzero_cap"])
+    values = sales[:, positions[:, None] - cap + np.arange(cap)]
+    reverse_nonzero = (values != 0)[:, :, ::-1]
+    has_nonzero = reverse_nonzero.any(axis=2)
+    since = np.where(has_nonzero, reverse_nonzero.argmax(axis=2), cap).astype(np.int16)
+    result[f"days_since_last_nonzero_capped_{cap}"] = since
+    for short, long in definition["trend_pairs"]:
+        short_values = sales[:, positions[:, None] - short + np.arange(short)]
+        long_values = sales[:, positions[:, None] - long + np.arange(long)]
+        result[f"rolling_mean_trend_{short}_vs_{long}"] = (
+            short_values.mean(axis=2) - long_values.mean(axis=2)
+        ).astype(np.float32)
+    return result
+
+
 def _price_feature_arrays(price_history: np.ndarray, positions: np.ndarray, config: dict[str, Any]) -> dict[str, np.ndarray]:
     """Return price features from price observations strictly before each target."""
     prices = _validate_history_positions(price_history, positions, int(config["warmup_days"]))
@@ -255,7 +322,7 @@ def load_train_price_rows(raw_directory: str | Path, item_ids: tuple[str, ...], 
 
 
 def _feature_names(config: dict[str, Any]) -> tuple[str, ...]:
-    return tuple(
+    names = (
         [f"lag_{lag}" for lag in config["sales_lags"]]
         + [f"rolling_mean_{window}" for window in config["rolling_mean_windows"]]
         + [f"rolling_std_{window}" for window in config["rolling_std_windows"]]
@@ -264,6 +331,17 @@ def _feature_names(config: dict[str, Any]) -> tuple[str, ...]:
         + ["item_code", "dept_code"]
         + list(config["price_features"])
     )
+    definition = config.get("intermittent_features")
+    if definition:
+        names += (
+            [f"zero_demand_rate_{window}" for window in definition["zero_rate_windows"]]
+            + [f"nonzero_demand_mean_{window}" for window in definition["nonzero_mean_windows"]]
+            + [f"has_nonzero_demand_{window}" for window in definition["nonzero_mean_windows"]]
+            + [f"rolling_median_{window}" for window in definition["median_windows"]]
+            + [f"days_since_last_nonzero_capped_{definition['days_since_last_nonzero_cap']}"]
+            + [f"rolling_mean_trend_{short}_vs_{long}" for short, long in definition["trend_pairs"]]
+        )
+    return tuple(names)
 
 
 def build_training_features(
@@ -283,6 +361,7 @@ def build_training_features(
     encodings = build_encodings(metadata, calendar_metadata)
     positions = np.arange(warmup, train_sales.shape[1], dtype=np.int32)
     sales_features = _sales_feature_arrays(train_sales, positions, config)
+    intermittent_features = _intermittent_feature_arrays(train_sales, positions, config)
     price_features = _price_feature_arrays(daily_prices, positions, config)
     calendar_features = encode_calendar_features(train_calendar, encodings).iloc[positions].reset_index(drop=True)
     item_codes = metadata["item_id"].astype(str).map(encodings.item_codes).to_numpy(dtype=np.int16)
@@ -296,6 +375,8 @@ def build_training_features(
         "dept_code": np.repeat(dept_codes, target_count),
     }
     for name, values in sales_features.items():
+        columns[name] = values.reshape(-1)
+    for name, values in intermittent_features.items():
         columns[name] = values.reshape(-1)
     for name in CALENDAR_NUMERIC_COLUMNS:
         columns[name] = np.tile(calendar_features[name].to_numpy(), series_count)
@@ -337,6 +418,7 @@ def build_single_step_inference_features(
         raise ValueError("Single-step inference requires exactly one target calendar row.")
     positions = np.array([sales.shape[1]], dtype=np.int32)
     sales_features = _sales_feature_arrays(sales, positions, config, lag_dtype=np.float32)
+    intermittent_features = _intermittent_feature_arrays(sales, positions, config)
     price_features = _price_feature_arrays(prices, positions, config)
     calendar_features = encode_calendar_features(target_calendar, encodings).iloc[0]
     frame: dict[str, np.ndarray] = {
@@ -344,6 +426,7 @@ def build_single_step_inference_features(
         "dept_code": metadata["dept_id"].astype(str).map(encodings.dept_codes).to_numpy(dtype=np.int8),
     }
     frame.update({name: values[:, 0] for name, values in sales_features.items()})
+    frame.update({name: values[:, 0] for name, values in intermittent_features.items()})
     frame.update({name: values[:, 0] for name, values in price_features.items()})
     for name in CALENDAR_NUMERIC_COLUMNS:
         frame[name] = np.repeat(calendar_features[name], len(metadata))

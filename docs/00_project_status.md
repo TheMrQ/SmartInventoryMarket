@@ -8,8 +8,8 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-07b refines shared result-count surfaces into compact rounded data summaries rather than status pills; P24-07's avatar, presentation, and decision explainability work remains intact. All browser evidence remains outstanding.
-- **Next Phase:** perform the P24 browser walkthrough: verify avatar immediately after logout/login, inspect the eight-page visual layer and target-period decision explanation, then record a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P25-01 rolling-backtest research is now **DONE** as separate offline evidence: neither V3 candidate passed its preregistered non-regression gate, so `XGBOOST_V1` remains immutable and selected/default. P24 browser evidence remains outstanding.
+- **Next Phase:** perform the P24 browser walkthrough: verify avatar immediately after logout/login, inspect the eight-page visual layer and target-period decision explanation, then record a fresh pre-mutation baseline and screenshot/database evidence for every controlled write. Use the completed P25-01 result as thesis evidence; do not use final TEST data for further model tuning.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
@@ -28,6 +28,7 @@ What we selected:
 - The final held-out XGBoost TEST forecast achieved MAE 1.454969, RMSE 2.651296, and WAPE 64.450274%.
 - Forecast-based reordering reduced simulated lost sales and stockouts, but held more inventory and had a higher normalized cost proxy.
 - TEST was consumed once for final evaluation; no tuning may be performed against it.
+- P25-01's four historical rolling folds do not change that boundary: they end at `d_1913`, never load `d_1914`–`d_1941` actuals, and do not select a V3 replacement.
 
 Why:
 
@@ -104,6 +105,8 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 | P25 Thesis Report & Defense | ⚪ **PLANNED** |
 
 ## Historical Phase Notes
+
+`P25-01 — XGBoost V3 Rolling-Backtest Research` is **DONE** as an offline, pre-defense research subtask; the broader `P25 — Thesis Report & Defense` remains **PLANNED**. Four expanding 28-day validation folds ending at `d_1913` compared a rolling-retrained V1 control with two V3 Poisson finalists. `V3_POISSON_REGULARIZED`/`V3_POISSON_BALANCED` mean WAPE was 70.366227%/70.540783% versus V1's 67.620377%; both worsened MAE and WAPE on every fold, despite slightly lower mean RMSE. No V3 candidate was selected, final-TEST actuals `d_1914`–`d_1941` were not loaded, and `XGBOOST_V1` remains the deployed/default model. See `docs/implementation/P25_xgboost_v3_research.md`.
 
 `P22 — M5-Grounded Supermarket Simulation` is **DONE**. The owner-authorized, existing active local account was promoted with the password-preserving local-only command, then the deterministic 36-SKU scenario was applied. It has 36 traceable M5 mappings, 68,868 observed sales rows through `d_1913`, one linked frozen-XGBoost forecast run with 1,008 values, synthetic labelled inventory/supplier/PO records, partial/complete receipts, and auditable stock movements. A repaired rerun was read-only (`reused_existing: True`), with no reset/truncation or raw/model modification. Browser walkthrough evidence remains P24.
 

@@ -2,6 +2,17 @@
 
 Status: 🟢 **DONE** — final held-out forecasting evaluation and frozen inventory-policy comparison are complete; TEST is consumed once without tuning.
 
+## P25-01 — XGBoost V3 Rolling-Backtest Research
+
+- **Date:** 2026-11-07; **Status:** `DONE` — controlled retrospective research only. It does not change the deployed/default model, API, P22 scenario, or the immutable V1/V2 artifacts.
+- **Scope and isolation:** four 28-day expanding-window folds over M5 `CA_1` / `FOODS` (1,437 series): `d_1`–`d_1801` → `d_1802`–`d_1829`, through `d_1829` → `d_1830`–`d_1857`, through `d_1857` → `d_1858`–`d_1885`, and through `d_1885` → `d_1886`–`d_1913`. The runner has no final-TEST actual loader and its manifest records `test_actuals_accessed: false`; `d_1914`–`d_1941` was never loaded.
+- **Design:** FEATURE_SET_V3 contains the V2 history/calendar/product/past-price inputs plus past-only intermittent-demand signals: 28/56-day zero rates, 28/56-day non-zero means with explicit `has_nonzero` flags, 28-day median, days since non-zero capped at 56, and 7:28 / 28:56 rolling-mean trends. All-zero non-zero means are deterministically represented as zero with the explicit flag; no target/future sale, price, or validation actual can enter a feature.
+- **Candidates:** stage 1 evaluated two Poisson configurations and a squared-error check on folds 2/4; the two Poisson candidates advanced to all folds. The squared-error check was not promoted. The separately retrained `XGBOOST_V1_ROLLING_RETRAINED` baseline used its unchanged V1 configuration and the same fold origins.
+- **Result:** no V3 candidate satisfies the preregistered selection rule. V1 mean MAE/RMSE/WAPE is **1.365218 / 2.601663 / 67.620377%**. The better V3 WAPE candidate, `V3_POISSON_REGULARIZED`, is **1.420281 / 2.588206 / 70.366227%**; `V3_POISSON_BALANCED` is **1.423776 / 2.586972 / 70.540783%**. Both improve mean RMSE slightly but worsen MAE and WAPE on every fold (zero WAPE fold improvements), so neither is selected. No V3 fold reached the aspirational RMSE below 2.49.
+- **Diagnostics:** sparse/low-volume series remain difficult. V3 slightly reduces error in the densest sparsity band and high-volume quartile, but it materially worsens low-volume and highly intermittent series and worsens all three department aggregates. That behavior is not acceptable for replacement under the declared group check.
+- **Resources:** V1 used 25 features, mean training time 104.071s/fold, and mean model size 93.284 MiB. V3 used 44 features; balanced used 105.264s/fold and 38.664 MiB, regularized 132.649s/fold and 74.904 MiB. Forecasting took about 4.4–4.9s per fold. The tracked manifest, tables, and figures retain aggregate evidence only; fold model JSON files are ignored.
+- **Evidence:** `configs/experiments/xgboost_v3_research.yaml`, `configs/features/ml_features_v3.yaml`, `scripts/ml/run_xgboost_v3_research.py`, `data/manifests/xgboost_v3_research.json`, `reports/tables/xgboost_v3_*.csv`, `reports/figures/xgboost_v3_*.png`, and `docs/implementation/P25_xgboost_v3_research.md`.
+
 ## P23 — XGBoost V2 Validation-Only Research
 
 - **Date:** 2026-11-06; **Status:** `DONE` — separate research only, with no API/default-model switch.

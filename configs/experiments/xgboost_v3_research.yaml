@@ -1,0 +1,63 @@
+experiment_id: XGBOOST_V3_ROLLING_BACKTEST_RESEARCH
+status: DONE
+scope: {store_id: CA_1, category_id: FOODS, series_count: 1437}
+random_state: 42
+horizon_days: 28
+folds:
+  - {name: fold_1, train_end_d: d_1801, validation_start_d: d_1802, validation_end_d: d_1829}
+  - {name: fold_2, train_end_d: d_1829, validation_start_d: d_1830, validation_end_d: d_1857}
+  - {name: fold_3, train_end_d: d_1857, validation_start_d: d_1858, validation_end_d: d_1885}
+  - {name: fold_4, train_end_d: d_1885, validation_start_d: d_1886, validation_end_d: d_1913}
+test_policy: NEVER_LOAD_TEST_ACTUALS_D_1914_TO_D_1941
+primary_metric: mean_rolling_WAPE_percent
+secondary_metrics: [mean_rolling_MAE, mean_rolling_RMSE]
+selection_rule:
+  mean_wape_must_improve: true
+  mean_mae_must_not_worsen: true
+  mean_rmse_must_not_worsen: true
+  minimum_wape_fold_improvements: 3
+  error_groups_must_remain_acceptable: true
+stage_1:
+  folds: [fold_2, fold_4]
+  retain_top_candidates: 2
+  candidates:
+    - name: V3_POISSON_BALANCED
+      objective: count:poisson
+      n_estimators: 320
+      learning_rate: 0.05
+      max_depth: 7
+      min_child_weight: 15
+      subsample: 0.9
+      colsample_bytree: 0.9
+      reg_alpha: 0.05
+      reg_lambda: 2.0
+    - name: V3_POISSON_REGULARIZED
+      objective: count:poisson
+      n_estimators: 360
+      learning_rate: 0.04
+      max_depth: 8
+      min_child_weight: 25
+      subsample: 0.9
+      colsample_bytree: 0.85
+      reg_alpha: 0.15
+      reg_lambda: 3.0
+    - name: V3_SQUARED_CHECK
+      objective: reg:squarederror
+      n_estimators: 300
+      learning_rate: 0.05
+      max_depth: 7
+      min_child_weight: 20
+      subsample: 0.9
+      colsample_bytree: 0.9
+      reg_alpha: 0.1
+      reg_lambda: 3.0
+stage_2:
+  candidates_from_stage_1: 2
+  folds: [fold_1, fold_2, fold_3, fold_4]
+v1_baseline:
+  model_name: XGBOOST_V1_ROLLING_RETRAINED
+  feature_set: FEATURE_SET_V1
+  model_config: configs/models/xgboost_v1.yaml
+direct_multi_horizon:
+  status: NOT_RUN
+  reason: Separate direct-horizon research would require 28 independently leak-safe models and is outside this controlled recursive study.

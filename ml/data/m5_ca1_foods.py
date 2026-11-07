@@ -54,6 +54,18 @@ class FinalEvaluationFeatureSource:
     test_day_keys: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class RollingFoldFeatureSource:
+    """One pre-TEST rolling origin with no validation-sales values loaded."""
+
+    metadata: pd.DataFrame
+    train_sales: np.ndarray
+    train_calendar: pd.DataFrame
+    validation_calendar: pd.DataFrame
+    train_day_keys: tuple[str, ...]
+    validation_day_keys: tuple[str, ...]
+
+
 def load_protocol(config_path: str | Path) -> dict[str, Any]:
     """Load and validate the version-controlled frozen protocol."""
     with Path(config_path).open(encoding="utf-8") as file:
@@ -272,6 +284,65 @@ def load_training_feature_source(raw_directory: str | Path, config_path: str | P
         validation_calendar=validation_calendar,
         train_day_keys=train_days,
     )
+
+
+def _rolling_fold_days(train_end_d: str, validation_start_d: str, validation_end_d: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Validate a contiguous 28-day rolling fold that remains before TEST."""
+    train_days = day_keys("d_1", train_end_d)
+    validation_days = day_keys(validation_start_d, validation_end_d)
+    if int(train_end_d.removeprefix("d_")) + 1 != int(validation_start_d.removeprefix("d_")):
+        raise ValueError("A rolling validation span must start immediately after its train boundary.")
+    if len(validation_days) != 28 or int(validation_end_d.removeprefix("d_")) > 1913:
+        raise ValueError("Rolling V3 folds must be 28 days and end no later than d_1913.")
+    return train_days, validation_days
+
+
+def _rolling_calendar(calendar_path: Path, train_days: tuple[str, ...], validation_days: tuple[str, ...]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    calendar = _full_calendar(calendar_path)
+    train_calendar = calendar.loc[calendar["d"].isin(train_days)].reset_index(drop=True)
+    validation_calendar = calendar.loc[calendar["d"].isin(validation_days)].reset_index(drop=True)
+    if tuple(train_calendar["d"]) != train_days or tuple(validation_calendar["d"]) != validation_days:
+        raise ValueError("calendar.csv keys do not match the requested rolling fold.")
+    return train_calendar, validation_calendar
+
+
+def load_rolling_fold_feature_source(
+    raw_directory: str | Path, config_path: str | Path, train_end_d: str, validation_start_d: str, validation_end_d: str
+) -> RollingFoldFeatureSource:
+    """Load historical values and known calendar rows for one rolling origin.
+
+    This intentionally selects sales columns only through ``train_end_d``. Call
+    ``load_rolling_fold_actuals`` only after recursive predictions are complete.
+    The helper rejects folds touching the sealed TEST sales span.
+    """
+    protocol = load_protocol(config_path)
+    train_days, validation_days = _rolling_fold_days(train_end_d, validation_start_d, validation_end_d)
+    sales_path, calendar_path = _source_paths(raw_directory, protocol)
+    usecols = IDENTIFIER_COLUMNS + list(train_days)
+    sales = pd.read_csv(sales_path, usecols=usecols, dtype={column: "int16" for column in train_days})
+    selected = select_frozen_scope(sales, protocol).sort_values("item_id", kind="stable").reset_index(drop=True)
+    train_calendar, validation_calendar = _rolling_calendar(calendar_path, train_days, validation_days)
+    return RollingFoldFeatureSource(
+        metadata=selected.loc[:, IDENTIFIER_COLUMNS].copy(),
+        train_sales=selected.loc[:, list(train_days)].to_numpy(dtype=np.int16),
+        train_calendar=train_calendar,
+        validation_calendar=validation_calendar,
+        train_day_keys=train_days,
+        validation_day_keys=validation_days,
+    )
+
+
+def load_rolling_fold_actuals(
+    raw_directory: str | Path, config_path: str | Path, validation_start_d: str, validation_end_d: str
+) -> tuple[tuple[str, ...], np.ndarray, tuple[str, ...]]:
+    """Load one rolling-fold truth span only after its predictions are persisted."""
+    protocol = load_protocol(config_path)
+    _, validation_days = _rolling_fold_days(f"d_{int(validation_start_d.removeprefix('d_')) - 1}", validation_start_d, validation_end_d)
+    sales_path, calendar_path = _source_paths(raw_directory, protocol)
+    sales = pd.read_csv(sales_path, usecols=IDENTIFIER_COLUMNS + list(validation_days), dtype={column: "int16" for column in validation_days})
+    selected = select_frozen_scope(sales, protocol).sort_values("item_id", kind="stable").reset_index(drop=True)
+    dates = _calendar_dates(calendar_path, validation_days)
+    return tuple(selected["item_id"].astype(str)), selected.loc[:, list(validation_days)].to_numpy(dtype=np.float64), tuple(dates[day] for day in validation_days)
 
 
 def _full_calendar(calendar_path: Path) -> pd.DataFrame:
