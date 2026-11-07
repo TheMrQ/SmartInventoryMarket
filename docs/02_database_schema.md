@@ -10,7 +10,7 @@ For a plain MySQL DDL view of the application tables, see [`schema_reference_mys
 
 - **Database:** local MySQL Server database `smart_inventory_market`, configured for `utf8mb4` / `utf8mb4_0900_ai_ci`.
 - **Access path:** FastAPI → SQLAlchemy 2.x → PyMySQL → MySQL Server.
-- **Migration:** initial Alembic revision `f86d36b27719`, followed by `8ac7d44590e3` (retail sales price) and `a91c2e6f4b20` (server-managed authentication sessions). `alembic.ini` contains no database URL; `alembic/env.py` reads `DATABASE_URL` through application settings.
+- **Migration:** initial Alembic revision `f86d36b27719`, followed by `8ac7d44590e3` (retail sales price), `a91c2e6f4b20` (server-managed authentication sessions), P21/P22 revisions, and `c7e3a8d1f4b6` (nullable generated user-avatar filename). `alembic.ini` contains no database URL; `alembic/env.py` reads `DATABASE_URL` through application settings.
 - **Configuration:** a local ignored `.env` provides `DATABASE_URL` in `mysql+pymysql://...` form. The tracked `.env.example` contains placeholders only.
 - **Time convention:** application-generated `created_at`, `updated_at`, `occurred_at`, `generated_at`, and review/receipt timestamps are UTC values. MySQL `DATETIME` does not retain a timezone offset, so the application writes UTC consistently.
 - **Deletion policy:** foreign keys use MySQL's restrictive default. Historical operational records are not cascade-deleted. Users, products, and suppliers use `is_active` rather than routine deletion.
@@ -46,7 +46,7 @@ There is deliberately no `stores` or warehouse table: this thesis MVP is single-
 
 | Table | Purpose | Important columns and relationships |
 | --- | --- | --- |
-| `users` | Future manager/admin/inventory-staff identities. | Unique indexed `email`, `password_hash` only (never plaintext), `full_name`, controlled `role`, `is_active`; references from orders, transactions, and reviews. |
+| `users` | Future manager/admin/inventory-staff identities. | Unique indexed `email`, `password_hash` only (never plaintext), `full_name`, controlled `role`, `is_active`, and optional generated `avatar_filename`; references from orders, transactions, and reviews. |
 | `auth_sessions` | Revocable, opaque browser-session records. | User FK, unique SHA-256 token hash (never the raw cookie token), expiry, optional revocation time, and UTC creation time. |
 | `categories` | Product grouping. | Unique `code`, `name`, optional `description`; one category has many products. |
 | `products` | Sellable inventory products. | Unique indexed `sku`, `name`, `category_id`, `unit`, `is_active`; one inventory row at most and links to sales, suppliers, orders, forecasts, transactions, recommendations. |
@@ -112,3 +112,9 @@ Alembic revision `8ac7d44590e3` adds nullable `sales_daily.sell_price DECIMAL(12
 ## P17/P18 Authentication Sessions
 
 Alembic revision `a91c2e6f4b20` adds `auth_sessions` without changing or dropping existing operational tables. Registration and login write a scrypt-hashed password to `users` and only a SHA-256 hash of an opaque session token to `auth_sessions`; the raw token exists only in the HttpOnly browser cookie. Logout marks the matching session revoked and expires both the session and CSRF cookies. On 2026-10-10, local MySQL was safely upgraded to this head revision and `alembic current`, `heads`, and `check` all verified it with no schema drift.
+
+## P24-06 Account Metadata and Session Safety
+
+Alembic revision `c7e3a8d1f4b6` adds only nullable `users.avatar_filename`, so all existing users remain valid and no P22 scenario row is rewritten. It stores a generated application filename, never an image blob, client path, base64 payload, password, raw session token, or role. The actual JPEG/PNG/WEBP bytes live in the ignored application-owned `uploads/avatars` runtime directory and are served only through the generated `/uploads/avatars/<filename>` reference.
+
+The account API permits an authenticated user to update only `full_name`; all role and activation fields remain server-owned and extra fields are rejected. Password changes use the existing scrypt hash policy, reject the current password or an identical replacement, retain the current validated session, and revoke every other active `auth_sessions` row for that user in the same transaction. Local MySQL was upgraded additively to `c7e3a8d1f4b6`; `current`, `heads`, and `check` agree with no schema drift.

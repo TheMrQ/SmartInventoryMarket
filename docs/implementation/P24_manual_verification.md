@@ -1,5 +1,29 @@
 # P24 — Hướng dẫn kiểm thử thủ công (snapshot chỉ đọc)
 
+## P24-06 — My Account, avatar và mật khẩu — MANUAL VERIFICATION REQUIRED
+
+Đợt này thêm Account self-service và migration metadata nullable. **Không dùng P22 product/PO/sale để kiểm tra.** Chỉ dùng chính tài khoản Manager đang đăng nhập; không chụp hoặc ghi password, cookie, token hay đường dẫn filesystem.
+
+### Account navigation and profile
+
+- **Trang bắt đầu:** bất kỳ trang protected nào, ví dụ Dashboard. Click avatar/tên/role ở sidebar. Thu sidebar desktop rồi hover/focus avatar để xác nhận tooltip **My Account**; click để mở `/account`. Trên mobile drawer, mở profile và kiểm tra Logout là nút riêng.
+- **Kỳ vọng UI:** header **My Account**, identity card có tên/email/role, Profile Information và Security. Role/email read-only. Avatar/sidebar không làm thay đổi active ribbon.
+- **PASS/Evidence:** profile route mở được, tooltip chỉ ở collapsed desktop, focus rõ, layout không clip ở mobile. Chụp Account desktop, collapsed tooltip và viewport hẹp. FAIL nếu avatar không clickable, Logout vô tình điều hướng Account, hoặc role/email editable.
+
+### Safe display-name and avatar checks
+
+- **Baseline:** ghi lại tên và có/không avatar trước khi thử. Không thay email/role. Dùng ảnh JPEG/PNG/WEBP vô hại nhỏ hơn 3 MB, không phải dữ liệu P22.
+- **Thao tác:** nhập tên hợp lệ có khoảng trắng đầu/cuối, bấm **Save profile**, refresh. Sau đó **Change photo**, refresh và xem sidebar expanded/collapsed; bấm **Remove** và refresh. Thử SVG hoặc file sai định dạng để xác nhận thông báo lỗi rõ ràng.
+- **Kỳ vọng UI/DB:** tên được trim và đồng bộ identity/sidebar. `role`, `is_active`, `password_hash` không đổi. Avatar hợp lệ hiện ở identity/sidebar; `users.avatar_filename` là generated filename nullable, API chỉ trả `/uploads/avatars/<generated-name>`, Remove trả về fallback và DB `NULL`.
+- **PASS/Evidence:** JPEG/PNG/WEBP ≤3 MB thành công; SVG/malformed/oversize bị từ chối; không có path thật/binary/secret trong UI/evidence. Chụp avatar desktop/collapsed/mobile.
+
+### Password and session policy
+
+- **Baseline:** mở hai session trình duyệt riêng cho cùng account (normal + private), ghi nhận cả hai vào được Dashboard. Không ghi password vào tài liệu evidence.
+- **Thao tác:** ở session A nhập current password, new password (ít nhất 8 ký tự và một uppercase), confirmation giống nhau → **Change password**. Xác nhận session A tiếp tục vào Account/Dashboard; refresh protected page ở session B; thử login lại bằng mật khẩu cũ và mới.
+- **Kỳ vọng UI/DB:** session A còn hợp lệ; session B bị yêu cầu đăng nhập; mật khẩu cũ bị từ chối, mật khẩu mới được chấp nhận. Chỉ `users.password_hash` đổi; `auth_sessions` khác có `revoked_at`, session hiện tại không bị revoke. Form clear sau success; không có password/secret trong UI, URL, toast hoặc log.
+- **PASS/Evidence:** screenshot Account success và session-B redirect/error, che toàn bộ password input. FAIL nếu session hiện tại logout, session khác vẫn hợp lệ, hoặc mật khẩu cũ dùng được.
+
 Trạng thái: `IN_PROGRESS` — tài liệu này là hướng dẫn kiểm thử browser; không phải bằng chứng browser đã hoàn tất.
 
 ## A. Snapshot cơ sở dữ liệu đã xác minh (chỉ đọc)

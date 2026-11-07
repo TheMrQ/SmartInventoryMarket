@@ -4,14 +4,22 @@ from collections import defaultdict, deque
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
-from sqlalchemy import select
+from fastapi import APIRouter, Cookie, Depends, File, HTTPException, Request, Response, UploadFile, status
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_settings
 from backend.app.db.database import get_db_session
 from backend.app.db.models import AuthSession, User, UserRole, utc_now
-from backend.app.schemas.auth import AuthenticatedUser, LoginRequest, RegisterRequest, UserRead
+from backend.app.schemas.auth import (
+    AuthenticatedUser,
+    LoginRequest,
+    PasswordChangeRequest,
+    ProfileUpdateRequest,
+    RegisterRequest,
+    UserRead,
+)
+from backend.app.services.avatars import AvatarValidationError, delete_avatar, save_avatar
 from backend.app.services.auth import expiry, hash_password, new_csrf_token, new_session_token, token_hash, verify_password
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -98,6 +106,81 @@ def login(data: LoginRequest, response: Response, request: Request, session: Ses
 @router.get("/me", response_model=UserRead)
 def me(user: Annotated[User, Depends(current_user)]):
     return user
+
+
+@router.patch("/me", response_model=UserRead)
+def update_profile(data: ProfileUpdateRequest, session: SessionDep, user: Annotated[User, Depends(current_user)]):
+    """Update only the authenticated user's display name; role/account state remain server-owned."""
+    user.full_name = data.full_name
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@router.post("/me/avatar", response_model=UserRead)
+async def upload_avatar(
+    session: SessionDep,
+    user: Annotated[User, Depends(current_user)],
+    file: UploadFile = File(...),
+):
+    """Store one verified avatar raster and replace the user's previous generated reference."""
+    try:
+        filename = await save_avatar(file)
+    except AvatarValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    previous_filename = user.avatar_filename
+    user.avatar_filename = filename
+    try:
+        session.commit()
+        session.refresh(user)
+    except Exception:
+        session.rollback()
+        delete_avatar(filename)
+        raise
+    delete_avatar(previous_filename)
+    return user
+
+
+@router.delete("/me/avatar", response_model=UserRead)
+def remove_avatar(session: SessionDep, user: Annotated[User, Depends(current_user)]):
+    """Remove the safe generated reference and its owned file when present."""
+    previous_filename = user.avatar_filename
+    user.avatar_filename = None
+    session.commit()
+    session.refresh(user)
+    delete_avatar(previous_filename)
+    return user
+
+
+@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    data: PasswordChangeRequest,
+    session: SessionDep,
+    user: Annotated[User, Depends(current_user)],
+    sim_session: str | None = Cookie(default=None),
+) -> Response:
+    """Change a password and revoke all other active sessions while retaining this one."""
+    if not verify_password(data.current_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect.")
+    if verify_password(data.new_password, user.password_hash):
+        raise HTTPException(status_code=422, detail="Choose a new password that differs from the current password.")
+
+    user.password_hash = hash_password(data.new_password)
+    if sim_session:
+        revoked_at = utc_now()
+        session.execute(
+            update(AuthSession)
+            .where(
+                AuthSession.user_id == user.id,
+                AuthSession.token_hash != token_hash(sim_session),
+                AuthSession.revoked_at.is_(None),
+                AuthSession.expires_at > revoked_at,
+            )
+            .values(revoked_at=revoked_at)
+        )
+    session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

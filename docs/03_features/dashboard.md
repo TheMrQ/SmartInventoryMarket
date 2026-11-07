@@ -75,6 +75,10 @@ The desktop collapse control is now anchored below the 80px brand row at 92px fr
 
 Protected application routes now restore a real session through `GET /api/auth/me`; unauthenticated users are redirected to `/login` and return to their intended route after sign-in. Login and registration use a responsive CSS 3D circular panel with a static reduced-motion fallback and a restrained animated conic-gradient ring. The sidebar profile reflects the authenticated name and role and includes a real logout action. The demand chart reserves legend space and allows responsive legend wrapping; the page-content layer uses a short reduced-motion-aware fade/vertical entrance without remounting providers or triggering forecasts.
 
+## P24-06 Account settings
+
+The authenticated workspace now includes a protected `/account` route. The sidebar profile opens it with an accessible collapsed-rail tooltip, while Logout remains a distinct control. The page uses the existing navy/blue operational language for one identity surface and two focused panels: Profile Information and Security. It reads/writes only the session-safe Account API, refreshes the shared `auth-me` React Query cache after a successful profile/avatar mutation, and gives explicit loading/error feedback rather than replacing the workspace. Browser acceptance is still required for responsive and visual behavior.
+
 ## P18 Authentication UX Hotfix
 
 The auth surface is deliberately outside the operational dashboard shell. It uses a very light canvas and a small dark-navy brand container, while the centered desktop coin remains dark navy with an attached blue/cyan/indigo conic-gradient ring. The coin has one stable React component for both `/login` and `/register`; its pending face rotates as one 780 ms 3D object before the history URL changes. Direct URLs and browser back/forward synchronize the face, active controls are focused after the transition, and hidden controls are disabled/removed from tab order. Short desktops and mobile use a single un-clipped rounded-card fallback rather than nested scrolling.

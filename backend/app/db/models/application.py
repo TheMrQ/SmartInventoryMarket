@@ -86,6 +86,8 @@ class User(TimestampMixin, Base):
         default=UserRole.INVENTORY_STAFF,
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # This is an application-owned generated filename, never a client path or binary payload.
+    avatar_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     created_purchase_orders: Mapped[list["PurchaseOrder"]] = relationship(
         back_populates="created_by_user", foreign_keys="PurchaseOrder.created_by_user_id"
@@ -98,6 +100,11 @@ class User(TimestampMixin, Base):
         back_populates="reviewed_by_user"
     )
     sessions: Mapped[list["AuthSession"]] = relationship(back_populates="user")
+
+    @property
+    def avatar_url(self) -> str | None:
+        """Expose only the public, generated avatar reference in safe API contracts."""
+        return f"/uploads/avatars/{self.avatar_filename}" if self.avatar_filename else None
 
 
 class AuthSession(Base):

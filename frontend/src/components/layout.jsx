@@ -1,10 +1,11 @@
-import { BarChart3, Box, ChevronLeft, ClipboardList, LayoutGrid, LogOut, Menu, Package, ShoppingCart, Store, TrendingUp, Truck, UserRound, X } from 'lucide-react'
+import { BarChart3, Box, ChevronLeft, ClipboardList, LayoutGrid, LogOut, Menu, Package, ShoppingCart, Store, TrendingUp, Truck, X } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { Tooltip } from './ui'
 import { WorkspaceContext } from './workspace-context'
+import { UserAvatar } from './UserAvatar'
 
 const navGroups = [
   ['Overview', [['/', 'Dashboard', LayoutGrid]]],
@@ -18,7 +19,7 @@ export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobile
   const sidebarRef = useRef(null)
   const [ribbon, setRibbon] = useState(null)
   const health = useQuery({ queryKey: ['health'], queryFn: api.health, retry: 1, refetchInterval: 30000 })
-  const label = links.find(([path]) => path === location.pathname)?.[1] || 'Smart Inventory Market'
+  const label = links.find(([path]) => path === location.pathname)?.[1] || (location.pathname === '/account' ? 'My Account' : 'Smart Inventory Market')
   const updateRibbon = useCallback(() => {
     const sidebar = sidebarRef.current
     if (!sidebar || !collapsed || mobileOpen || window.innerWidth <= 900) return setRibbon(null)
@@ -38,7 +39,7 @@ export function Shell({ children, collapsed, setCollapsed, mobileOpen, setMobile
     <aside ref={sidebarRef} className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="brand"><div className="brand-mark"><BarChart3 size={20} /></div><span className="brand-name">Smart<span>Inventory</span></span><button className="mobile-close icon-button" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={18}/></button></div>
       <nav onScroll={updateRibbon}>{navGroups.map(([group, items]) => <section className="nav-group" key={group}><p className="nav-group-label">{group}</p>{items.map(([path, name, Icon]) => <Tooltip key={path} label={name} portal disabled={!collapsed || mobileOpen}><NavLink to={path} end={path === '/'} onClick={() => setMobileOpen(false)}><span className="nav-icon-frame"><Icon className="nav-icon" size={19}/></span><span className="nav-label">{name}</span></NavLink></Tooltip>)}</section>)}</nav>
-      <section className="sidebar-profile" aria-label="Authenticated user"><div className="profile-avatar" aria-hidden="true"><UserRound size={22}/></div><div className="profile-tail"><div className="profile-copy"><strong className="profile-name">{user.full_name}</strong><span className="profile-role">{user.role.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())}</span></div><button className="profile-logout" onClick={onLogout} aria-label="Log out"><LogOut size={16}/></button></div></section>
+      <section className="sidebar-profile" aria-label="Authenticated user"><Tooltip label="My Account" portal disabled={!collapsed || mobileOpen}><NavLink to="/account" className="profile-account-link" onClick={() => setMobileOpen(false)} aria-label="My Account"><div className="profile-avatar"><UserAvatar user={user} /></div><div className="profile-tail"><div className="profile-copy"><strong className="profile-name">{user.full_name}</strong><span className="profile-role">{user.role.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())}</span></div></div></NavLink></Tooltip><button className="profile-logout" onClick={onLogout} aria-label="Log out"><LogOut size={16}/></button></section>
       {ribbon && <span className="sidebar-active-ribbon" aria-hidden="true" style={ribbon} />}
       <button className="collapse" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><ChevronLeft size={17}/></button>
     </aside>

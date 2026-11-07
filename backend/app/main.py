@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.api.business import router as business_router
 from backend.app.api.auth import router as auth_router
 from backend.app.api.health import router as health_router
 from backend.app.api.inventory_decisions import router as inventory_decision_router
 from backend.app.api.sales_forecasts import router as sales_forecasts_router
+from backend.app.core.config import get_settings
 from backend.app.services.errors import DomainError
 
 app = FastAPI(
@@ -13,6 +15,7 @@ app = FastAPI(
     version="0.1.0",
     description="Single-store inventory decision-support thesis application.",
 )
+app.mount("/uploads", StaticFiles(directory=get_settings().avatar_upload_dir.parent, check_dir=False), name="uploads")
 
 
 @app.exception_handler(DomainError)

@@ -1,5 +1,7 @@
 const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
 
+export function assetUrl(path) { return path ? `${baseUrl}${path}` : null }
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message)
@@ -30,6 +32,10 @@ export const api = {
   login: (data) => request('/api/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   register: (data) => request('/api/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   logout: () => request('/api/auth/logout', { method: 'POST' }),
+  updateProfile: (data) => request('/api/auth/me', { method: 'PATCH', body: JSON.stringify(data) }),
+  uploadAvatar: (file) => { const form = new FormData(); form.append('file', file); return request('/api/auth/me/avatar', { method: 'POST', body: form }) },
+  removeAvatar: () => request('/api/auth/me/avatar', { method: 'DELETE' }),
+  changePassword: (data) => request('/api/auth/change-password', { method: 'POST', body: JSON.stringify(data) }),
   health: () => request('/health/db'),
   products: (params = {}) => request(`/api/products?${new URLSearchParams(params)}`),
   categories: () => request('/api/categories?limit=100'),

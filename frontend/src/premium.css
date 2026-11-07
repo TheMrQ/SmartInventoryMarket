@@ -482,6 +482,36 @@ tbody tr:hover { background: #f8fbff; }
   .page-transition { animation: none; transition-duration: 0.01ms; }
 }
 
+/* P24-06 account: a calm identity card pairs editable details with explicit session security. */
+.user-avatar { position: relative; display: grid; place-items: center; overflow: hidden; border-radius: 50%; }
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-avatar-initials { color: inherit; font-size: .8rem; font-weight: 750; letter-spacing: .02em; }
+.account-page { gap: 24px; }
+.account-identity { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 22px 24px; border: 1px solid #dbe7f7; border-left: 4px solid var(--blue-500); border-radius: var(--radius-lg); background: linear-gradient(100deg, #fff 0%, #f5f9ff 100%); }
+.account-avatar { width: 72px; height: 72px; border: 3px solid #fff; background: #eff6ff; color: var(--blue-500); box-shadow: 0 0 0 1px #bfdbfe, var(--shadow-sm); }
+.account-avatar .user-avatar-initials { font-size: 1.15rem; }
+.account-identity-copy { min-width: 0; }
+.account-identity-copy h3 { margin: 0; color: var(--text-strong); font-family: var(--font-display); font-size: 21px; letter-spacing: -.035em; }
+.account-identity-copy p { display: flex; align-items: center; gap: 6px; margin: 6px 0 9px; color: var(--text-muted); font-size: 13px; overflow-wrap: anywhere; }
+.account-role { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: 720; }
+.account-avatar-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; max-width: 330px; }
+.account-avatar-actions small { flex-basis: 100%; color: var(--text-muted); font-size: 11px; text-align: right; }
+.account-remove-avatar { min-height: 38px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.account-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: 22px; align-items: start; }
+.account-panel { min-width: 0; }
+.account-panel > header { align-items: flex-start; }
+.account-panel > header p:not(.eyebrow) { max-width: 45ch; }
+.account-section-icon { display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: #eff6ff; color: var(--blue-500); }
+.account-form { display: grid; gap: 15px; }
+.account-form label { display: grid; gap: 6px; color: #475467; font-size: 12px; font-weight: 700; }
+.account-form input[readonly] { background: #f8fafc; color: #64748b; cursor: default; }
+.account-form footer { display: flex; justify-content: flex-end; padding-top: 5px; }
+.account-help { margin: -3px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+@media (max-width: 900px) { .account-grid { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .account-identity { grid-template-columns: auto minmax(0, 1fr); padding: 19px; } .account-avatar-actions { grid-column: 1 / -1; justify-content: flex-start; max-width: none; } .account-avatar-actions small { text-align: left; } }
+@media (max-width: 420px) { .account-identity { grid-template-columns: 1fr; } .account-avatar { width: 64px; height: 64px; } .account-form footer .button { width: 100%; } }
+
 /* Shared P24 data controls: search remains a quiet utility rather than a competing page headline. */
 .data-toolbar { display: flex; align-items: end; justify-content: flex-start; gap: var(--space-3); padding: 2px 0; }
 .data-toolbar .result-count { margin-left: auto; white-space: nowrap; }

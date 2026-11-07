@@ -13,7 +13,7 @@
 -- ---------------
 -- The real schema source of truth is:
 --   1) backend/app/db/models/application.py
---   2) Alembic revisions through a91c2e6f4b20_add_auth_sessions.py
+--   2) Alembic revisions through c7e3a8d1f4b6_add_user_avatar_filename.py
 --
 -- Do NOT manually edit the production/development schema with this file when
 -- a schema change is needed. Change the SQLAlchemy models and create a new
@@ -132,6 +132,7 @@ CREATE TABLE users (
     full_name VARCHAR(255) NOT NULL,
     role VARCHAR(15) NOT NULL,
     is_active BOOLEAN NOT NULL,
+    avatar_filename VARCHAR(255) NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
 

@@ -26,6 +26,9 @@ frontend/dist/
 Thumbs.db
 Desktop.ini
 
+# Application-owned runtime uploads (avatar binaries never enter version control)
+uploads/
+
 # Dataset data (directory placeholders and manifests remain tracked)
 data/raw/*
 !data/raw/.gitkeep

@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage'
 import { InventoryPage, ProductsPage, SuppliersPage } from './pages/CatalogPages'
 import { ForecastsPage, PurchaseOrdersPage, SalesPage } from './pages/OperationalPages'
 import DecisionsPage from './pages/DecisionsPage'
+import AccountPage from './pages/AccountPage'
 import { api } from './api/client'
 import './App.css'
 import './sidebar.css'
@@ -26,7 +27,7 @@ function ProtectedWorkspace() {
   if (me.isLoading) return <Loading />
   if (me.isError) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
   const logout = async () => { try { await api.logout() } finally { client.clear(); toast.success('Signed out'); navigate('/login', { replace: true }) } }
-  return <WorkspaceErrorBoundary><Shell collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={me.data} onLogout={logout}><Routes><Route path="/" element={<DashboardPage/>}/><Route path="/products" element={<ProductsPage/>}/><Route path="/inventory" element={<InventoryPage/>}/><Route path="/suppliers" element={<SuppliersPage/>}/><Route path="/purchase-orders" element={<PurchaseOrdersPage/>}/><Route path="/sales" element={<SalesPage/>}/><Route path="/forecasts" element={<ForecastsPage/>}/><Route path="/decisions" element={<DecisionsPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></Shell></WorkspaceErrorBoundary>
+  return <WorkspaceErrorBoundary><Shell collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={me.data} onLogout={logout}><Routes><Route path="/" element={<DashboardPage/>}/><Route path="/products" element={<ProductsPage/>}/><Route path="/inventory" element={<InventoryPage/>}/><Route path="/suppliers" element={<SuppliersPage/>}/><Route path="/purchase-orders" element={<PurchaseOrdersPage/>}/><Route path="/sales" element={<SalesPage/>}/><Route path="/forecasts" element={<ForecastsPage/>}/><Route path="/decisions" element={<DecisionsPage/>}/><Route path="/account" element={<AccountPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></Shell></WorkspaceErrorBoundary>
 }
 
 function ApplicationRouter() {

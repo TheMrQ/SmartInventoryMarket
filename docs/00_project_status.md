@@ -8,8 +8,8 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting; P24-02 separated unit of measure from live stock display; P24-03 adds UI-only Inventory/Supplier/PO discovery controls plus restrained content motion; P24-04d gives Dashboard snapshot metrics semantic icon frames; P24-05 repairs the Record Sale render crash; P24-05b unifies the blue row-inspection marker and normalizes Purchase Order actions. All browser evidence remains outstanding.
-- **Next Phase:** perform the browser walkthrough using the P24 guide, recording a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 through P24-05b completed the documented search, reconciliation, visual, and interaction refinements. P24-06 adds protected self-service Account settings: safe display-name update, managed raster avatar, and current-session-preserving password change that revokes other sessions. All browser evidence remains outstanding.
+- **Next Phase:** perform the browser walkthrough using the P24 guide, including the new Account profile/avatar/password checks, then record a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
 ## Quick Human Summary
@@ -217,11 +217,11 @@ The application now has real cookie-session authentication: public registration 
 
 ## Last Stable Checkpoint
 
-`CHECKPOINT-024A` — P24 has a current, read-only MySQL reconciliation and a Vietnamese browser/manual acceptance protocol. It preserves the P22 scenario and identifies exact read-only checks plus isolated mutation tests. Browser/live evidence remains outstanding; P24 is not DONE.
+`CHECKPOINT-024B` — P24 includes a protected Account route and an additive, local-MySQL-verified `c7e3a8d1f4b6` avatar-reference migration. It preserves P22 scenario records: only a nullable user metadata column was added. The Vietnamese manual protocol covers profile, avatar, password, session-revocation, and responsive/sidebar checks. Browser/live evidence remains outstanding; P24 is not DONE.
 
 ## Next Exact Step
 
-`NEXT-024B` — With an active local Manager, follow `docs/implementation/P24_manual_verification.md`: capture all eight browser read paths first, then use only disposable fixtures for controlled sale/import/adjustment/recommendation/PO mutations. Record actual before/after evidence; do not reset or reseed P22.
+`NEXT-024C` — With an active local Manager, follow `docs/implementation/P24_manual_verification.md`: first capture the Account checks (including a disposable avatar and password/session proof), then capture all eight browser read paths and use only disposable fixtures for controlled sale/import/adjustment/recommendation/PO mutations. Record actual before/after evidence; do not reset or reseed P22.
 
 Do not re-open model selection, change feature/model/protocol values, or tune against TEST. The current deployed thesis artifact is M5-specific; a real supermarket requires retraining on its own POS/product/calendar/price context.
 

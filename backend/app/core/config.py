@@ -1,6 +1,7 @@
 """Application settings loaded from environment variables, never from source code."""
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -14,6 +15,7 @@ class Settings(BaseSettings):
     secret_key: str = "development-only-placeholder"
     session_hours: int = 8
     cookie_secure: bool = False
+    avatar_upload_dir: Path = Path("uploads/avatars")
 
     model_config = SettingsConfigDict(
         env_file=".env",
