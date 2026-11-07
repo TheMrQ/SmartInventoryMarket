@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+- Added P24-03 client-side Inventory, Supplier/mapping, and Purchase Order discovery controls, restrained native route/tab motion, shared toolbar primitives, and Vietnamese manual acceptance checks. No API contract, inventory formula, forecast, or P22 record changed.
 - Refined Products and Suppliers operational presentation: unit-of-measure and live on-hand stock are now distinct, search count is clear and limited-aware, and two-column supplier content wraps safely.
 - Added P24-02 current-MySQL reconciliation evidence, forecast totals, workflow-to-test mapping, and an actor-attribution finding for manual verification.
 - Expanded the Vietnamese P24 manual protocol with eight-page read-only checks, current table counts, scenario PO/forecast baselines, source-to-DB traceability, mutation safety rules, and explicit NOT VERIFIED browser states.

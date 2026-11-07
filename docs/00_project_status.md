@@ -8,7 +8,7 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting; P24-02 separated unit of measure from live stock display, made Supplier layout resilient, reconciled current MySQL, and expanded the Vietnamese manual acceptance guide.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P24-01 fixed Products search remounting; P24-02 separated unit of measure from live stock display; P24-03 adds UI-only Inventory/Supplier/PO discovery controls plus restrained content motion, awaiting browser evidence.
 - **Next Phase:** perform the browser walkthrough using the P24 guide, recording a fresh pre-mutation baseline and screenshot/database evidence for every controlled write.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 

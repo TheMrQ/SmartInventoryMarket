@@ -347,3 +347,37 @@ Automated evidence is distinct: backend tests use isolated SQLite/disposable fix
 | `git diff --check` | must pass again immediately before commit |
 
 The bare `pytest` executable is **not** the supported invocation on this workstation: it failed collection with four `ModuleNotFoundError: backend` errors because its import context omitted the repository root. Use the virtual-environment module command shown above; it is the valid complete-suite result.
+
+## L. P24-03 — Premium UX, search and motion acceptance
+
+Trạng thái: **MANUAL VERIFICATION REQUIRED**. P24-03 chỉ thay đổi React/CSS và client-side filtering trên dữ liệu API đã tải; không chạy seed, reset hay mutation MySQL/P22.
+
+### L.1 Inventory search và transaction history
+
+- **Trang:** Inventory. **CURRENT MYSQL SNAPSHOT:** `FOODS_2_005` (product ID 21) là on-hand 6, incoming 8, position 14.
+- **Thao tác:** gõ `FOODS_2_005`, sau đó `Food Item 2-005`; clear bằng nút X; chọn/clear các transaction type.
+- **Kỳ vọng:** search không gọi mutation, không mất focus, không có full-page loading; result count thay đổi; `FOODS_2_005` là kết quả duy nhất và giữ 6 / 8 / 14. Empty state phải là “No matching inventory items”; header table luôn còn. Transaction type chỉ lọc history, không thay primary Inventory search.
+- **Evidence/PASS:** ảnh desktop và <=550px, focus-visible, clear action, filtered row và empty state. Các inventory/transaction database rows phải **không đổi**.
+
+### L.2 Suppliers và product mappings
+
+- **Trang:** Suppliers. **CURRENT MYSQL SNAPSHOT:** search `SIM_M5_CA1_FOODS_V1_SUP_02` hoặc `Synthetic Supplier 2` phải tìm supplier active có 12 mappings; lead time scenario 3–7 days.
+- **Thao tác:** search supplier theo code/name, clear; filter Product mappings theo `FOODS_2_005`, supplier code và chuỗi không tồn tại.
+- **Kỳ vọng:** name/code/contact/status không clip ở desktop hẹp, sidebar collapsed, và <=550px; Preferred badge không overlap; mapping filter vẫn cho thấy product, supplier code, lead time. Không sửa preferred/lead time/mapping.
+- **Evidence/PASS:** ảnh wide/1024/mobile-like và empty mapping state. Nếu browser chưa thực hiện: **MANUAL VERIFICATION REQUIRED**.
+
+### L.3 Purchase Orders search và status filter
+
+- **Trang:** Purchase Orders. Dùng các PO chỉ đọc: `SIM_M5_CA1_FOODS_V1-INCOMING` (IN_TRANSIT), `...-PARTIAL` (IN_TRANSIT), `...-LINKED-DRAFT` (DRAFT).
+- **Thao tác:** search từng PO, tìm tên supplier, chọn IN_TRANSIT/DRAFT, sau đó kết hợp search + status và clear.
+- **Kỳ vọng:** count và table phản ánh giao cắt của hai filter; “No matching purchase orders” không giống API error; filtering không transition/receive/cancel PO. Controls không clip trên mobile-like viewport.
+- **Evidence/PASS:** ảnh search, combined filter, empty state; PO status, lines, quantities, stock và audit rows phải **không đổi**.
+
+### L.4 Motion, tabs, accessibility và Products regression
+
+- **Route motion:** click Dashboard → Inventory → Suppliers → Purchase Orders. Chỉ page-content fade/translateY nhẹ; sidebar/topbar đứng yên; reduced-motion preference phải làm chuyển cảnh gần như tức thời. Không chấm PASS nếu chưa quan sát browser.
+- **Inventory Insights tabs:** chuyển Inventory Insights ↔ Restock Recommendations. Nội dung mới fade nhẹ, không flicker, không horizontal slide, count/tab width ổn định. Dùng Tab/Shift+Tab để xác nhận focus rõ ràng.
+- **Responsive review:** kiểm tra 1280px, 1024px, <=550px: toolbars stack, result count còn thấy, controls không overlap, table chỉ scroll ngang khi cần, sidebar/modal giữ behavior đã duyệt.
+- **Products regression:** gõ liền `FOODS_1` (12 kết quả), xem `FOODS_1_001` Unit of Measure `unit` + On-hand Stock 0, rồi `NO-SUCH-SKU-P24` (0). Input phải giữ focus; debounce 300 ms/previous table/error distinction còn nguyên.
+
+Lý do nghiệp vụ: filters này giúp quản lý tìm đúng chứng cứ inventory/supplier/PO trong demo mà không sửa dữ liệu. Motion chỉ mô tả sự đổi page/tab, không mô phỏng forecast hoặc trạng thái kho.

@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { FileUp, Plus, ShoppingCart } from 'lucide-react'
+import { FileUp, Plus, ReceiptText, ShoppingCart, TrendingUp } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api } from '../api/client'
 import { DemandForecastChart } from '../components/DemandForecastChart'
-import { Badge, Button, Empty, Loading, Modal, QueryError } from '../components/ui'
+import { Badge, Button, Empty, Loading, Modal, QueryError, ResultCount, SearchField } from '../components/ui'
+import { filterPurchaseOrders } from '../utils/dataFilters'
 import { hasBlockingQueryError } from '../utils/queryState'
 import { displayProduct, displayStatus, formatForecast } from '../utils/presentation'
 import { toneFor } from '../utils/status'
@@ -13,13 +14,15 @@ import { createSaleIdempotencyKey, receiptLinesForSubmission, canGenerateForecas
 
 const errorToast = (error) => toast.error(error.message || 'Operation failed')
 const revalidate = (client, keys) => keys.forEach((key) => client.invalidateQueries({ queryKey: [key] }))
-function Heading({ title, text, children }) { return <header className="page-heading"><div><h2>{title}</h2><p>{text}</p></div>{children}</header> }
+function Heading({ title, text, children, icon: Icon }) { const HeaderIcon = Icon || (title === 'Sales' ? ReceiptText : title === 'Forecasts' ? TrendingUp : null); return <header className="page-heading"><div className="page-heading-copy">{HeaderIcon && <i className="page-heading-icon"><HeaderIcon size={19}/></i>}<div><h2>{title}</h2><p>{text}</p></div></div>{children}</header> }
 function ProductOption({ product }) { const item = displayProduct(product); return <option value={product.id}>{item.name} · {item.sku}</option> }
 
 export function PurchaseOrdersPage() {
   const client = useQueryClient()
   const [create, setCreate] = useState(false)
   const [manage, setManage] = useState(null)
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
   const orders = useQuery({ queryKey: ['orders'], queryFn: api.purchaseOrders })
   const suppliers = useQuery({ queryKey: ['suppliers'], queryFn: api.suppliers })
   const products = useQuery({ queryKey: ['products'], queryFn: () => api.products({ limit: 100 }) })
@@ -27,7 +30,9 @@ export function PurchaseOrdersPage() {
   if ([orders, suppliers, products].some((query) => query.isLoading)) return <Loading />
   if (hasBlockingQueryError([orders, suppliers, products])) return <QueryError queries={[orders, suppliers, products]} />
   const nextAction = { DRAFT: ['APPROVED', 'Approve order'], APPROVED: ['ORDERED', 'Place order'], ORDERED: ['IN_TRANSIT', 'Mark as in transit'] }
-  return <div className="stack"><Heading title="Purchase Orders" text="Create, approve, place, and receive supplier orders through controlled steps."><Button onClick={() => setCreate(true)}><Plus size={16}/>Create purchase order</Button></Heading><article className="panel table-wrap"><table><thead><tr><th>Purchase order</th><th>Supplier</th><th>Status</th><th>Expected arrival</th><th>Lines</th><th /></tr></thead><tbody>{orders.data?.map((order) => { const next = nextAction[order.status]; return <tr key={order.id}><td><strong>{order.po_number}</strong></td><td>{suppliers.data?.find((supplier) => supplier.id === order.supplier_id)?.name || `Supplier #${order.supplier_id}`}</td><td><Badge tone={toneFor(order.status)}>{displayStatus(order.status)}</Badge></td><td>{order.expected_arrival_date || '—'}</td><td>{order.items.length}</td><td>{next && <button className="link-button" onClick={() => transition.mutate({ id: order.id, target_status: next[0] })}>{next[1]}</button>}<button className="link-button" onClick={() => setManage(order)}>Manage</button></td></tr> })}</tbody></table>{!orders.data?.length && <Empty title="No purchase orders yet">Create a supplier order when stock needs to be replenished.</Empty>}</article>{create && <OrderModal suppliers={suppliers.data} products={products.data} onClose={() => setCreate(false)} client={client}/>} {manage && <PurchaseOrderManageModal order={manage} onClose={() => setManage(null)} client={client}/>}</div>
+  const suppliersById = new Map((suppliers.data || []).map((supplier) => [supplier.id, supplier]))
+  const visibleOrders = filterPurchaseOrders(orders.data || [], suppliersById, search, status)
+  return <div className="stack"><Heading icon={ShoppingCart} title="Purchase Orders" text="Create, approve, place, and receive supplier orders through controlled steps."><Button onClick={() => setCreate(true)}><Plus size={16}/>Create purchase order</Button></Heading><div className="data-toolbar"><SearchField value={search} onChange={setSearch} label="Search purchase orders" placeholder="Search PO number or supplier" ariaLabel="Search purchase orders by number or supplier"/><label className="toolbar-filter">Status<select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">All statuses</option><option value="DRAFT">Draft</option><option value="APPROVED">Approved</option><option value="ORDERED">Ordered</option><option value="IN_TRANSIT">In transit</option><option value="RECEIVED">Received</option><option value="CANCELLED">Cancelled</option></select></label><ResultCount count={visibleOrders.length} label={search.trim() || status ? 'matching orders' : 'purchase orders'} detail="Search and status filters combine"/></div><article className="panel table-wrap"><table><thead><tr><th>Purchase order</th><th>Supplier</th><th>Status</th><th>Expected arrival</th><th>Lines</th><th /></tr></thead><tbody>{visibleOrders.map((order) => { const next = nextAction[order.status]; return <tr key={order.id}><td><strong>{order.po_number}</strong></td><td>{suppliersById.get(order.supplier_id)?.name || `Supplier #${order.supplier_id}`}</td><td><Badge tone={toneFor(order.status)}>{displayStatus(order.status)}</Badge></td><td>{order.expected_arrival_date || '—'}</td><td className="numeric-value">{order.items.length}</td><td>{next && <button className="link-button" onClick={() => transition.mutate({ id: order.id, target_status: next[0] })}>{next[1]}</button>}<button className="link-button" onClick={() => setManage(order)}>Manage</button></td></tr> })}</tbody></table>{!visibleOrders.length && <Empty title={search.trim() || status ? 'No matching purchase orders' : 'No purchase orders yet'}>{search.trim() || status ? 'Try another PO number, supplier, or status.' : 'Create a supplier order when stock needs to be replenished.'}</Empty>}</article>{create && <OrderModal suppliers={suppliers.data} products={products.data} onClose={() => setCreate(false)} client={client}/>} {manage && <PurchaseOrderManageModal order={manage} onClose={() => setManage(null)} client={client}/>}</div>
 }
 
 function PurchaseOrderManageModal({ order, onClose, client }) {

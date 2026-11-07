@@ -1,12 +1,16 @@
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { LoaderCircle, PackageOpen, X } from 'lucide-react'
+import { LoaderCircle, PackageOpen, Search, X } from 'lucide-react'
 import { WorkspaceContext } from './workspace-context'
 
 export function Badge({ children, tone = 'neutral' }) { return <span className={`badge badge-${tone}`}>{children}</span> }
 export function Button({ children, loading, className = '', disabled, ...props }) { return <button className={`button ${className}`} disabled={loading || disabled} {...props}>{loading && <LoaderCircle size={15} className="spin" />}{children}</button> }
 export function Empty({ title, children }) { return <div className="empty"><PackageOpen size={28} /><strong>{title}</strong><span>{children}</span></div> }
 export function Loading() { return <div className="loading"><span /><span /><span /></div> }
+export function SearchField({ value, onChange, label = 'Search', placeholder = 'Search', ariaLabel }) {
+  return <label className="search-field"><span>{label}</span><span className="search-control"><Search size={16} aria-hidden="true"/><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} aria-label={ariaLabel || label}/>{value && <button type="button" className="search-clear" onClick={() => onChange('')} aria-label={`Clear ${label.toLowerCase()}`}><X size={14}/></button>}</span></label>
+}
+export function ResultCount({ count, label = 'results', detail }) { return <span className="result-count" aria-live="polite"><b>{count} {label}</b>{detail && <small>{detail}</small>}</span> }
 export function QueryError({ queries, title = 'Information could not be loaded' }) {
   const failed = queries.filter((query) => query.isError)
   if (!failed.length) return null
