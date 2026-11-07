@@ -2,6 +2,16 @@
 
 Status: 🟢 **DONE** — final held-out forecasting evaluation and frozen inventory-policy comparison are complete; TEST is consumed once without tuning.
 
+## P25-02 — Final Hybrid Intermittent-Demand Research
+
+- **Date:** 2026-11-07; **Status:** `DONE` — final planned forecasting-improvement research. It is offline evidence only; V1, its API default, P22, and all database forecasts remain unchanged.
+- **Hypothesis:** P25-01 showed that one global XGBoost with more intermittent features made sparse/low-volume performance worse. P25-02 instead routes a demand regime using only the final 56 pre-origin days: an item is intermittent when its zero-demand rate is at least 0.65 or 0.75, and regular series retain the untouched V1 recursive prediction.
+- **Transparent intermittent methods:** classic Croston, bias-corrected SBA, and TSB were implemented locally rather than imported as a black box. Croston separately smooths non-zero size and interval; SBA applies its `(1 - alpha / 2)` correction; TSB smooths occurrence probability daily and size only on occurrences. Each produces a justified constant nonnegative expected daily rate repeated across the unchanged 28-day contract.
+- **Screening:** folds 2/4 tested one Croston, four SBA, and four TSB candidates with preregistered alpha values 0.05/0.10/0.20. The finalists were `HYBRID_XGB_TSB_ZR65_P20_S10` and `HYBRID_XGB_TSB_ZR65_P10_S10`; Croston/SBA had stage-1 mean WAPE 72.539–73.623%, while the TSB finalists had 66.486% and 66.589%.
+- **Routing:** the selected 65% threshold routed 497/458/431/403 of 1,437 series in folds 1–4 (34.586%/31.872%/29.993%/28.045%) to TSB. Classification always used train history only; validation sales were opened only after V1 and all hybrid predictions for that fold existed.
+- **Result:** the better finalist, `HYBRID_XGB_TSB_ZR65_P10_S10`, improves mean MAE from **1.365218** to **1.352099** and mean WAPE from **67.620377%** to **66.957775%**, with WAPE lower on all four folds. It also improves 75–100%-zero MAE from 0.675971 to 0.629512, while dense-group MAE is unchanged. Mean RMSE worsens from **2.601663** to **2.611979**, so it fails the preregistered no-RMSE-regression requirement and is **not selected**. The high-volume MAE increase (2.839041 to 2.854294) is within the declared 1% tolerance, but cannot overcome the RMSE rule.
+- **Final decision:** no hybrid candidate is a credible V1 replacement. No hybrid fold reached RMSE below 2.49. `XGBOOST_V1` remains immutable and selected/default; no final-TEST actual (`d_1914`–`d_1941`) was loaded. See `docs/implementation/P25_hybrid_intermittent_research.md` and the tracked `hybrid_*` tables/figures/manifest.
+
 ## P25-01 — XGBoost V3 Rolling-Backtest Research
 
 - **Date:** 2026-11-07; **Status:** `DONE` — controlled retrospective research only. It does not change the deployed/default model, API, P22 scenario, or the immutable V1/V2 artifacts.

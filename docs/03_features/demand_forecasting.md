@@ -69,6 +69,12 @@ For a target at `t`, every V3 demand statistic ends at `t-1`; recursive inferenc
 
 The P25 four-fold rolling study rejected both V3 Poisson finalists: their mean WAPE was 70.366227% and 70.540783%, versus 67.620377% for a fair rolling-retrained V1 control. FEATURE_SET_V3 is therefore retained as research evidence only and is not exposed through the forecast API or selected-model configuration. See `docs/implementation/P25_xgboost_v3_research.md`.
 
+## P25-02 Hybrid Intermittent-Demand Research
+
+P25-02 tests a materially different formulation, not another V1 tuning round: V1 remains the forecast for regular-demand series, while only series whose last 56 observed days have zero-demand rate at least 0.65 or 0.75 are routed to a transparent classical intermittent method. `ml/models/intermittent.py` implements classic Croston, SBA, and TSB directly with deterministic exponential smoothing and nonnegative constant 28-day daily-rate forecasts. The classifier and methods see historical sales only.
+
+On the four rolling folds, the best hybrid is `HYBRID_XGB_TSB_ZR65_P10_S10`: TSB occurrence probability alpha 0.10, demand-size alpha 0.10, and 65% zero-rate routing. It improves mean MAE/WAPE and sparse-band MAE, but mean RMSE is 2.611979 versus V1's 2.601663. Under the preregistered no-regression selection rule it is not selected. This preserves a clear thesis progression: V1 global forecast → V2/V3 feature/capacity research → P25-02 demand-regime routing, with the evidence rather than model complexity determining selection.
+
 ## LIGHTGBM_V1 — Initial Global Recursive Validation (CHECKPOINT-008)
 
 `configs/models/lightgbm_v1.yaml` freezes the first intentionally untuned CPU configuration: Poisson objective, `gbdt`, 400 estimators, learning rate 0.05, 31 leaves, `min_child_samples=100`, `reg_lambda=0.1`, seed 42, deterministic column-wise training, and no random subsampling. `ml/models/lightgbm_model.py` fits exactly one global model, explicitly marks `item_code`, `dept_code`, calendar/SNAP, and event codes as categorical, and rejects non-finite or negative forecasts rather than silently clipping them.

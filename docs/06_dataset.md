@@ -113,6 +113,10 @@ No random split is permitted. Test is isolated during development; model and hyp
 
 P25-01 retrospectively evaluated feature/model research only inside the already historical development boundary `d_1`–`d_1913`. Its four expanding-window validation folds end at `d_1829`, `d_1857`, `d_1885`, and `d_1913`; each forecast is recursively generated before that fold's actuals are loaded for scoring. The runner deliberately has no import/call path for the final-TEST actual loader and records `test_actuals_accessed: false` in `data/manifests/xgboost_v3_research.json`. Thus the originally consumed V1 final-test period `d_1914`–`d_1941` remains excluded from V3 tuning, comparison, scoring, and reporting. The V3 intermittent features remain past-only demand transforms, not inventory/stockout labels: zero M5 sales still does not prove zero demand or zero inventory.
 
+### P25-02 Hybrid-Regime Boundary
+
+P25-02 retains the same four pre-TEST rolling folds and data-provenance boundary. Its regime classifier uses only each series' final 56 observed training days at the particular forecast origin; validation values are not used to route a series. Croston/SBA/TSB consume only those historical M5 demand observations and never P22's synthetic inventory, suppliers, purchase orders, receipts, recommendations, or lead times. `scripts/ml/run_hybrid_intermittent_research.py` builds all V1/hybrid predictions before opening the relevant fold actuals, rejects the fixed protocol if it differs, has no final-TEST loader import, and records `test_actuals_accessed: false` in `data/manifests/hybrid_intermittent_research.json`.
+
 ### P6 Preparation Boundary Verification
 
 CHECKPOINT-006 added `scripts/data/prepare_m5_ca1_foods.py` and `ml/data/m5_ca1_foods.py`. The metadata-only preparation manifest confirms the frozen 1,437-series scope and all split key/date boundaries. It verifies TEST structurally by column name and calendar date only; it does not read TEST sales values. The validation baseline loader reads daily sales values only through `d_1913`.

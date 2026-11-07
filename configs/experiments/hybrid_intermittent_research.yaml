@@ -1,0 +1,46 @@
+experiment_id: HYBRID_INTERMITTENT_DEMAND_RESEARCH
+status: DONE
+scope: {store_id: CA_1, category_id: FOODS, series_count: 1437}
+random_state: 42
+horizon_days: 28
+folds:
+  - {name: fold_1, train_end_d: d_1801, validation_start_d: d_1802, validation_end_d: d_1829}
+  - {name: fold_2, train_end_d: d_1829, validation_start_d: d_1830, validation_end_d: d_1857}
+  - {name: fold_3, train_end_d: d_1857, validation_start_d: d_1858, validation_end_d: d_1885}
+  - {name: fold_4, train_end_d: d_1885, validation_start_d: d_1886, validation_end_d: d_1913}
+test_policy: NEVER_LOAD_TEST_ACTUALS_D_1914_TO_D_1941
+regime:
+  history_window_days: 56
+  threshold_candidates: [0.65, 0.75]
+  definition: intermittent_when_zero_rate_56_is_at_least_threshold
+v1_control:
+  model_name: XGBOOST_V1_ROLLING_RETRAINED
+  feature_set: FEATURE_SET_V1
+  feature_config: configs/features/ml_features_v1.yaml
+  model_config: configs/models/xgboost_v1.yaml
+stage_1:
+  folds: [fold_2, fold_4]
+  retain_top_candidates: 2
+  candidates:
+    - {name: HYBRID_XGB_CROSTON_ZR65_A10, method: CROSTON_CLASSIC, zero_rate_threshold: 0.65, alpha: 0.10}
+    - {name: HYBRID_XGB_SBA_ZR65_A05, method: SBA, zero_rate_threshold: 0.65, alpha: 0.05}
+    - {name: HYBRID_XGB_SBA_ZR65_A10, method: SBA, zero_rate_threshold: 0.65, alpha: 0.10}
+    - {name: HYBRID_XGB_SBA_ZR65_A20, method: SBA, zero_rate_threshold: 0.65, alpha: 0.20}
+    - {name: HYBRID_XGB_SBA_ZR75_A10, method: SBA, zero_rate_threshold: 0.75, alpha: 0.10}
+    - {name: HYBRID_XGB_TSB_ZR65_P05_S10, method: TSB, zero_rate_threshold: 0.65, alpha_probability: 0.05, alpha_size: 0.10}
+    - {name: HYBRID_XGB_TSB_ZR65_P10_S10, method: TSB, zero_rate_threshold: 0.65, alpha_probability: 0.10, alpha_size: 0.10}
+    - {name: HYBRID_XGB_TSB_ZR65_P20_S10, method: TSB, zero_rate_threshold: 0.65, alpha_probability: 0.20, alpha_size: 0.10}
+    - {name: HYBRID_XGB_TSB_ZR75_P10_S10, method: TSB, zero_rate_threshold: 0.75, alpha_probability: 0.10, alpha_size: 0.10}
+stage_2:
+  candidates_from_stage_1: 2
+  folds: [fold_1, fold_2, fold_3, fold_4]
+selection_rule:
+  mean_wape_must_improve: true
+  mean_mae_must_not_worsen: true
+  mean_rmse_must_not_worsen: true
+  minimum_wape_fold_improvements: 3
+  sparse_band: 75-100% zero
+  sparse_band_mae_must_improve: true
+  dense_band: 0-25% zero
+  high_volume_band: Q4 high
+  dense_high_volume_max_mae_regression_percent: 1.0

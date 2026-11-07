@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+- Completed P25-02 final hybrid intermittent-demand research: transparent Croston/SBA/TSB methods routed only pre-origin sparse series while unchanged V1 handled regular demand. The best TSB hybrid improved mean MAE/WAPE and sparse-demand MAE but regressed mean RMSE, so the preregistered rule rejects promotion. Final-TEST actuals, V1/default configuration, P22, and MySQL remain untouched; only aggregate research evidence is tracked.
 - Completed P25-01 XGBoost V3 rolling-backtest research on four expanding 28-day folds ending at `d_1913`, without loading final-TEST actuals `d_1914`–`d_1941`. FEATURE_SET_V3 adds past-only intermittent-demand features and two Poisson finalists were tested against a separately retrained V1 control. Neither passed the preregistered WAPE/MAE/RMSE non-regression gate, so `XGBOOST_V1` remains immutable and the selected/default model. Tracked manifests/tables/figures contain aggregate evidence only; model JSON artifacts remain ignored.
 - Refined P24-07b shared result-count geometry to an 11px compact summary surface while preserving blue emphasis, live-region behavior, responsive wrapping, and the separate pill styling of semantic status badges. No API, backend, or database behavior changed.
 - Added P24-07's semantic premium operational visual system across the React workspace, preserving approved navigation, all business/API behavior, and P22 data. Inventory Insights now explains persisted target-period forecast demand (lead time plus the fixed review day) without changing any decision formula.

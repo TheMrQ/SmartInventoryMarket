@@ -1,5 +1,15 @@
 # Troubleshooting and Recovery
 
+## 2026-11-07 — P25 hybrid runner repeated V1 controls / misaligned fold comparison — RESOLVED
+
+**Symptom:** The first isolated P25-02 execution reached final aggregation without reports. Review showed that a finalist-loop structure could also retrain the same immutable V1 control per finalist, which would duplicate baseline rows if allowed to complete.
+
+**Cause:** Candidate fold records were compared as pandas Series without explicitly aligning their fold indexes, and Stage 2 was organized candidate-first instead of fold-first.
+
+**Resolution:** The runner now aligns every candidate WAPE series to V1's fold labels and fails safely if a full-stage fold is missing. Stage 2 is fold-first: it fits V1 once, creates every finalist hybrid prediction before opening the fold truth, then scores once. A regression test covers out-of-order candidate fold records. The successful final run records one V1 control per origin and no final-TEST access.
+
+**Prevention:** In rolling research, index metrics by named fold before comparison and cache each control forecast at its origin. Never let a candidate loop create extra control observations.
+
 ## 2026-11-07 — Record Sale rendered a blank workspace — RESOLVED IN CODE, BROWSER VERIFICATION PENDING
 
 **Symptom:** Selecting Sales → Record sale replaced the protected workspace with a blank white page before a modal appeared.

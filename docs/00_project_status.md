@@ -8,7 +8,7 @@ Overall status: 🟡 **IN_PROGRESS** — P24 manual end-to-end verification has 
 
 ## Current Phase / Next Phase / Known Blockers
 
-- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P25-01 rolling-backtest research is now **DONE** as separate offline evidence: neither V3 candidate passed its preregistered non-regression gate, so `XGBOOST_V1` remains immutable and selected/default. P24 browser evidence remains outstanding.
+- **Current Phase:** `P24 — End-to-End Testing & Evaluation` is **IN_PROGRESS**. P25-01 and P25-02 offline research are **DONE**: V3 failed aggregate WAPE/MAE and the best hybrid TSB routing improved WAPE/MAE/sparse demand but worsened RMSE, so `XGBOOST_V1` remains immutable and selected/default. P24 browser evidence remains outstanding.
 - **Next Phase:** perform the P24 browser walkthrough: verify avatar immediately after logout/login, inspect the eight-page visual layer and target-period decision explanation, then record a fresh pre-mutation baseline and screenshot/database evidence for every controlled write. Use the completed P25-01 result as thesis evidence; do not use final TEST data for further model tuning.
 - **Known Blockers:** P18/P19 still need manual browser evidence, and P24 requires browser/live-workflow evidence. P24-02 also found five older scenario stock transactions without actor attribution; preserve them as evidence and verify server attribution on newly created browser actions. The frozen M5 model cannot forecast arbitrary new SKUs; a new supermarket requires retraining on its own POS, product, calendar, and price context.
 
@@ -29,6 +29,7 @@ What we selected:
 - Forecast-based reordering reduced simulated lost sales and stockouts, but held more inventory and had a higher normalized cost proxy.
 - TEST was consumed once for final evaluation; no tuning may be performed against it.
 - P25-01's four historical rolling folds do not change that boundary: they end at `d_1913`, never load `d_1914`–`d_1941` actuals, and do not select a V3 replacement.
+- P25-02 tested past-only demand-regime routing with Croston/SBA/TSB; no hybrid passed every preregistered aggregate/group gate, so there is no production switch.
 
 Why:
 
@@ -107,6 +108,8 @@ What happens next: run end-to-end verification, UX polish, integration tests, an
 ## Historical Phase Notes
 
 `P25-01 — XGBoost V3 Rolling-Backtest Research` is **DONE** as an offline, pre-defense research subtask; the broader `P25 — Thesis Report & Defense` remains **PLANNED**. Four expanding 28-day validation folds ending at `d_1913` compared a rolling-retrained V1 control with two V3 Poisson finalists. `V3_POISSON_REGULARIZED`/`V3_POISSON_BALANCED` mean WAPE was 70.366227%/70.540783% versus V1's 67.620377%; both worsened MAE and WAPE on every fold, despite slightly lower mean RMSE. No V3 candidate was selected, final-TEST actuals `d_1914`–`d_1941` were not loaded, and `XGBOOST_V1` remains the deployed/default model. See `docs/implementation/P25_xgboost_v3_research.md`.
+
+`P25-02 — Final Hybrid Intermittent-Demand Forecast Research` is **DONE** as a separate offline subtask; it does not complete broader P25. It tested pre-origin 56-day zero-rate demand-regime routing, retaining V1 for regular series and using transparent Croston/SBA/TSB daily-rate forecasts only for intermittent series. The best TSB hybrid lowered mean MAE/WAPE (1.352099/66.957775% vs V1 1.365218/67.620377%) and improved the 75–100%-zero group, but its mean RMSE worsened (2.611979 vs 2.601663). It therefore failed the frozen non-regression rule, was not selected, never accessed final-TEST actuals, and did not modify V1/API/P22/MySQL. See `docs/implementation/P25_hybrid_intermittent_research.md`.
 
 `P22 — M5-Grounded Supermarket Simulation` is **DONE**. The owner-authorized, existing active local account was promoted with the password-preserving local-only command, then the deterministic 36-SKU scenario was applied. It has 36 traceable M5 mappings, 68,868 observed sales rows through `d_1913`, one linked frozen-XGBoost forecast run with 1,008 values, synthetic labelled inventory/supplier/PO records, partial/complete receipts, and auditable stock movements. A repaired rerun was read-only (`reused_existing: True`), with no reset/truncation or raw/model modification. Browser walkthrough evidence remains P24.
 
