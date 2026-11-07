@@ -55,7 +55,7 @@ export default function AccountPage() {
   }
 
   return <div className="stack account-page">
-    <header className="page-heading account-heading">
+    <header className="page-heading account-heading page-heading-account">
       <div className="page-heading-copy"><i className="page-heading-icon"><UserRound size={19}/></i><div><h2>My Account</h2><p>Manage your profile details and the security of your account.</p></div></div>
     </header>
     <section className="account-identity" aria-label="Account profile">

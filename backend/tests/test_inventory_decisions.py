@@ -77,6 +77,8 @@ def test_calculation_safety_stock_and_persisted_recommendation_do_not_change_inv
     assert decision.lead_time_days == 2
     assert decision.inventory_position == 0
     assert decision.expected_lead_time_demand == Decimal("4.0000")
+    assert decision.target_period_days == 3
+    assert decision.expected_target_period_demand == Decimal("6.0000")
     assert decision.safety_stock == 19  # ceil(1.645 * population_std(0..27) * sqrt(2))
     assert decision.reorder_point == 23 and decision.target_stock == 25
     assert decision.recommended_quantity == 25 and decision.risk_status == "STOCKOUT_RISK"

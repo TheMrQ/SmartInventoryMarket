@@ -37,9 +37,11 @@ For a valid persisted forecast and selected supplier lead time `L`, P16 calculat
 ```text
 inventory_position        = on_hand + incoming_quantity
 expected_lead_time_demand = sum(forecast days 1..L)
+target_period_days        = L + 1 (the fixed review period)
+expected_target_period_demand = sum(forecast days 1..target_period_days)
 safety_stock              = ceil(1.645 * population_std(previous 28 observed sales days) * sqrt(L))
 reorder_point             = ceil(expected_lead_time_demand + safety_stock)
-target_stock              = ceil(sum(forecast days 1..L+1) + safety_stock)
+target_stock              = ceil(expected_target_period_demand + safety_stock)
 recommended_quantity      = ceil(max(0, target_stock - inventory_position)) when position <= reorder_point; otherwise 0
 ```
 
@@ -50,6 +52,10 @@ Supplier selection is deterministic: exactly one active preferred mapping wins; 
 `GET /api/inventory-decisions` is side-effect free. `POST /api/reorder-recommendations/generate` saves a one-day `NEW` snapshot only if quantity is positive and expires earlier `NEW` snapshots atomically. Explicit ACCEPT/MODIFY/REJECT review actions are terminal and attribute the authenticated server user, not a client-submitted reviewer. P21 adds an explicit confirmed conversion from an `ACCEPTED` or `MODIFIED` recommendation with positive approved quantity to one linked `DRAFT` purchase order. It uses the approved quantity and one valid active preferred supplier mapping (or the only active mapping), changes no on-hand stock, and is protected by a database unique recommendation link. Creating or receiving the PO remains a separate controlled workflow; there is no automatic supplier submission.
 
 The forecast model remains M5-specific. The decision engine is reusable business logic, but this deployment can decide only for products with compatible persisted forecasts until a target-supermarket model exists.
+
+## P24-07 explainability response fields
+
+P24-07 exposes `target_period_days` and `expected_target_period_demand` on the existing read-only decision response. They are the values already used by the P16 target-stock formula, returned so Inventory Insights can show an auditable calculation rather than infer it in the browser. This does not change the frozen one-day review period, demand/safety-stock math, risk rules, recommendation logic, persistence, or any P22 record.
 
 ## P17 Decision UX Boundary
 

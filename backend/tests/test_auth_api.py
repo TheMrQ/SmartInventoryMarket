@@ -61,6 +61,28 @@ def test_login_session_me_logout_and_unauthorized_access(client: TestClient) -> 
     assert client.get("/api/products").status_code == 401
 
 
+def test_login_response_retains_the_safe_avatar_url_after_logout(client: TestClient, tmp_path, monkeypatch) -> None:
+    assert register(client).status_code == 201
+    monkeypatch.setattr(get_settings(), "avatar_upload_dir", tmp_path / "avatars")
+    uploaded = client.post(
+        "/api/auth/me/avatar",
+        files={
+            "file": (
+                "avatar.png",
+                b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl4w+gAAAAASUVORK5CYII="),
+                "image/png",
+            )
+        },
+        headers={"X-CSRF-Token": client.cookies.get("sim_csrf")},
+    )
+    assert uploaded.status_code == 200
+    avatar_url = uploaded.json()["avatar_url"]
+    assert client.post("/api/auth/logout", headers={"X-CSRF-Token": client.cookies.get("sim_csrf")}).status_code == 204
+    login = client.post("/api/auth/login", json={"email": "manager@example.com", "password": "Long-test-password"})
+    assert login.status_code == 200
+    assert login.json()["avatar_url"] == avatar_url
+
+
 def test_operational_writes_require_session_csrf_and_manager_role(client: TestClient) -> None:
     payload = {"code": "SECURE", "name": "Secured category"}
     assert client.post("/api/categories", json=payload).status_code == 401

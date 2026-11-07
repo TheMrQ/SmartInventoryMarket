@@ -267,7 +267,9 @@ class InventoryDecisionRead(ApiModel):
     inventory_position: int
     forecast_run_id: int
     lead_time_days: int
+    target_period_days: int
     expected_lead_time_demand: Decimal
+    expected_target_period_demand: Decimal
     safety_stock: int
     reorder_point: int
     target_stock: int

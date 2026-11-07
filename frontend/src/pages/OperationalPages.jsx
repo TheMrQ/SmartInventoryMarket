@@ -14,7 +14,7 @@ import { createSaleIdempotencyKey, receiptLinesForSubmission, canGenerateForecas
 
 const errorToast = (error) => toast.error(error.message || 'Operation failed')
 const revalidate = (client, keys) => keys.forEach((key) => client.invalidateQueries({ queryKey: [key] }))
-function Heading({ title, text, children, icon: Icon }) { const HeaderIcon = Icon || (title === 'Sales' ? ReceiptText : title === 'Forecasts' ? TrendingUp : null); return <header className="page-heading"><div className="page-heading-copy">{HeaderIcon && <i className="page-heading-icon"><HeaderIcon size={19}/></i>}<div><h2>{title}</h2><p>{text}</p></div></div>{children}</header> }
+function Heading({ title, text, children, icon: Icon }) { const HeaderIcon = Icon || (title === 'Sales' ? ReceiptText : title === 'Forecasts' ? TrendingUp : null); const semanticName = title.toLowerCase().replaceAll(' ', '-'); return <header className={`page-heading page-heading-${semanticName}`}><div className="page-heading-copy">{HeaderIcon && <i className="page-heading-icon"><HeaderIcon size={19}/></i>}<div><h2>{title}</h2><p>{text}</p></div></div>{children}</header> }
 function ProductOption({ product }) { const item = displayProduct(product); return <option value={product.id}>{item.name} · {item.sku}</option> }
 
 export function PurchaseOrdersPage() {

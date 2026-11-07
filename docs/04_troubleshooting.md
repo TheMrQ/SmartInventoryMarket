@@ -310,6 +310,18 @@ Treat the utility as optional/local-demo setup only. Keep raw M5 files, model ar
 
 **Prevention:** Whenever FastAPI serves a relative application asset that the React app displays in development, add its generic route prefix to Vite's proxy configuration and test the complete generated URL path rather than one temporary filename.
 
+## 2026-11-07 — P24-07 avatar was absent immediately after a fresh login — RESOLVED
+
+**Symptom:** An existing uploaded avatar could reappear after a hard refresh or a later `/api/auth/me` request, but the sidebar initially showed initials immediately after logout/login.
+
+**Root cause:** The login and registration endpoints built `AuthenticatedUser` manually and omitted the existing safe `avatar_url`. The frontend correctly cached that login identity under `auth-me`, so its fresh cache window prevented a redundant immediate `/me` request.
+
+**Resolution:** Login and registration now create their response from the same validated safe user representation used by `/me`, then add only the CSRF token. The stored generated filename remains private; the response retains the existing relative `/uploads/avatars/<generated-name>` URL when present. No timer, forced reload, new endpoint, migration, or database repair is used.
+
+**Verification:** A focused auth regression uploads a valid avatar, logs out, logs in, and asserts the login JSON returns the same non-null safe URL. Frontend source coverage confirms shared `auth-me` updates and avatar rendering. Browser evidence remains required for visible immediate rendering.
+
+**Prevention:** Never hand-assemble a partial authenticated user response when a safe schema-backed identity representation already exists. Authentication responses and `/me` must contain the same client-facing identity fields.
+
 ## 2026-09-21 — Ablation-summary WAPE mapping corrected
 
 Symptom:

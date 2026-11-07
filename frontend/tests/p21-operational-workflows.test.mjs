@@ -108,3 +108,18 @@ test('account route, safe profile controls, and sidebar entry remain deliberatel
   assert.match(sidebar, /\.collapsed \.profile-logout \{ display: none; \}/)
   assert.match(sidebar, /\.sidebar-profile \{[\s\S]*background: linear-gradient/)
 })
+
+test('premium identity keeps target-period inventory demand explainable in the decision detail', () => {
+  const decisions = readFileSync(new URL('../src/pages/DecisionsPage.jsx', import.meta.url), 'utf8')
+  const catalog = readFileSync(new URL('../src/pages/CatalogPages.jsx', import.meta.url), 'utf8')
+  const operational = readFileSync(new URL('../src/pages/OperationalPages.jsx', import.meta.url), 'utf8')
+  const styles = readFileSync(new URL('../src/premium.css', import.meta.url), 'utf8')
+  assert.match(decisions, /decision\.target_period_days/)
+  assert.match(decisions, /decision\.expected_target_period_demand/)
+  assert.match(decisions, /lead time \+ one-day review/)
+  assert.match(catalog, /page-heading-\$\{semanticName\}/)
+  assert.match(operational, /page-heading-\$\{semanticName\}/)
+  assert.match(styles, /--canvas-premium: #f6f8fc/)
+  assert.match(styles, /\.page-heading-inventory-insights \.page-heading-icon/)
+  assert.match(styles, /@media \(prefers-reduced-motion:reduce\)/)
+})

@@ -32,7 +32,9 @@ class Decision:
     inventory_position: int
     forecast_run_id: int
     lead_time_days: int
+    target_period_days: int
     expected_lead_time_demand: Decimal
+    expected_target_period_demand: Decimal
     safety_stock: int
     reorder_point: int
     target_stock: int
@@ -112,7 +114,7 @@ class InventoryDecisionService:
         else:
             risk = "HEALTHY"
         quantity = self._ceil(max(Decimal("0"), Decimal(target_stock) - Decimal(position))) if position <= reorder_point else 0
-        return Decision(product_id=product.id, sku=product.sku, product_name=product.name, on_hand=inventory.on_hand, incoming_quantity=incoming, inventory_position=position, forecast_run_id=forecast.id, lead_time_days=lead_time, expected_lead_time_demand=expected_lead, safety_stock=safety_stock, reorder_point=reorder_point, target_stock=target_stock, risk_status=risk, recommended_quantity=quantity, supplier_id=supplier.supplier_id, supplier_name=supplier.supplier.name)
+        return Decision(product_id=product.id, sku=product.sku, product_name=product.name, on_hand=inventory.on_hand, incoming_quantity=incoming, inventory_position=position, forecast_run_id=forecast.id, lead_time_days=lead_time, target_period_days=required_days, expected_lead_time_demand=expected_lead, expected_target_period_demand=target_demand, safety_stock=safety_stock, reorder_point=reorder_point, target_stock=target_stock, risk_status=risk, recommended_quantity=quantity, supplier_id=supplier.supplier_id, supplier_name=supplier.supplier.name)
 
     def decisions(self, risk_status: str | None, search: str | None, limit: int, offset: int) -> list[Decision]:
         results: list[Decision] = []

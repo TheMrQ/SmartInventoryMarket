@@ -71,6 +71,12 @@ def hmac_compare(left: str, right: str) -> bool:
     return hmac.compare_digest(left, right)
 
 
+def authenticated_user_response(user: User, csrf_token: str) -> AuthenticatedUser:
+    """Build login/register output from the same safe user view used by ``/me``."""
+    safe_user = UserRead.model_validate(user, from_attributes=True)
+    return AuthenticatedUser(**safe_user.model_dump(), csrf_token=csrf_token)
+
+
 @router.post("/register", response_model=AuthenticatedUser, status_code=status.HTTP_201_CREATED)
 def register(data: RegisterRequest, response: Response, session: SessionDep):
     email = str(data.email).lower()
@@ -83,7 +89,7 @@ def register(data: RegisterRequest, response: Response, session: SessionDep):
     session.add(AuthSession(user_id=user.id, token_hash=token_hash(token), expires_at=expiry(get_settings().session_hours)))
     session.commit()
     _set_cookies(response, token, csrf)
-    return AuthenticatedUser(id=user.id, full_name=user.full_name, email=user.email, role=user.role, csrf_token=csrf)
+    return authenticated_user_response(user, csrf)
 
 
 @router.post("/login", response_model=AuthenticatedUser)
@@ -100,7 +106,7 @@ def login(data: LoginRequest, response: Response, request: Request, session: Ses
     session.add(AuthSession(user_id=user.id, token_hash=token_hash(token), expires_at=expiry(get_settings().session_hours)))
     session.commit()
     _set_cookies(response, token, csrf)
-    return AuthenticatedUser(id=user.id, full_name=user.full_name, email=user.email, role=user.role, csrf_token=csrf)
+    return authenticated_user_response(user, csrf)
 
 
 @router.get("/me", response_model=UserRead)

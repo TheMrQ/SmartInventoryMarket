@@ -11,7 +11,7 @@ import { normalizedProductSearch, PRODUCT_SEARCH_DEBOUNCE_MS, productSearchParam
 import { toneFor } from '../utils/status'
 
 const tell = (error) => toast.error(error.message || 'Operation failed')
-function PageHeader({ title, text, action, icon: Icon }) { return <header className="page-heading"><div className="page-heading-copy">{Icon && <i className="page-heading-icon"><Icon size={19}/></i>}<div><h2>{title}</h2><p>{text}</p></div></div>{action}</header> }
+function PageHeader({ title, text, action, icon: Icon }) { const semanticName = title.toLowerCase().replaceAll(' ', '-'); return <header className={`page-heading page-heading-${semanticName}`}><div className="page-heading-copy">{Icon && <i className="page-heading-icon"><Icon size={19}/></i>}<div><h2>{title}</h2><p>{text}</p></div></div>{action}</header> }
 function ProductOption({ product }) { const item = displayProduct(product); return <option value={product.id}>{item.name} · {item.sku}</option> }
 
 export function ProductsPage() {

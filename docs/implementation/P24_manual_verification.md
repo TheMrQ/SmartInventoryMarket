@@ -1,5 +1,30 @@
 # P24 — Hướng dẫn kiểm thử thủ công (snapshot chỉ đọc)
 
+## P24-07 — Premium visual identity và avatar after login — MANUAL VERIFICATION REQUIRED
+
+Đợt này không seed, reset, migration, hay thay đổi dữ liệu P22/MySQL. Các thay đổi UI chỉ dùng dữ liệu API hiện có. Browser walkthrough dưới đây là bằng chứng bắt buộc; lint/build không thay thế screenshot hoặc thao tác thực tế.
+
+### Avatar sau logout/login
+
+- **Baseline:** dùng chính tài khoản Manager đã có avatar; không ghi email, password, cookie hoặc tên file upload vào evidence.
+- **Thao tác:** Logout bằng sidebar, đăng nhập lại cùng tài khoản, rồi quan sát ngay avatar ở sidebar và trang **My Account** mà không hard refresh. Sau đó refresh một lần, rồi Remove photo để kiểm tra fallback.
+- **Kỳ vọng:** response login đã có `avatar_url` an toàn dạng `/uploads/avatars/<generated-name>`; avatar hiển thị ngay, không cần timer hoặc refresh. Remove photo trả initials/UserRound ở cả hai vị trí và lần login sau vẫn fallback.
+- **PASS/Evidence:** screenshot ngay sau login (sidebar), Account ngay sau login, sau refresh và sau Remove. **FAIL:** avatar chỉ hiện sau refresh, `/uploads` 404, URL lộ filesystem path, hoặc Logout thay đổi role/account khác.
+
+### Premium identity trên tám trang
+
+- **Trang/viewport:** Dashboard, Products, Inventory, Suppliers, Purchase Orders, Sales, Forecasts, Inventory Insights, My Account; chụp desktop và một viewport hẹp. Không tạo PO/sale/receipt cho kiểm tra thị giác.
+- **Thao tác:** kiểm tra heading icon/hierarchy, table header/row/badge, actions, loading/empty/error hiện có; hover/focus bằng bàn phím; bật `prefers-reduced-motion` nếu có. Mở một modal hiện có rồi đóng bằng Escape/close, không submit.
+- **Kỳ vọng:** canvas #F6F8FC, heading navy rõ, blue #2563EB có mục đích; icon semantic nhất quán; warning/risk dùng amber/red tiết chế; table vẫn đọc được, active sidebar ribbon và responsive drawer giữ nguyên.
+- **PASS/Evidence:** screenshot Dashboard, Products, Suppliers, Forecasts, Inventory Insights, Account và một modal/focus/reduced-motion khi có thể. **FAIL:** contrast yếu, layout/table clip, focus không rõ, motion rõ khi reduced motion, hoặc sidebar/route thay đổi.
+
+### Forecast target-period trong Inventory Insights
+
+- **Trang:** Inventory Insights. Chọn một SKU M5 có decision, ví dụ `FOODS_1_001`; chỉ mở **View insight**, không tạo recommendation.
+- **Thao tác:** ghi Available, Incoming, Inventory position, lead-time demand, safety stock, reorder point, target stock, recommended order. Mở **How was this calculated?**.
+- **Kỳ vọng:** Demand coverage có lead-time demand và `Forecast demand across N-day target period`; `N = lead time + fixed one-day review period`. Giá trị persisted phải giải thích: inventory position = on-hand + incoming; reorder point = lead-time demand + safety stock; target stock = target-period demand + safety stock. Không có mutation khi mở insight.
+- **PASS/Evidence:** screenshot detail/calculation mở, có SKU/giá trị nhưng không lộ secret. **FAIL:** UI tự tính giá trị khác API, thiếu review day, hoặc mở insight đã tạo recommendation/PO/mutation.
+
 ## P24-06 — My Account, avatar và mật khẩu — MANUAL VERIFICATION REQUIRED
 
 Đợt này thêm Account self-service và migration metadata nullable. **Không dùng P22 product/PO/sale để kiểm tra.** Chỉ dùng chính tài khoản Manager đang đăng nhập; không chụp hoặc ghi password, cookie, token hay đường dẫn filesystem.
