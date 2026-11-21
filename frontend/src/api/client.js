@@ -62,6 +62,7 @@ export const api = {
   importSales: (file) => { const form = new FormData(); form.append('file', file); return request('/api/sales/import', { method: 'POST', body: form }) },
   forecastRuns: () => request('/api/forecast-runs?limit=50'),
   latestForecast: (productId) => request(`/api/forecasts/latest?product_id=${productId}`),
+  forecastReliability: (productId) => request(`/api/forecast-reliability?product_id=${productId}`),
   createForecast: (data) => request('/api/forecasts', { method: 'POST', body: JSON.stringify(data) }),
   forecastEligibility: () => request('/api/forecasts/eligibility'),
   decisions: (params = {}) => request(`/api/inventory-decisions?${new URLSearchParams({ limit: 100, ...params })}`),

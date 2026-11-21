@@ -1,0 +1,2 @@
+observations,MAE,RMSE,WAPE_percent,mean_signed_error,aggregation,folds,mean_fold_MAE,mean_fold_RMSE,mean_fold_WAPE_percent,model_name,feature_set
+160944,1.3652182797310963,2.6028229833013388,67.57713968015548,-0.004389326818807071,pooled_observations,4,1.3652182797310963,2.6016628550361993,67.62037671863185,XGBOOST_V1,FEATURE_SET_V1

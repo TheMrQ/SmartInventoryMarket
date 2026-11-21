@@ -399,6 +399,14 @@ When an AI agent loses context:
 7. Run verification commands.
 8. Continue from repository state.
 9. Do not redo tasks already marked `DONE` unless verification fails.
+## 2026-11-22 — P25 reliability runner must remain pre-TEST only
+
+**Risk:** A convenience loader for d_1914 onward would invalidate interval-calibration claims because final TEST is already consumed and may not be reused.
+
+**Guard:** The forecast reliability evaluator rejects a validation end at d_1914 or later. It imports only rolling-fold actuals, predicts before opening each eligible fold actuals, records test_actuals_accessed false, and uses stored V1 rolling artifacts. Do not replace this with final-TEST residual calibration.
+
+**Recovery:** If raw M5/model resources are unavailable, report the blocker and do not manufacture coverage, interval, or product-level reliability values. The tracked reference is the verified P25-03 evidence source.
+
 ## 2026-11-01 — P22 scenario apply requires an existing manager/admin — BLOCKED
 
 **Symptom:** The explicit `scripts/db/setup_m5_supermarket_scenario.py --apply` preflight stopped before any scenario write with `P22 apply requires an existing active manager or admin; it will not create a user`.

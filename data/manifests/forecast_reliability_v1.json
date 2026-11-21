@@ -1,0 +1,75 @@
+{
+  "experiment_id": "P25_FORECAST_RELIABILITY_V1",
+  "git_revision": "4e4095a1ecec5a276f4b3f3c35fdf8f6585db88d",
+  "test_actuals_accessed": false,
+  "folds": [
+    {
+      "name": "fold_1",
+      "train_end_d": "d_1801",
+      "validation_start_d": "d_1802",
+      "validation_end_d": "d_1829",
+      "model": "hybrid_xgboost_v1_fold_1.json"
+    },
+    {
+      "name": "fold_2",
+      "train_end_d": "d_1829",
+      "validation_start_d": "d_1830",
+      "validation_end_d": "d_1857",
+      "model": "hybrid_xgboost_v1_fold_2.json"
+    },
+    {
+      "name": "fold_3",
+      "train_end_d": "d_1857",
+      "validation_start_d": "d_1858",
+      "validation_end_d": "d_1885",
+      "model": "hybrid_xgboost_v1_fold_3.json"
+    },
+    {
+      "name": "fold_4",
+      "train_end_d": "d_1885",
+      "validation_start_d": "d_1886",
+      "validation_end_d": "d_1913",
+      "model": "hybrid_xgboost_v1_fold_4.json"
+    }
+  ],
+  "model_artifacts": [
+    {
+      "fold": "fold_1",
+      "model": "hybrid_xgboost_v1_fold_1.json",
+      "sha256": "11aa8b9143a94ae9213680cccfcaf8d322f2698496e364c3e30d35a730539e0c",
+      "point_forecast_unchanged": true
+    },
+    {
+      "fold": "fold_2",
+      "model": "hybrid_xgboost_v1_fold_2.json",
+      "sha256": "0a527ec3bd498f685d519047cfbb6ccb6430ad474b3d6fd80bd8caf7fb440ea3",
+      "point_forecast_unchanged": true
+    },
+    {
+      "fold": "fold_3",
+      "model": "hybrid_xgboost_v1_fold_3.json",
+      "sha256": "6dbf9709d0866672dc88ff11522e221f09a9172e8403b3264f2d01d5ac436594",
+      "point_forecast_unchanged": true
+    },
+    {
+      "fold": "fold_4",
+      "model": "hybrid_xgboost_v1_fold_4.json",
+      "sha256": "40d6f8fb9322639b3f8e6ea6762a6e86a39d904cdca202b4675deee1aaf61326",
+      "point_forecast_unchanged": true
+    }
+  ],
+  "calibration_protocol": {
+    "evaluation": "fold_1-3 residuals calibrate; fold_4 evaluates",
+    "production_reference": "all four pre-TEST folds after evaluation",
+    "minimum_sample_size": 500
+  },
+  "outputs": [
+    "forecast_reliability_overall.csv",
+    "forecast_reliability_by_fold.csv",
+    "forecast_reliability_by_horizon.csv",
+    "forecast_reliability_by_sparsity.csv",
+    "forecast_interval_calibration.csv",
+    "forecast_interval_by_horizon.csv",
+    "forecast_reliability_by_product.csv"
+  ]
+}

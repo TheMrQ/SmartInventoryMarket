@@ -1,0 +1,25 @@
+experiment_id: P25_FORECAST_RELIABILITY_V1
+status: DONE
+model_name: XGBOOST_V1
+feature_set: FEATURE_SET_V1
+scope: {store_id: CA_1, category_id: FOODS, series_count: 1437}
+horizon_days: 28
+test_policy: NEVER_LOAD_TEST_ACTUALS_D_1914_TO_D_1941
+minimum_calibration_sample_size: 500
+folds:
+  - {name: fold_1, train_end_d: d_1801, validation_start_d: d_1802, validation_end_d: d_1829, model: hybrid_xgboost_v1_fold_1.json}
+  - {name: fold_2, train_end_d: d_1829, validation_start_d: d_1830, validation_end_d: d_1857, model: hybrid_xgboost_v1_fold_2.json}
+  - {name: fold_3, train_end_d: d_1857, validation_start_d: d_1858, validation_end_d: d_1885, model: hybrid_xgboost_v1_fold_3.json}
+  - {name: fold_4, train_end_d: d_1885, validation_start_d: d_1886, validation_end_d: d_1913, model: hybrid_xgboost_v1_fold_4.json}
+calibration:
+  evaluation_calibration_folds: [fold_1, fold_2, fold_3]
+  evaluation_fold: fold_4
+  production_reference_folds: [fold_1, fold_2, fold_3, fold_4]
+  coverage_levels: [0.80, 0.95]
+  residual_quantiles: {"0.80": [0.10, 0.90], "0.95": [0.025, 0.975]}
+  hierarchy: [horizon_and_sparsity, horizon, global]
+sparsity_bands:
+  - {label: 0-25% zero, lower: 0.0, upper: 0.25}
+  - {label: 25-50% zero, lower: 0.25, upper: 0.50}
+  - {label: 50-75% zero, lower: 0.50, upper: 0.75}
+  - {label: 75-100% zero, lower: 0.75, upper: 1.00}

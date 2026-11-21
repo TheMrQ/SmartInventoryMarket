@@ -193,3 +193,7 @@ Inventory experiments must also record initial-inventory assumptions, lead-time 
 - **E9 forecast-policy result:** `FORECAST_REORDER_XGBOOST_V1` lost sales 4,365, stockout SKU-days 1,222, fill rate 95.194%, average on-hand 12.569, reorders 12,681, and normalized cost proxy 540,233.
 - **E10 comparison:** forecast policy reduced lost sales by 18.594%, stockout SKU-days by 21.917%, and reorders by 4.041%, while average on-hand increased 6.466% and normalized cost proxy increased 4.892%; fill rate increased 1.098 percentage points. This is a mixed availability-versus-inventory/cost outcome, not an arbitrary overall winner.
 - **Artifacts:** final forecast manifests/tables/figures plus `reports/tables/inventory_policy_comparison.csv`, `reports/tables/inventory_policy_per_sku_summary.csv`, `reports/tables/inventory_policy_experiment_summary.md`, and six inventory figures.
+
+## P25-03 Forecast Reliability and Uncertainty
+
+P25-03 reuses only the four pre-TEST rolling V1 artifacts. Fold 1–3 residuals calibrate asymmetric 80%/95% empirical intervals; Fold 4 independently evaluates them before all four folds form the later demo reference. Fold-4 coverage is 79.687% (nominal 80%) and 94.696% (nominal 95%). The run never loads d_1914–d_1941 actuals, does not retrain, tune, or select a model, and keeps V1 points and P12 formulas immutable. Evidence is tracked in forecast_reliability and forecast_interval tables; see docs/implementation/P25_forecast_reliability.md.

@@ -2,6 +2,8 @@
 
 ## 2026-11-07
 
+- Added P25-03 pre-TEST forecast-reliability evidence: deterministic rolling V1 residual intervals, independent Fold-4 coverage evaluation, sparse/horizon/product diagnostics, a read-only reliability API, uncertainty shading on persisted forecasts, and Inventory Insights decision evidence. `XGBOOST_V1` point estimates, TEST isolation, P22/MySQL data, and inventory formulas remain unchanged.
+
 - Replaced Purchase Order browser-native receipt/cancellation/draft-line confirmations with one pending-safe application dialog, and centralized UTC-naive application datetime parsing for browser-local display. Transaction, inventory-update, PO-receipt, and recommendation-expiry renders now share the explicit contract while date-only business dates remain unchanged. No backend, schema, stored timestamp, or P22 mutation occurred.
 
 - Redesigned the P24 Purchase Orders operational workspace using only existing read APIs: the list now summarizes actual PO-line fulfillment, while Manage presents supplier/order/recommendation metadata, product identity, current inventory context, receipt impact, responsive line items, and status-specific actions. No API/schema/state-machine/inventory calculation change or persistent P22/MySQL mutation occurred. The last ResultCount `999px` override is now the shared 11px compact-summary geometry; browser acceptance remains required.

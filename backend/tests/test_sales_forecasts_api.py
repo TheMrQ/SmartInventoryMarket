@@ -17,11 +17,12 @@ from backend.app.db.base import Base
 from backend.app.db.database import get_db_session
 from backend.app.api.auth import operational_user
 import backend.app.db.models  # noqa: F401
-from backend.app.db.models import Category, ForecastRun, Inventory, Product, SalesDaily, StockTransaction, User, UserRole
+from backend.app.db.models import Category, ForecastRun, ForecastValue, Inventory, Product, SalesDaily, StockTransaction, User, UserRole
 from backend.app.main import app
 from backend.app.schemas.business import ForecastCreate
 from backend.app.services.errors import ConflictError
 from backend.app.services.forecasting import ForecastService, FrozenMetadata, validate_artifact
+from backend.app.services.forecast_reliability import ForecastReliabilityService
 from ml.features.builder import FeatureEncodings
 
 
@@ -187,4 +188,23 @@ def test_forecast_eligibility_exposes_frozen_m5_boundary() -> None:
         assert eligibility[1] == {"product_id": 1, "eligible": True, "reason": None}
         assert eligibility[2]["eligible"] is False
         assert "frozen M5" in eligibility[2]["reason"]
+    engine.dispose()
+
+
+def test_reliability_evidence_is_read_only_and_preserves_saved_point_forecast() -> None:
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine)
+    with Session(engine, expire_on_commit=False) as session:
+        category = Category(code="M5", name="M5"); session.add(category); session.flush()
+        product = Product(sku="FOODS_1_001", name="Demo", category_id=category.id); session.add(product); session.flush()
+        run = ForecastRun(model_name="XGBOOST_V1", feature_set="FEATURE_SET_V1", history_end_date=date(2016, 4, 24), forecast_start_date=date(2016, 4, 25), horizon_days=7)
+        session.add(run); session.flush()
+        session.add_all([ForecastValue(forecast_run_id=run.id, product_id=product.id, forecast_date=date(2016, 4, 24) + timedelta(days=day), horizon_day=day, predicted_demand=Decimal("2.0000")) for day in range(1, 8)])
+        session.commit()
+        result = ForecastReliabilityService(session).for_product(product.id)
+        assert result["available"] is True
+        assert result["intervals"][0]["point_forecast"] == 2.0
+        assert result["intervals"][0]["80"]["lower"] >= 0
+        assert result["freshness"]["status"] == "HISTORICAL_DEMO_CUTOFF"
+        assert session.get(ForecastValue, 1).predicted_demand == Decimal("2.0000")
     engine.dispose()

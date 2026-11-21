@@ -1,0 +1,3 @@
+stage,calibration_folds,coverage_level,observations,nominal_coverage_percent,empirical_coverage_percent,average_interval_width,under_coverage_percent,over_coverage_percent
+fold_4_independent_evaluation,"fold_1,fold_2,fold_3",0.8,40236,80.0,79.68734466646784,3.514679941138719,0.3126553335321631,0.0
+fold_4_independent_evaluation,"fold_1,fold_2,fold_3",0.95,40236,95.0,94.69629187792027,6.603766224770487,0.3037081220797262,0.0

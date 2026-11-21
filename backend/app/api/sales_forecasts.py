@@ -18,6 +18,7 @@ from backend.app.schemas.business import (
     SalesImportResult,
 )
 from backend.app.services.forecasting import ForecastService
+from backend.app.services.forecast_reliability import ForecastReliabilityService
 from backend.app.services.sales import SalesService
 
 
@@ -79,3 +80,9 @@ def get_forecast_run(run_id: int, session: SessionDep):
 @router.get("/forecasts/latest", response_model=ForecastRunRead, tags=["Forecasts"])
 def latest_forecast(session: SessionDep, product_id: int = Query(gt=0)):
     return ForecastService(session).latest(product_id)
+
+
+@router.get("/forecast-reliability", tags=["Forecasts"])
+def forecast_reliability(session: SessionDep, product_id: int = Query(gt=0)):
+    """Read-only empirical pre-TEST uncertainty and provenance for one saved forecast."""
+    return ForecastReliabilityService(session).for_product(product_id)

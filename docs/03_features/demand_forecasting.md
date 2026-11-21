@@ -218,3 +218,7 @@ Retraining does not need to occur after every transaction. Future strategies may
 ## Definition of Done
 
 Official training and evaluation must be reproducible and script-based, not notebook-driven. Runs must record configuration, seed, dataset version/subset, chronological split, feature set, model parameters, metrics, Git commit, and artifact paths. Models must be evaluated against baselines before use in inventory recommendations.
+
+## P25-03 reliability presentation
+
+Saved V1 forecasts can expose read-only empirical 80%/95% historical uncertainty ranges through the forecast-reliability API. The reference is calibrated only from pre-TEST rolling residuals with a 500-observation minimum bucket hierarchy: horizon plus sparsity, horizon, then global. Missing comparable evidence is returned as unavailable; the endpoint does not invent a confidence percentage, alter point values, retrain, or write database rows. Forecasts and Inventory Insights disclose the M5 historical-demo cutoff, model/feature provenance, sparse-demand evidence, and the manager-review limitation.
