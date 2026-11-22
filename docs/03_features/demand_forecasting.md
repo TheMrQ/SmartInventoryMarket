@@ -222,3 +222,7 @@ Official training and evaluation must be reproducible and script-based, not note
 ## P25-03 reliability presentation
 
 Saved V1 forecasts can expose read-only empirical 80%/95% historical uncertainty ranges through the forecast-reliability API. The reference is calibrated only from pre-TEST rolling residuals with a 500-observation minimum bucket hierarchy: horizon plus sparsity, horizon, then global. Missing comparable evidence is returned as unavailable; the endpoint does not invent a confidence percentage, alter point values, retrain, or write database rows. Forecasts and Inventory Insights disclose the M5 historical-demo cutoff, model/feature provenance, sparse-demand evidence, and the manager-review limitation.
+
+### P25-03b manager presentation
+
+The default reliability presentation uses business language rather than ML/database labels: recommendation or forecast reliability, its derived reason, typical forecast error, demand pattern, forecast model, historical cutoff, forecast period, and a manager-review reminder. Existing zero-rate bands map deterministically to Stable (0-25%), Variable (25-50%), Irregular (50-75%), and Highly intermittent (75-100%) demand descriptions. Technical MAE/RMSE, original zero-sales rate, evidence basis, run ID, feature set, and interval coverage remain available in a native accessible disclosure. This is presentation only: P25-03 residuals, intervals, API output, point forecasts, and inventory decisions do not change.

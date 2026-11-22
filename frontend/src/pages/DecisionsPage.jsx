@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { api } from "../api/client";
 import { DemandForecastChart } from "../components/DemandForecastChart";
+import { ReliabilityEvidence } from "../components/ReliabilityEvidence";
 import {
   Badge,
   Button,
@@ -421,14 +422,7 @@ function DecisionDetail({
         </div>
       </section>
       <section className="decision-evidence">
-        <header><p className="eyebrow">Decision evidence</p><h3>What this recommendation is based on</h3></header>
-        {reliability.isLoading ? <Loading /> : reliability.data?.available ? <div className="decision-evidence-grid">
-          <DecisionValue label="Historical backtest MAE" value={formatForecast(reliability.data.historical.historical_mae)} helper="Comparable pre-TEST rolling-fold error; it does not change this recommendation." />
-          <DecisionValue label="Demand pattern" value={reliability.data.historical.sparsity_band} helper={`56-day zero-sales rate: ${Math.round(Number(reliability.data.historical.zero_rate_56) * 100)}%.`} />
-          <DecisionValue label="Evidence level" value={reliability.data.historical.evidence_level} helper={reliability.data.historical.evidence_reason} />
-          <DecisionValue label="Forecast provenance" value={`Run #${decision.forecast_run_id}`} helper={`Supplier ${decision.supplier_name}; ${decision.lead_time_days}-day lead time; cutoff is shown in Forecasts.`} />
-        </div> : <p className="decision-evidence-unavailable">{reliability.data?.reason || "Reliability evidence is unavailable for this saved forecast."}</p>}
-        <p className="decision-evidence-note">This is decision support, not an automatic purchase decision. Demand forecasts contain uncertainty; managers should review recommendations, especially when uncertainty is high.</p>
+        {reliability.isLoading ? <Loading /> : reliability.data?.available ? <ReliabilityEvidence evidence={reliability.data} context="recommendation" /> : <p className="decision-evidence-unavailable">{reliability.data?.reason || "Reliability evidence is unavailable for this saved forecast."}</p>}
       </section>
       <details className="calculation-details">
         <summary>How was this calculated?</summary>

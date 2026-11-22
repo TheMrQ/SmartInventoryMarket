@@ -40,3 +40,9 @@ The UI adds a read-only Forecast Reliability panel, 80% historical uncertainty s
 M5 supplies historical Walmart demand, while product inventory, supplier, and PO records are synthetic thesis-demo operations. The frozen model cannot forecast arbitrary new SKUs or a new supermarket without local POS/context retraining and validation. Intermittent/low-volume demand, later recursive horizons, distribution shift, and stale demo origins require more caution.
 
 Vietnamese defense answer: **Hệ thống không tuyên bố dự báo chắc chắn. Độ tin cậy được kiểm tra bằng dữ liệu thời gian chưa thấy, bốn backtest theo thời gian, sai lệch dự báo, độ bao phủ của khoảng bất định và mô phỏng chính sách tồn kho. Khoảng 80%/95% là bằng chứng lịch sử theo giao thức đã công bố, không phải “độ tự tin” của từng con số. Quyết định mua vẫn cần người quản lý xem xét tồn kho, nhà cung cấp, thời gian giao hàng và giới hạn dữ liệu.**
+
+## P25-03b manager-language presentation
+
+P25-03b changes only the presentation of the existing evidence. The manager-facing Forecasts and Inventory Insights views now show a readable reliability state with a derived reason, typical forecast error, demand pattern, model, history cutoff, forecast period, and a manager-review reminder. The four existing 56-day zero-sales bands are rendered as Stable, Variable, Irregular, or Highly intermittent; these are deterministic labels for the same stored bands, not a new classifier.
+
+Technical traceability remains preserved behind `View technical details`: historical MAE/RMSE, exact zero-sales rate, the original evidence basis, forecast run ID, feature set, and independent interval-check coverage. No interval, residual, model, calibration, API, forecast value, inventory formula, recommendation quantity, database record, or P22 scenario value changed.

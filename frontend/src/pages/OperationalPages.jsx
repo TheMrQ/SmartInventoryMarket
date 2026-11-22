@@ -4,7 +4,6 @@ import {
   FileUp,
   Plus,
   ReceiptText,
-  ShieldCheck,
   ShoppingCart,
   TrendingUp,
 } from "lucide-react";
@@ -12,6 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { api } from "../api/client";
 import { DemandForecastChart } from "../components/DemandForecastChart";
+import { ReliabilityEvidence } from "../components/ReliabilityEvidence";
 import {
   Badge,
   Button,
@@ -1361,18 +1361,7 @@ export function ForecastsPage() {
 function ForecastReliabilityPanel({ evidence, loading }) {
   if (loading) return <article className="panel reliability-panel"><span>Loading historical reliability evidence…</span></article>;
   if (!evidence?.available) return <section className="callout"><strong>Reliability evidence unavailable</strong><span>{evidence?.reason || "No comparable historical evidence is available for this saved forecast."}</span></section>;
-  const historical = evidence.historical;
-  const coverage = new Map((evidence.calibration || []).map((item) => [item.coverage_level, item]));
-  const firstInterval = evidence.intervals?.[0];
-  const direction = Number(historical.mean_signed_error) > 0 ? "historically under-predicts slightly" : Number(historical.mean_signed_error) < 0 ? "historically over-predicts slightly" : "has near-neutral average bias";
   return <article className="panel reliability-panel">
-    <header><div><p className="eyebrow">Forecast reliability</p><h2><ShieldCheck size={17} /> Historical evidence, not a certainty score</h2><p>Forecasts are estimates, not guarantees. Wider bands indicate greater historical uncertainty.</p></div></header>
-    <div className="reliability-grid">
-      <div><span>Historical backtest MAE</span><strong>{formatForecast(historical.historical_mae)}</strong><small>{direction}</small></div>
-      <div><span>Demand pattern</span><strong>{historical.sparsity_band}</strong><small>56-day zero-sales history: {Math.round(Number(historical.zero_rate_56) * 100)}%</small></div>
-      <div><span>Evidence level</span><strong>{historical.evidence_level}</strong><small>{historical.evidence_reason}</small></div>
-      <div><span>Independent interval check</span><strong>{coverage.get(.8)?.empirical_coverage_percent?.toFixed(1) || "—"}% inside 80%</strong><small>Fold 4; calibration used folds 1–3 only</small></div>
-    </div>
-    <details className="reliability-details"><summary>Uncertainty and provenance</summary><div><p>80% and 95% ranges are empirical historical residual intervals, not probabilities that an exact unit forecast is correct.</p>{firstInterval && <p>First forecast day: 80% historical range {formatForecast(firstInterval['80'].lower)}–{formatForecast(firstInterval['80'].upper)}; 95% range {formatForecast(firstInterval['95'].lower)}–{formatForecast(firstInterval['95'].upper)}.</p>}<p>Model: {evidence.model_name} / {evidence.feature_set}. Cutoff: {formatShortDate(evidence.history_end_date)}. {evidence.freshness.message}</p><p>Near-term and later horizons have separate historical residual distributions. Review the range, supplier lead time, stock position, and inputs before acting.</p></div></details>
+    <ReliabilityEvidence evidence={evidence} context="forecast" />
   </article>
 }

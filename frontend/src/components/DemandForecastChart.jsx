@@ -46,8 +46,8 @@ export function DemandForecastChart({ forecast, reliability, productId, horizon 
         <CartesianGrid vertical={false}/>
         <XAxis dataKey="date" tickFormatter={formatShortDate} tick={{ fontSize: 11 }}/>
         <YAxis allowDecimals={false}/>
-        <RechartsTooltip labelFormatter={formatShortDate} formatter={(value, name) => [Array.isArray(value) ? `${formatForecast(value[0])}–${formatForecast(value[1])}` : formatForecast(value), name === 'historical' ? 'Historical sales' : name === 'interval80' ? '80% historical uncertainty interval' : 'Point forecast']}/>
-        <Legend wrapperStyle={{ paddingTop: 12 }} formatter={(value) => value === 'historical' ? 'Historical sales' : value === 'interval80' ? '80% historical uncertainty interval' : 'Point forecast'}/>
+        <RechartsTooltip labelFormatter={formatShortDate} formatter={(value, name) => [Array.isArray(value) ? `${formatForecast(value[0])}–${formatForecast(value[1])}` : formatForecast(value), name === 'historical' ? 'Historical sales' : name === 'interval80' ? 'Typical range — 80% historical interval' : 'Forecast estimate']}/>
+        <Legend wrapperStyle={{ paddingTop: 12 }} formatter={(value) => value === 'historical' ? 'Historical sales' : value === 'interval80' ? 'Typical range — 80% historical interval' : 'Forecast estimate'}/>
         <ReferenceLine x={forecast.forecast_start_date} stroke="#64748b" strokeDasharray="4 4" label={{ value: 'Forecast starts', position: 'insideTopRight', fill: '#64748b', fontSize: 11 }}/>
         {reliability?.available && <Area type="linear" dataKey="interval80" stroke="none" fill="#60a5fa" fillOpacity={.18} isAnimationActive={false}/>}
         <Line type="linear" dataKey="historical" stroke="#64748b" strokeWidth={2} dot={false}/>

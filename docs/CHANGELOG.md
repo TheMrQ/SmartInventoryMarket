@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-22
+
+- Refined P25-03 reliability presentation for non-technical managers. Forecasts and Inventory Insights now use shared plain-language reliability explanations, typical forecast error, readable demand-pattern descriptions, model/cutoff/period provenance, accessible help text, and collapsed technical traceability. No reliability calculation, forecast value, API result, inventory formula, recommendation quantity, or database data changed.
+
 ## 2026-11-07
 
 - Added P25-03 pre-TEST forecast-reliability evidence: deterministic rolling V1 residual intervals, independent Fold-4 coverage evaluation, sparse/horizon/product diagnostics, a read-only reliability API, uncertainty shading on persisted forecasts, and Inventory Insights decision evidence. `XGBOOST_V1` point estimates, TEST isolation, P22/MySQL data, and inventory formulas remain unchanged.
