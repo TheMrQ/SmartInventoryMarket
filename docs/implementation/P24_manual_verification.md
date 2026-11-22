@@ -1,5 +1,13 @@
 # P24 — Hướng dẫn kiểm thử thủ công (snapshot chỉ đọc)
 
+## P24-FINAL — Checklist acceptance cuối cùng (MANUAL VERIFICATION REQUIRED)
+
+Snapshot chỉ đọc ngày P24-FINAL xác nhận scenario `SIM_M5_CA1_FOODS_V1` còn 36 SKU, 68,868 dòng sales quan sát, và migration head không drift. Không reset/seed/recreate scenario. `SIM_M5_CA1_FOODS_V1-PARTIAL` / `FOODS_2_006` đã RECEIVED: Ordered 8, Received 8, Remaining 0, On-hand 11, Incoming 0, Position 11; **không receive lại**. `SIM_M5_CA1_FOODS_V1-LINKED-DRAFT` là DRAFT read-only: `FOODS_1_002`, 6/0/6, có linked recommendation; chỉ mở Manage rồi đóng.
+
+Mục tiêu sale có kiểm soát là `FOODS_3_012`, nhưng chỉ sau khi query lại current state. Snapshot hiện tại: On-hand 17, Incoming 0, Position 17, chưa có operational sale/Sale transaction. Nếu một trong các giá trị khác, dừng mutation và ghi discrepancy. Nếu khớp, record đúng **1 unit** một lần; lưu idempotency key rồi retry đúng logical request để xác nhận không trừ kho lần hai. Bằng chứng cần có: baseline, record sale, inventory/position sau sale, một operational-sale row, một SALE transaction, và decision mới. Historical M5 rows không được rewrite.
+
+Browser cần kiểm tra thêm: Products/Inventory search + no-result; Forecasts 7/14/28, typical 80% range, technical 95% range/run ID, model/cutoff/period và stale-demo note; Inventory Insight calculations; PO dialog/UTC display; desktop/mobile, keyboard focus, tooltip/details, no clipping và Reduced Motion. Không đánh dấu P24 PASS nếu chưa có screenshot/browser evidence cho các bước này.
+
 ## P24-07 — Premium visual identity và avatar after login — MANUAL VERIFICATION REQUIRED
 
 Đợt này không seed, reset, migration, hay thay đổi dữ liệu P22/MySQL. Các thay đổi UI chỉ dùng dữ liệu API hiện có. Browser walkthrough dưới đây là bằng chứng bắt buộc; lint/build không thay thế screenshot hoặc thao tác thực tế.

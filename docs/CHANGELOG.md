@@ -2,6 +2,8 @@
 
 ## 2026-11-22
 
+- Added P24-FINAL business-acceptance evidence: full isolated backend/ML and frontend checks, clean local MySQL migration/drift verification, and a read-only P22 scenario reconciliation. The protected receipt baseline and linked draft were preserved; no live sale, receipt, PO transition, scenario reset, or database mutation occurred. P24 remains in progress pending browser evidence and the owner-controlled sale/idempotency check.
+
 - Refined P25-03 reliability presentation for non-technical managers. Forecasts and Inventory Insights now use shared plain-language reliability explanations, typical forecast error, readable demand-pattern descriptions, model/cutoff/period provenance, accessible help text, and collapsed technical traceability. No reliability calculation, forecast value, API result, inventory formula, recommendation quantity, or database data changed.
 
 ## 2026-11-07
